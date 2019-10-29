@@ -18,6 +18,9 @@ import java.util.TimerTask;
 public final class Controller {
     private static final Logger LOGGER = LoggerFactory.getLogger("gamecenter");
 
+    public static final int SG_START_NOW = 1001;
+    public static final int SG_START_OK = 1002;
+
     public static final int STOPPED_STATE = 0;
     public static final int STARTING_STATE = 1;
     public static final int RUNNING_STATE = 2;
@@ -57,7 +60,7 @@ public final class Controller {
     private long refTick;
     private long showTick;
 
-    private final static Share share = new Share();
+    private final Share share = new Share();
     private long runTick;
 
     private final Timer startGameTimer = new Timer();
@@ -342,14 +345,15 @@ public final class Controller {
         }
     }
 
-    public static class StartGameTask extends TimerTask {
+    public class StartGameTask extends TimerTask {
         @Override
         public void run() {
             if (share.dbServer.getStart) {
                 switch (share.dbServer.startStatus) {
                     case 0:
                         LOGGER.info("prepare start database server program...");
-                        int code = Programs.execute(share.dbServer);
+                        mainOutMessage("正在启动数据库服务器..");
+                        int code = Programs.execute(share.dbServer, Controller.this::processDbServerMsg);
                         if (code == 0) {
                             share.dbServer.startStatus = 1;
                             LOGGER.info("database server program start successful!");
@@ -376,6 +380,20 @@ public final class Controller {
             }
             return false;
         }
+    }
+
+    private void processDbServerMsg(String message) {
+        String[] split = message.split(".", 2);
+        int code = Integer.parseInt(split[0]);
+        String data = split[1];
+        switch (code) {
+            case SG_START_NOW:
+                break;
+            case SG_START_OK:
+                share.dbServer.startStatus = 2;
+                break;
+        }
+        mainOutMessage(data);
     }
 
 }

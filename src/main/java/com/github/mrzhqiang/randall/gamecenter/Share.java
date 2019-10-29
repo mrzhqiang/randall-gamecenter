@@ -170,8 +170,8 @@ public final class Share {
         public String programFile;
         public String directory;
         public Process process;
-        public int mainFormX;
-        public int mainFormY;
+        public Integer mainFormX;
+        public Integer mainFormY;
     }
 
     public static class DBServerConfig {
