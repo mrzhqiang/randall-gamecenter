@@ -41,8 +41,7 @@ public enum Programs {
         try {
             program.process = builder.start();
         } catch (Exception e) {
-            LOGGER.error("execute failed: " + program.programFile, e);
-            AlertDialog.showError(e);
+            AlertDialog.showError("执行程序失败: " + program.programFile, e);
             return -1;
         }
         Observable.create((ObservableOnSubscribe<String>) observableEmitter -> {

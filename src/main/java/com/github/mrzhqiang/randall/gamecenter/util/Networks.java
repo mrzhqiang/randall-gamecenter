@@ -10,6 +10,13 @@ import java.util.regex.Pattern;
 public enum Networks {
     ;
 
+    private static final int MAX_PORT = 65535;
+    private static final int MIN_PORT = 0;
+
+    public static boolean isNormalPort(int port) {
+        return port >= MIN_PORT && port <= MAX_PORT;
+    }
+
     private static final String REGEX_V4_ADDRESS = "([0-9]{1,3}(\\.[0-9]{1,3}){3})";
     private static final String REGEX_V6_ADDRESS = "[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7}";
 
@@ -21,15 +28,15 @@ public enum Networks {
                 try {
                     int i = Integer.parseInt(value);
                     if (i < 0 || i > 255) {
-                        return false;
+                        return true;
                     }
                 } catch (Exception ignore) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     public static boolean isAddressV6(String address) {

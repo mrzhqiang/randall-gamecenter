@@ -3,6 +3,7 @@ package com.github.mrzhqiang.randall.gamecenter;
 import com.github.mrzhqiang.randall.gamecenter.dialog.AlertDialog;
 import com.google.common.collect.Lists;
 import org.ini4j.Ini;
+import org.ini4j.Profile;
 import org.ini4j.Wini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import java.util.List;
  * @author mrzhqiang
  */
 public final class Share {
-    public static final Logger LOGGER = LoggerFactory.getLogger("gamecenter");
+    private static final Logger LOGGER = LoggerFactory.getLogger("gamecenter");
 
     public static final int MAX_RUN_GATE_COUNT = 8;
 
@@ -29,11 +30,16 @@ public final class Share {
     public static final String LOGIN_GATE_SECTION_NAME = "LoginGate";
     public static final String PLUG_TOP_SECTION_NAME = "PlugTop";
 
+
+    public static final String ALL_IP_ADDRESS = "0.0.0.0";
+    public static final String PRIMARY_IP_ADDRESS = "127.0.0.1";
+    public static final String SECOND_IP_ADDRESS = "127.0.0.2";
+
+    public static final String DB_SERVER_SECTION_NAME_2 = "DBServer";
+
     private static final String DEFAULT_GAME_DIRECTORY = "D:\\mir-server\\MirServer\\";
     private static final String DEFAULT_DB_NAME = "HeroDB";
     private static final String DEFAULT_GAME_NAME = "兰达尔第一季";
-    private static final String PRIMARY_IP_ADDRESS = "127.0.0.1";
-    private static final String SECOND_IP_ADDRESS = "127.0.0.2";
     private static final Boolean DEFAULT_AUTO_RUN_BACKUP = false;
     private static final boolean DEFAULT_IP_2_ENABLED = false;
     private static final boolean DEFAULT_CLOSE_WUXING_ENABLED = false;
@@ -76,12 +82,12 @@ public final class Share {
             }
             ini.load(file);
         } catch (IOException e) {
-            AlertDialog.showError(e);
+            AlertDialog.showError("初始化配置文件出错！！", e);
         }
     }
 
     public void loadConfig() {
-        // todo basic config
+        // todo refactor as basic config and db server config etc.
         if (ini.get(BASIC_SECTION_NAME) != null) {
             gameDirectory = ini.get(BASIC_SECTION_NAME).get("GameDirectory", DEFAULT_GAME_DIRECTORY);
             heroDBName = ini.get(BASIC_SECTION_NAME).get("HeroDBName", DEFAULT_DB_NAME);
@@ -160,6 +166,85 @@ public final class Share {
             config.plugTop.mainFormX = ini.get(PLUG_TOP_SECTION_NAME).get("MainFormX", Integer.class, config.plugTop.mainFormX);
             config.plugTop.mainFormY = ini.get(PLUG_TOP_SECTION_NAME).get("MainFormY", Integer.class, config.plugTop.mainFormY);
             config.plugTop.getStart = ini.get(PLUG_TOP_SECTION_NAME).get("GetStart", Boolean.class, config.plugTop.getStart);
+        }
+    }
+
+    public void saveConfig() {
+        // ini put 方法可以创建不存在的 section，因此无需判断 section 是否存在
+        ini.put(BASIC_SECTION_NAME, "GameDirectory", gameDirectory);
+        ini.put(BASIC_SECTION_NAME, "HeroDBName", heroDBName);
+        ini.put(BASIC_SECTION_NAME, "GameName", gameName);
+        ini.put(BASIC_SECTION_NAME, "ExtIPaddr", extIPAddr);
+        ini.put(BASIC_SECTION_NAME, "ExtIPaddr2", extIPAddr2);
+        ini.put(BASIC_SECTION_NAME, "AutoRunBak", autoRunBakEnabled);
+        ini.put(BASIC_SECTION_NAME, "IP2", ip2Enabled);
+        ini.put(BASIC_SECTION_NAME, "CloseWuXin", closeWuXinEnabled);
+
+        ini.put(DB_SERVER_SECTION_NAME, "MainFormX", config.dbServer.mainFormX);
+        ini.put(DB_SERVER_SECTION_NAME, "MainFormY", config.dbServer.mainFormY);
+        ini.put(DB_SERVER_SECTION_NAME, "GatePort", config.dbServer.gatePort);
+        ini.put(DB_SERVER_SECTION_NAME, "ServerPort", config.dbServer.serverPort);
+        ini.put(DB_SERVER_SECTION_NAME, "GetStart", config.dbServer.getStart);
+
+        ini.put(LOGIN_SRV_SECTION_NAME, "MainFormX", config.loginSrv.mainFormX);
+        ini.put(LOGIN_SRV_SECTION_NAME, "MainFormY", config.loginSrv.mainFormY);
+        ini.put(LOGIN_SRV_SECTION_NAME, "GatePort", config.loginSrv.gatePort);
+        ini.put(LOGIN_SRV_SECTION_NAME, "ServerPort", config.loginSrv.serverPort);
+        ini.put(LOGIN_SRV_SECTION_NAME, "MonPort", config.loginSrv.monPort);
+        ini.put(LOGIN_SRV_SECTION_NAME, "GetStart", config.loginSrv.getStart);
+
+        ini.put(M2_SERVER_SECTION_NAME, "MainFormX", config.m2Server.mainFormX);
+        ini.put(M2_SERVER_SECTION_NAME, "MainFormY", config.m2Server.mainFormY);
+        ini.put(M2_SERVER_SECTION_NAME, "GatePort", config.m2Server.gatePort);
+        ini.put(M2_SERVER_SECTION_NAME, "MsgSrvPort", config.m2Server.msgSrvPort);
+        ini.put(M2_SERVER_SECTION_NAME, "GetStart", config.m2Server.getStart);
+
+        ini.put(LOG_SERVER_SECTION_NAME, "MainFormX", config.logServer.mainFormX);
+        ini.put(LOG_SERVER_SECTION_NAME, "MainFormY", config.logServer.mainFormY);
+        ini.put(LOG_SERVER_SECTION_NAME, "Port", config.logServer.port);
+        ini.put(LOG_SERVER_SECTION_NAME, "GetStart", config.logServer.getStart);
+
+        ini.put(RUN_GATE_SECTION_NAME, "MainFormX", config.runGate.mainFormX);
+        ini.put(RUN_GATE_SECTION_NAME, "MainFormY", config.runGate.mainFormY);
+
+        ini.put(RUN_GATE_SECTION_NAME, "GetStart1", config.runGate.getStart[0]);
+        ini.put(RUN_GATE_SECTION_NAME, "GetStart2", config.runGate.getStart[1]);
+        ini.put(RUN_GATE_SECTION_NAME, "GetStart3", config.runGate.getStart[2]);
+        ini.put(RUN_GATE_SECTION_NAME, "GetStart4", config.runGate.getStart[3]);
+        ini.put(RUN_GATE_SECTION_NAME, "GetStart5", config.runGate.getStart[4]);
+        ini.put(RUN_GATE_SECTION_NAME, "GetStart6", config.runGate.getStart[5]);
+        ini.put(RUN_GATE_SECTION_NAME, "GetStart7", config.runGate.getStart[6]);
+        ini.put(RUN_GATE_SECTION_NAME, "GetStart8", config.runGate.getStart[7]);
+
+        ini.put(RUN_GATE_SECTION_NAME, "GatePort1", config.runGate.gatePort[0]);
+        ini.put(RUN_GATE_SECTION_NAME, "GatePort2", config.runGate.gatePort[1]);
+        ini.put(RUN_GATE_SECTION_NAME, "GatePort3", config.runGate.gatePort[2]);
+        ini.put(RUN_GATE_SECTION_NAME, "GatePort4", config.runGate.gatePort[3]);
+        ini.put(RUN_GATE_SECTION_NAME, "GatePort5", config.runGate.gatePort[4]);
+        ini.put(RUN_GATE_SECTION_NAME, "GatePort6", config.runGate.gatePort[5]);
+        ini.put(RUN_GATE_SECTION_NAME, "GatePort7", config.runGate.gatePort[6]);
+        ini.put(RUN_GATE_SECTION_NAME, "GatePort8", config.runGate.gatePort[7]);
+
+        ini.put(SEL_GATE_SECTION_NAME, "MainFormX", config.selGate.mainFormX);
+        ini.put(SEL_GATE_SECTION_NAME, "MainFormY", config.selGate.mainFormY);
+        ini.put(SEL_GATE_SECTION_NAME, "GatePort1", config.selGate.gatePort[0]);
+        ini.put(SEL_GATE_SECTION_NAME, "GatePort2", config.selGate.gatePort[1]);
+        ini.put(SEL_GATE_SECTION_NAME, "GetStart1", config.selGate.getStart1);
+        ini.put(SEL_GATE_SECTION_NAME, "GetStart2", config.selGate.getStart2);
+
+        ini.put(LOGIN_GATE_SECTION_NAME, "MainFormX", config.loginGate.mainFormX);
+        ini.put(LOGIN_GATE_SECTION_NAME, "MainFormY", config.loginGate.mainFormY);
+        ini.put(LOGIN_GATE_SECTION_NAME, "GatePort", config.loginGate.gatePort);
+        ini.put(LOGIN_GATE_SECTION_NAME, "GetStart", config.loginGate.getStart);
+
+        ini.put(PLUG_TOP_SECTION_NAME, "MainFormX", config.plugTop.mainFormX);
+        ini.put(PLUG_TOP_SECTION_NAME, "MainFormY", config.plugTop.mainFormY);
+        ini.put(PLUG_TOP_SECTION_NAME, "GetStart", config.plugTop.getStart);
+
+        try {
+            ini.store();
+        } catch (IOException e) {
+            AlertDialog.showError("保存配置文件时出错！", e);
         }
     }
 
