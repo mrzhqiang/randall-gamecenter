@@ -106,7 +106,7 @@
                     <version>8.8.3</version>
                     <configuration>
                         <vendor>Randall</vendor>
-                        <mainClass>com.github.mrzhqiang.randall.gamecenter.Main</mainClass>
+                        <mainClass>randall.gamecenter.Main</mainClass>
                     </configuration>
                 </plugin>
             </plugins>

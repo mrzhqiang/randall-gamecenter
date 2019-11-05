@@ -1,4 +1,4 @@
-package com.github.mrzhqiang.randall.gamecenter;
+package main.java.randall.gamecenter;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

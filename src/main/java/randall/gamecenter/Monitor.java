@@ -1,6 +1,6 @@
-package com.github.mrzhqiang.randall.gamecenter;
+package main.java.randall.gamecenter;
 
-import com.github.mrzhqiang.randall.gamecenter.util.Environments;
+import main.java.randall.gamecenter.util.Environments;
 
 /**
  * @author mrzhqiang

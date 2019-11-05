@@ -1,4 +1,4 @@
-package com.github.mrzhqiang.randall.gamecenter.util;
+package main.java.randall.gamecenter.util;
 
 import com.google.common.base.Preconditions;
 

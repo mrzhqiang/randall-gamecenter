@@ -1,4 +1,4 @@
-package com.github.mrzhqiang.randall.gamecenter;
+package main.java.randall.gamecenter;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;

@@ -1,9 +1,9 @@
-package com.github.mrzhqiang.randall.gamecenter;
+package main.java.randall.gamecenter;
 
-import com.github.mrzhqiang.randall.gamecenter.dialog.AlertDialog;
-import com.github.mrzhqiang.randall.gamecenter.util.Files;
-import com.github.mrzhqiang.randall.gamecenter.util.Networks;
-import com.github.mrzhqiang.randall.gamecenter.util.Programs;
+import main.java.randall.gamecenter.dialog.AlertDialog;
+import main.java.randall.gamecenter.util.Files;
+import main.java.randall.gamecenter.util.Networks;
+import main.java.randall.gamecenter.util.Programs;
 import com.google.common.base.Strings;
 import helper.DateTimeHelper;
 import javafx.application.Platform;
@@ -15,7 +15,6 @@ import org.ini4j.Ini;
 import org.ini4j.Wini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.nio.ch.Net;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +22,7 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.github.mrzhqiang.randall.gamecenter.Share.*;
+import static main.java.randall.gamecenter.Share.*;
 
 public final class Controller {
     private static final Logger LOGGER = LoggerFactory.getLogger("gamecenter");

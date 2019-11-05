@@ -1,6 +1,6 @@
-package com.github.mrzhqiang.randall.gamecenter.dialog;
+package main.java.randall.gamecenter.dialog;
 
-import com.github.mrzhqiang.randall.gamecenter.util.Throwables;
+import main.java.randall.gamecenter.util.Throwables;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import javafx.application.Platform;

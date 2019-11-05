@@ -1,6 +1,6 @@
-package com.github.mrzhqiang.randall.gamecenter.util;
+package test.java.randall.gamecenter.util;
 
-import com.github.mrzhqiang.randall.gamecenter.Share;
+import main.java.randall.gamecenter.Share;
 import org.junit.Test;
 
 import java.io.*;

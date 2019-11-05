@@ -1,7 +1,7 @@
-package com.github.mrzhqiang.randall.gamecenter.util;
+package main.java.randall.gamecenter.util;
 
-import com.github.mrzhqiang.randall.gamecenter.Share;
-import com.github.mrzhqiang.randall.gamecenter.dialog.AlertDialog;
+import main.java.randall.gamecenter.Share;
+import main.java.randall.gamecenter.dialog.AlertDialog;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import io.reactivex.Observable;

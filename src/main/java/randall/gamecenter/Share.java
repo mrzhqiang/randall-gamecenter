@@ -1,6 +1,6 @@
-package com.github.mrzhqiang.randall.gamecenter;
+package main.java.randall.gamecenter;
 
-import com.github.mrzhqiang.randall.gamecenter.dialog.AlertDialog;
+import main.java.randall.gamecenter.dialog.AlertDialog;
 import com.google.common.collect.Lists;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
