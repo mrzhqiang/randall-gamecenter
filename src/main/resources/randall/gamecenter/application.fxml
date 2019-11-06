@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<TabPane fx:id="mainTabPane" prefHeight="480.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.randall.gamecenter.Controller">
+<TabPane fx:id="mainTabPane" prefHeight="480.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="randall.gamecenter.Controller">
     <tabs>
         <Tab text="服务端控制">
             <content>
@@ -246,7 +246,7 @@
                                                       </CheckBox>
                                                    </children>
                                                 </HBox>
-                                                <Label text="外网IP地址2：" GridPane.rowIndex="4" />
+                                                <Label text="访问IP地址2：" GridPane.rowIndex="4" />
                                                 <Spinner fx:id="allPortPlusSpinner" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                                     <valueFactory>
                                                         <SpinnerValueFactory.IntegerSpinnerValueFactory max="65535" min="0" />
