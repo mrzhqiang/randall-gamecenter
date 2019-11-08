@@ -2,14 +2,20 @@ package randall.gamecenter;
 
 import com.google.common.base.Strings;
 import helper.DateTimeHelper;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -29,14 +35,22 @@ import randall.gamecenter.util.Networks;
 
 import static randall.gamecenter.Share.ALL_IP_ADDRESS;
 import static randall.gamecenter.Share.DB_SERVER_SECTION_NAME_2;
+import static randall.gamecenter.Share.DEFAULT_AUTO_RUN_BACKUP;
+import static randall.gamecenter.Share.DEFAULT_CLOSE_WUXING_ENABLED;
+import static randall.gamecenter.Share.DEFAULT_DB_NAME;
+import static randall.gamecenter.Share.DEFAULT_GAME_DIRECTORY;
+import static randall.gamecenter.Share.DEFAULT_GAME_NAME;
+import static randall.gamecenter.Share.DEFAULT_IP_2_ENABLED;
 import static randall.gamecenter.Share.LOGIN_GATE_SECTION_NAME_2;
 import static randall.gamecenter.Share.LOGIN_SRV_SECTION_NAME_2;
 import static randall.gamecenter.Share.LOG_SERVER_SECTION_2;
 import static randall.gamecenter.Share.M2_SERVER_CONFIG_FILE;
 import static randall.gamecenter.Share.M2_SERVER_SECTION_NAME_1;
 import static randall.gamecenter.Share.M2_SERVER_SECTION_NAME_2;
+import static randall.gamecenter.Share.MAX_RUN_GATE_COUNT;
 import static randall.gamecenter.Share.ONLINE_USER_LIMIT;
 import static randall.gamecenter.Share.PRIMARY_IP_ADDRESS;
+import static randall.gamecenter.Share.QUIT_CODE;
 import static randall.gamecenter.Share.RUN_GATE_SECTION_NAME_2;
 import static randall.gamecenter.Share.SECOND_IP_ADDRESS;
 import static randall.gamecenter.Share.SEL_GATE_SECTION_NAME_2;
@@ -50,8 +64,14 @@ import static randall.gamecenter.Share.SERVER_CONFIG_FILE;
 public final class Controller {
   private static final Logger LOGGER = LoggerFactory.getLogger("randall");
 
-  public static final int SG_START_NOW = 1001;
-  public static final int SG_START_OK = 1002;
+  public static final int DB_SERVER_PROCESS_CODE = 1001;
+  public static final int LOGIN_SERVER_PROCESS_CODE = 1002;
+  public static final int LOG_SERVER_PROCESS_CODE = 1003;
+  public static final int M2_SERVER_PROCESS_CODE = 1004;
+  public static final int LOGIN_GATE_PROCESS_CODE = 1005;
+  public static final int SEL_GATE_PROCESS_CODE = 1006;
+  public static final int RUN_GATE_PROCESS_CODE = 1007;
+  public static final int PLUG_TOP_PROCESS_CODE = 1008;
 
   public static final int STOPPED_STATE = 0;
   public static final int STARTING_STATE = 1;
@@ -59,6 +79,7 @@ public final class Controller {
   public static final int STOPPING_STATE = 3;
   public static final int ERROR_STATE = 9;
 
+  /* 控制面板 */
   public TabPane mainTabPane;
   public CheckBox dbServerCheckBox;
   public CheckBox loginSrvCheckBox;
@@ -75,12 +96,15 @@ public final class Controller {
   public CheckBox selGateCheckBox1;
   public CheckBox selGateCheckBox2;
   public CheckBox loginGateCheckBox;
+  public CheckBox loginGateCheckBox2;
+  public CheckBox plugTopCheckBox;
   public ComboBox<StartMode> startModeComboBox;
   public Spinner<Integer> hoursSpinner;
   public Spinner<Integer> minutesSpinner;
   public TextArea gameInfoTextArea;
   public Button btnStartGame;
 
+  /* 配置向导 */
   public TabPane configTabPane;
   public TextField primaryAddressTextField;
   public CheckBox doubleAddressCheckBox;
@@ -92,6 +116,7 @@ public final class Controller {
   public Spinner<Integer> allPortPlusSpinner;
   public CheckBox closeWuxingCheckBox;
   public CheckBox openLoginGateCheckBox;
+  public CheckBox openLoginGateCheckBox2;
   public TextField loginGateFormXTextField;
   public TextField loginGateFormYTextField;
   public TextField loginGatePortTextField;
@@ -142,9 +167,10 @@ public final class Controller {
   public CheckBox openPlugTopCheckBox;
   public TextField plugTopFormXTextField;
   public TextField plugTopFormYTextField;
-  public CheckBox plugTopCheckBox;
 
   private boolean opened = false;
+  private boolean gateStopped;
+  private long gateStopTick;
   // 0 -- default; 1 -- starting; 2 -- running; 3 -- stopping; 9 -- error
   private int startState = 0;
   // 0 -- disabled; 1 -- enabled;
@@ -153,11 +179,13 @@ public final class Controller {
   private long refTick;
   private long showTick;
   private long runTick;
+  private long runTime;
+
+  private Timer startGameTimer = new Timer();
+  private Timer stopGameTimer = new Timer();
+  private Timer checkRunTimer = new Timer();
 
   private final Share share = new Share();
-  private final Timer startGameTimer = new Timer();
-  private final Timer stopGameTimer = new Timer();
-  private final Timer checkRunTimer = new Timer();
 
   @FXML
   public void initialize() {
@@ -192,6 +220,28 @@ public final class Controller {
   }
 
   private void addListener() {
+    startModeComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (StartMode.NORMAL.equals(newValue)) {
+        runTime = 0;
+      } else if (StartMode.DELAY.equals(newValue)) {
+        Integer hours = hoursSpinner.getValue();
+        Integer minutes = minutesSpinner.getValue();
+        runTime = Duration.ofHours(hours)
+            .plus(Duration.ofMinutes(minutes))
+            .toMillis();
+      } else if (StartMode.TIMING.equals(newValue)) {
+        Integer hours = hoursSpinner.getValue();
+        Integer minutes = minutesSpinner.getValue();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime dateTime = LocalDateTime.of(now.toLocalDate(), LocalTime.of(hours, minutes));
+        // 如果指定时间在现在之前，那么就认为是第二天的时刻，所以时间要加一天
+        if (dateTime.isBefore(now)) {
+          dateTime = dateTime.plusDays(1);
+        }
+        // System.currentTimeMillis() 方法获取的本来就是 UTC 时间戳
+        runTime = dateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
+      }
+    });
     doubleAddressCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
       secondAddressTextField.setDisable(newValue);
     });
@@ -200,12 +250,28 @@ public final class Controller {
       secondAddressTextField.setDisable(newValue);
     });
     allPortPlusSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue > 0) {
-        // 显示的内容，所有端口增加指定值，这样不怕覆盖已有的配置文件
-        LOGGER.info("所有端口增加 " + newValue);
-      } else {
-        // todo 从配置文件还原显示的内容
-      }
+      loginGatePortTextField.setText(String.valueOf(share.config.loginGate.gatePort + newValue));
+      selGatePortTextField1.setText(String.valueOf(share.config.selGate.gatePort[0] + newValue));
+      selGatePortTextField2.setText(String.valueOf(share.config.selGate.gatePort[1] + newValue));
+      runGatePortTextField1.setText(String.valueOf(share.config.runGate.gatePort[0] + newValue));
+      runGatePortTextField2.setText(String.valueOf(share.config.runGate.gatePort[1] + newValue));
+      runGatePortTextField3.setText(String.valueOf(share.config.runGate.gatePort[2] + newValue));
+      runGatePortTextField4.setText(String.valueOf(share.config.runGate.gatePort[3] + newValue));
+      runGatePortTextField5.setText(String.valueOf(share.config.runGate.gatePort[4] + newValue));
+      runGatePortTextField6.setText(String.valueOf(share.config.runGate.gatePort[5] + newValue));
+      runGatePortTextField7.setText(String.valueOf(share.config.runGate.gatePort[6] + newValue));
+      runGatePortTextField8.setText(String.valueOf(share.config.runGate.gatePort[7] + newValue));
+      loginSrvGatePortTextField.setText(String.valueOf(share.config.loginSrv.gatePort + newValue));
+      loginSrvServerPortTextField.setText(
+          String.valueOf(share.config.loginSrv.serverPort + newValue));
+      loginSrvMonPortTextField.setText(String.valueOf(share.config.loginSrv.monPort + newValue));
+      dbServerGatePortTextField.setText(String.valueOf(share.config.dbServer.gatePort + newValue));
+      dbServerServerPortTextField.setText(
+          String.valueOf(share.config.dbServer.serverPort + newValue));
+      logServerGatePortTextField.setText(String.valueOf(share.config.logServer.port + newValue));
+      m2ServerGatePortTextField.setText(String.valueOf(share.config.m2Server.gatePort + newValue));
+      m2ServerServerPortTextField.setText(
+          String.valueOf(share.config.m2Server.msgSrvPort + newValue));
     });
   }
 
@@ -310,14 +376,13 @@ public final class Controller {
 
   private void mainOutMessage(String message) {
     LOGGER.info(message);
-    gameInfoTextArea.appendText(
-        "[" + DateTimeHelper.format(new Date()) + "] --" + message + System.lineSeparator());
+    gameInfoTextArea.appendText(String.format("[%s] -- %s" + System.lineSeparator(),
+        DateTimeHelper.format(Date.from(Instant.now())),
+        message));
   }
 
   public void onDBServerClicked() {
     share.config.dbServer.getStart = dbServerCheckBox.isSelected();
-    // todo data binding
-    //openDbServerCheckBox.setSelected(share.config.dbServer.getStart);
   }
 
   public void onLoginSrvClicked() {
@@ -376,6 +441,10 @@ public final class Controller {
     share.config.loginGate.getStart = loginGateCheckBox.isSelected();
   }
 
+  public void onLoginGate2Clicked() {
+    //share.config.loginGate.getStart = loginGateCheckBox2.isSelected();
+  }
+
   public void onPlugTopClicked() {
     share.config.plugTop.getStart = plugTopCheckBox.isSelected();
   }
@@ -387,14 +456,45 @@ public final class Controller {
             .ifPresent(buttonType -> startGame());
         break;
       case STARTING_STATE:
+        Dialogs.confirm("是否确认中止启动游戏服务器？")
+            .ifPresent(buttonType -> cancelStartGame());
         break;
       case RUNNING_STATE:
+        Dialogs.confirm("是否确认停止游戏服务器？")
+            .ifPresent(buttonType -> stopGame());
         break;
       case STOPPING_STATE:
+        Dialogs.confirm("是否确认中止停止游戏服务器？")
+            .ifPresent(buttonType -> cancelStopGame());
         break;
       case ERROR_STATE:
         break;
     }
+  }
+
+  private void cancelStopGame() {
+    stopGameTimer.cancel();
+    stopGameTimer = new Timer();
+    startState = RUNNING_STATE;
+    btnStartGame.setText(share.textStopGame);
+  }
+
+  private void stopGame() {
+    btnStartGame.setText(share.textCancelStopGame);
+    mainOutMessage("正在开始停止服务器...");
+    // todo cancel task and do not new Timer
+    checkRunTimer.cancel();
+    checkRunTimer = new Timer();
+    stopGameTimer.schedule(new StopGameTask(), 1000, 1000);
+    gateStopped = false;
+    startState = STOPPING_STATE;
+  }
+
+  private void cancelStartGame() {
+    startGameTimer.cancel();
+    startGameTimer = new Timer();
+    startState = RUNNING_STATE;
+    btnStartGame.setText(share.textStopGame);
   }
 
   private void startGame() {
@@ -516,8 +616,78 @@ public final class Controller {
     checkRunTimer.cancel();
   }
 
-  public void onReloadAllConfigClicked(ActionEvent actionEvent) {
+  public void onOpenLoginGateClicked() {
+    share.config.loginGate.getStart = openLoginGateCheckBox.isSelected();
+  }
 
+  public void onOpenLoginGate2Clicked() {
+    //share.config.loginGate.getStart = openLoginGateCheckBox2.isSelected();
+  }
+
+  public void onOpenSelGate1Clicked() {
+    share.config.selGate.getStart1 = openSelGateCheckBox1.isSelected();
+  }
+
+  public void onOpenSelGate2Clicked() {
+    share.config.selGate.getStart2 = openSelGateCheckBox2.isSelected();
+  }
+
+  public void onOpenRunGate1Clicked() {
+    share.config.runGate.getStart[0] = openRunGateCheckBox1.isSelected();
+  }
+
+  public void onOpenRunGate2Clicked() {
+    share.config.runGate.getStart[1] = openRunGateCheckBox2.isSelected();
+  }
+
+  public void onOpenRunGate3Clicked() {
+    share.config.runGate.getStart[2] = openRunGateCheckBox3.isSelected();
+  }
+
+  public void onOpenRunGate4Clicked() {
+    share.config.runGate.getStart[3] = openRunGateCheckBox4.isSelected();
+  }
+
+  public void onOpenRunGate5Clicked() {
+    share.config.runGate.getStart[4] = openRunGateCheckBox5.isSelected();
+  }
+
+  public void onOpenRunGate6Clicked() {
+    share.config.runGate.getStart[5] = openRunGateCheckBox6.isSelected();
+  }
+
+  public void onOpenRunGate7Clicked() {
+    share.config.runGate.getStart[6] = openRunGateCheckBox7.isSelected();
+  }
+
+  public void onOpenRunGate8Clicked() {
+    share.config.runGate.getStart[7] = openRunGateCheckBox8.isSelected();
+  }
+
+  public void onOpenLoginSrvClicked() {
+    share.config.loginSrv.getStart = openLoginSrvCheckBox.isSelected();
+  }
+
+  public void onOpenDBServerClicked() {
+    share.config.dbServer.getStart = openDbServerCheckBox.isSelected();
+  }
+
+  public void onOpenLogServerClicked() {
+    share.config.loginSrv.getStart = openLogServerCheckBox.isSelected();
+  }
+
+  public void onOpenM2ServerClicked() {
+    share.config.m2Server.getStart = openM2ServerCheckBox.isSelected();
+  }
+
+  public void onOpenPlugTopClicked() {
+    share.config.plugTop.getStart = openPlugTopCheckBox.isSelected();
+  }
+
+  public void onReloadAllConfigClicked() {
+    share.loadConfig();
+    refGameConsole();
+    Dialogs.info("配置重加载完成...").show();
   }
 
   public void onNextBasicConfigClicked() {
@@ -569,8 +739,16 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultBasicConfigClicked(ActionEvent actionEvent) {
-
+  public void onDefaultBasicConfigClicked() {
+    share.gameDirectory = DEFAULT_GAME_DIRECTORY;
+    share.heroDBName = DEFAULT_DB_NAME;
+    share.gameName = DEFAULT_GAME_NAME;
+    share.extIPAddr = PRIMARY_IP_ADDRESS;
+    share.extIPAddr2 = SECOND_IP_ADDRESS;
+    share.autoRunBakEnabled = DEFAULT_AUTO_RUN_BACKUP;
+    share.ip2Enabled = DEFAULT_IP_2_ENABLED;
+    share.closeWuXinEnabled = DEFAULT_CLOSE_WUXING_ENABLED;
+    refGameConsole();
   }
 
   public void onPreviousLoginGateConfigClicked() {
@@ -588,8 +766,9 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultLoginGateConfigClicked(ActionEvent actionEvent) {
-
+  public void onDefaultLoginGateConfigClicked() {
+    share.config.loginGate = new Share.LoginGateConfig();
+    refGameConsole();
   }
 
   public void onPreviousSelGateConfigClicked() {
@@ -616,8 +795,9 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultSelGateConfigClicked(ActionEvent actionEvent) {
-
+  public void onDefaultSelGateConfigClicked() {
+    share.config.selGate = new Share.SelGateConfig();
+    refGameConsole();
   }
 
   public void onPreviousRunGateConfigClicked() {
@@ -685,8 +865,9 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultRunGateConfigClicked(ActionEvent actionEvent) {
-
+  public void onDefaultRunGateConfigClicked() {
+    share.config.runGate = new Share.RunGateConfig();
+    refGameConsole();
   }
 
   public void onPreviousLoginSrvConfigClicked() {
@@ -720,8 +901,9 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultLoginSrvConfigClicked(ActionEvent actionEvent) {
-
+  public void onDefaultLoginSrvConfigClicked() {
+    share.config.loginSrv = new Share.LoginSrvConfig();
+    refGameConsole();
   }
 
   public void onPreviousDbServerConfigClicked() {
@@ -748,8 +930,9 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultDbServerConfigClicked(ActionEvent actionEvent) {
-
+  public void onDefaultDbServerConfigClicked() {
+    share.config.dbServer = new Share.DBServerConfig();
+    refGameConsole();
   }
 
   public void onPreviousLogServerConfigClicked() {
@@ -768,7 +951,9 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultLogServerConfigClicked(ActionEvent actionEvent) {
+  public void onDefaultLogServerConfigClicked() {
+    share.config.logServer = new Share.LogServerConfig();
+    refGameConsole();
   }
 
   public void onPreviousM2ServerConfigClicked() {
@@ -794,7 +979,9 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultM2ServerConfigClicked(ActionEvent actionEvent) {
+  public void onDefaultM2ServerConfigClicked() {
+    share.config.m2Server = new Share.M2ServerConfig();
+    refGameConsole();
   }
 
   public void onPreviousPlugTopConfigClicked() {
@@ -805,7 +992,9 @@ public final class Controller {
     configTabPane.getSelectionModel().selectNext();
   }
 
-  public void onDefaultPlugTopConfigClicked(ActionEvent actionEvent) {
+  public void onDefaultPlugTopConfigClicked() {
+    share.config.plugTop = new Share.PlugTopConfig();
+    refGameConsole();
   }
 
   public void onPreviousSaveConfigClicked() {
@@ -817,7 +1006,7 @@ public final class Controller {
     Dialogs.info("配置文件已经保存完毕...")
         .showAndWait()
         .filter(ButtonType.OK::equals)
-        .flatMap(buttonType -> Dialogs.confirm("更新所有配置", "是否生成新的游戏服务器配置文件？"))
+        .flatMap(buttonType -> Dialogs.confirm("是否生成新的游戏服务器配置文件？"))
         .ifPresent(buttonType -> {
           onGenerateConfigClicked();
           configTabPane.getSelectionModel().selectFirst();
@@ -840,6 +1029,82 @@ public final class Controller {
     generateRunGateConfig();
     generateSelGateConfig();
     generateLoginGateConfig();
+  }
+
+  private void generateMultiRunGateConfig(int index) {
+    if (index > 0 && index < MAX_RUN_GATE_COUNT) {
+      File runGateDir = new File(share.gameDirectory, "RunGate\\");
+      Files.mkdir(runGateDir);
+
+      try {
+        File runGateConfigFile = new File(runGateDir, SERVER_CONFIG_FILE);
+        Files.create(runGateConfigFile);
+        Ini ini = new Wini(runGateConfigFile);
+        ini.put(RUN_GATE_SECTION_NAME_2, "Title", share.gameName);
+        ini.put(RUN_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
+        ini.put(RUN_GATE_SECTION_NAME_2, "GatePort", share.config.runGate.gatePort[index]);
+        ini.store();
+      } catch (IOException e) {
+        Dialogs.error("生成游戏网关[" + (index + 1) + "]配置出错！！", e).show();
+      }
+    }
+  }
+
+  private void generateMultiSelGateConfig(int index) {
+    if (index != 0 && index != 1) {
+      return;
+    }
+    File selGateDir = new File(share.gameDirectory, "SelGate\\");
+    Files.mkdir(selGateDir);
+
+    try {
+      File selGateConfigFile = new File(selGateDir, SERVER_CONFIG_FILE);
+      Files.create(selGateConfigFile);
+      Ini ini = new Wini(selGateConfigFile);
+      ini.put(SEL_GATE_SECTION_NAME_2, "Title", share.gameName);
+      ini.put(SEL_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
+      ini.put(SEL_GATE_SECTION_NAME_2, "GatePort", share.config.selGate.gatePort[index]);
+      if (share.ip2Enabled) {
+        if (index == 0) {
+          ini.put(SEL_GATE_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
+        } else {
+          ini.put(SEL_GATE_SECTION_NAME_2, "ServerAddr", SECOND_IP_ADDRESS);
+        }
+      }
+      ini.store();
+    } catch (IOException e) {
+      Dialogs.error("生成角色网关[" + index + "]出错！！", e).show();
+    }
+  }
+
+  private void generateMultiLoginGateConfig(int index) {
+    if (index != 0 && index != 1) {
+      return;
+    }
+    File loginGateDir = new File(share.gameDirectory, "LoginGate\\");
+    Files.mkdir(loginGateDir);
+
+    try {
+      File loginGateConfigFile = new File(loginGateDir, SERVER_CONFIG_FILE);
+      Files.create(loginGateConfigFile);
+      Ini ini = new Wini(loginGateConfigFile);
+      ini.put(LOGIN_SRV_SECTION_NAME_2, "Title", share.gameName);
+      ini.put(LOGIN_SRV_SECTION_NAME_2, "GatePort", share.config.loginGate.gatePort);
+      if (share.ip2Enabled) {
+        if (index == 0) {
+          ini.put(LOGIN_SRV_SECTION_NAME_2, "GateAddr", share.extIPAddr);
+          ini.put(LOGIN_SRV_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
+        } else {
+          ini.put(LOGIN_SRV_SECTION_NAME_2, "GateAddr", share.extIPAddr2);
+          ini.put(LOGIN_SRV_SECTION_NAME_2, "ServerAddr", SECOND_IP_ADDRESS);
+        }
+      } else {
+        ini.put(LOGIN_SRV_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
+      }
+      ini.store();
+    } catch (IOException e) {
+      Dialogs.error("生成角色网关[" + index + "]出错！！", e).show();
+    }
   }
 
   private void generateLoginGateConfig() {
@@ -1098,18 +1363,203 @@ public final class Controller {
       if (share.dbServer.getStart) {
         switch (share.dbServer.startStatus) {
           case 0:
-            mainOutMessage("正在启动数据库服务器..");
-            share.dbServer.start();
+            share.dbServer.disposable = share.dbServer.start()
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(Controller.this::handleProcessMessage);
             share.dbServer.startStatus = 1;
             return;
           case 1:
-            LOGGER.info("waiting database server program.");
+            LOGGER.debug("正在等待数据库服务器启动..");
             return;
         }
       }
+      // todo 重构为 RxJava 的 Interval 数据流
       if (share.loginServer.getStart) {
-        // todo login server
+        switch (share.loginServer.startStatus) {
+          case 0:
+            share.loginServer.disposable = share.loginServer.start()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  share.loginServer.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            share.loginServer.startStatus = 1;
+            return;
+          case 1:
+            LOGGER.debug("正在等待登陆服务器启动..");
+            return;
+        }
       }
+      if (share.logServer.getStart) {
+        switch (share.logServer.startStatus) {
+          case 0:
+            share.logServer.disposable = share.logServer.start()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  share.logServer.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            share.logServer.startStatus = 1;
+            return;
+          case 1:
+            LOGGER.debug("正在等待日志服务器启动..");
+            return;
+        }
+      }
+      if (share.m2Server.getStart) {
+        switch (share.m2Server.startStatus) {
+          case 0:
+            share.m2Server.disposable = share.m2Server.start()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  share.m2Server.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            share.m2Server.startStatus = 1;
+            return;
+          case 1:
+            LOGGER.debug("正在等待核心服务器启动..");
+            return;
+        }
+      }
+      if (getStartRunGate()) {
+        return;
+      }
+      boolean startRunGateOK = true;
+      for (int i = 0; i < share.runGate.size(); i++) {
+        Share.Program runGateProgram = share.runGate.get(i);
+        if (runGateProgram.getStart) {
+          if (runGateProgram.startStatus == 0) {
+            generateMultiRunGateConfig(i);
+            runGateProgram.disposable = runGateProgram.start()
+                .subscribeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  runGateProgram.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            runGateProgram.startStatus = 1;
+            startRunGateOK = false;
+          }
+        }
+      }
+      if (!startRunGateOK) {
+        LOGGER.debug("正在等待游戏网关全部启动..");
+        return;
+      }
+      if (share.selGate.getStart) {
+        switch (share.selGate.startStatus) {
+          case 0:
+            generateMultiSelGateConfig(0);
+            share.selGate.disposable = share.selGate.start()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  share.selGate.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            share.selGate.startStatus = 1;
+            return;
+          case 1:
+            LOGGER.debug("正在等待角色网关一启动..");
+            return;
+        }
+      }
+      if (share.selGate1.getStart) {
+        switch (share.selGate1.startStatus) {
+          case 0:
+            generateMultiSelGateConfig(1);
+            share.selGate1.disposable = share.selGate1.start()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  share.selGate1.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            share.selGate1.startStatus = 1;
+            return;
+          case 1:
+            LOGGER.debug("正在等待角色网关二启动..");
+            return;
+        }
+      }
+
+      StartMode startMode = startModeComboBox.getValue();
+      if (StartMode.DELAY.equals(startMode)) {
+        // 是否已经等了那么久
+        if ((System.currentTimeMillis() - runTick) < runTime) {
+          return;
+        }
+      } else if (StartMode.TIMING.equals(startMode)) {
+        // 是否到达指定时间
+        if (System.currentTimeMillis() < runTime) {
+          return;
+        }
+      }
+
+      if (share.loginGate.getStart) {
+        switch (share.loginGate.startStatus) {
+          case 0:
+            generateMultiLoginGateConfig(0);
+            share.loginGate.disposable = share.loginGate.start()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  share.loginGate.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            share.loginGate.startStatus = 1;
+            return;
+          case 1:
+            LOGGER.debug("正在等待登陆网关一启动..");
+            return;
+        }
+      }
+      if (share.loginGate2.getStart) {
+        switch (share.loginGate2.startStatus) {
+          case 0:
+            generateMultiLoginGateConfig(1);
+            share.loginGate2.disposable = share.loginGate2.start()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  share.loginGate2.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            share.loginGate2.startStatus = 1;
+            return;
+          case 1:
+            LOGGER.debug("正在等待登陆网关一启动..");
+            return;
+        }
+      }
+
+      if (share.plugTop.getStart) {
+        switch (share.plugTop.startStatus) {
+          case 0:
+            share.plugTop.disposable = share.plugTop.start()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnError(throwable -> {
+                  Dialogs.error(throwable).show();
+                  share.plugTop.startStatus = 9;
+                })
+                .subscribe(Controller.this::handleProcessMessage);
+            share.plugTop.startStatus = 1;
+            return;
+          case 1:
+            LOGGER.debug("正在等待游戏排行榜插件启动..");
+            return;
+        }
+      }
+
+      startGameTimer.cancel();
+      startGameTimer = new Timer();
+      checkRunTimer.schedule(new CheckRunTask(), 1000, 1000);
+      Platform.runLater(() -> btnStartGame.setText(share.textStopGame));
+      startState = RUNNING_STATE;
     }
 
     private boolean getStartRunGate() {
@@ -1123,17 +1573,432 @@ public final class Controller {
     }
   }
 
-  private void processDbServerMsg(String message) {
-    String[] split = message.split(".", 2);
+  private void handleProcessMessage(String message) {
+    String[] split = message.split(":", 2);
     int code = Integer.parseInt(split[0]);
-    String data = split[1];
+    UUID processCode = UUID.fromString(split[1]);
     switch (code) {
-      case SG_START_NOW:
-        break;
-      case SG_START_OK:
+      case DB_SERVER_PROCESS_CODE:
+        if (share.dbServer.processCode == null) {
+          share.dbServer.processCode = processCode;
+          mainOutMessage("正在启动数据库服务器...");
+          return;
+        }
         share.dbServer.startStatus = 2;
+        mainOutMessage("启动数据库服务器成功！");
+        break;
+      case LOGIN_SERVER_PROCESS_CODE:
+        if (share.loginServer.processCode == null) {
+          share.loginServer.processCode = processCode;
+          mainOutMessage("正在启动账号登陆服务器...");
+          return;
+        }
+        share.loginServer.startStatus = 2;
+        mainOutMessage("启动账号登陆服务器成功！");
+        break;
+      case LOG_SERVER_PROCESS_CODE:
+        if (share.logServer.processCode == null) {
+          share.logServer.processCode = processCode;
+          mainOutMessage("正在启动日志服务器...");
+          return;
+        }
+        share.logServer.startStatus = 2;
+        mainOutMessage("启动日志服务器成功！");
+        break;
+      case M2_SERVER_PROCESS_CODE:
+        if (share.m2Server.processCode == null) {
+          share.m2Server.processCode = processCode;
+          mainOutMessage("正在启动游戏引擎服务器...");
+          return;
+        }
+        share.m2Server.startStatus = 2;
+        mainOutMessage("启动游戏引擎服务器成功！");
+        break;
+      case LOGIN_GATE_PROCESS_CODE:
+        if (share.loginGate.getStart && share.loginGate.startStatus == 1) {
+          if (share.loginGate.processCode == null) {
+            share.loginGate.processCode = processCode;
+            mainOutMessage("正在启动登陆网关一...");
+            return;
+          }
+          if (processCode.equals(share.loginGate.processCode)) {
+            share.loginGate.startStatus = 2;
+            mainOutMessage("启动登陆网关一成功！");
+            return;
+          }
+        }
+        if (share.loginGate2.getStart && share.loginGate2.startStatus == 1) {
+          if (share.loginGate2.processCode == null) {
+            share.loginGate2.processCode = processCode;
+            mainOutMessage("正在启动登陆网关二...");
+            return;
+          }
+          if (processCode.equals(share.loginGate2.processCode)) {
+            share.loginGate2.startStatus = 2;
+            mainOutMessage("启动登陆网关二成功！");
+            return;
+          }
+        }
+        break;
+      case SEL_GATE_PROCESS_CODE:
+        if (share.selGate.getStart && share.selGate.startStatus == 1) {
+          if (share.selGate.processCode == null) {
+            share.selGate.processCode = processCode;
+            mainOutMessage("正在启动角色网关一...");
+            return;
+          }
+          if (processCode.equals(share.selGate.processCode)) {
+            share.selGate.startStatus = 2;
+            mainOutMessage("启动角色网关一成功！");
+            return;
+          }
+        }
+        if (share.selGate1.getStart && share.selGate1.startStatus == 1) {
+          if (share.selGate1.processCode == null) {
+            share.selGate1.processCode = processCode;
+            mainOutMessage("正在启动角色网关二...");
+            return;
+          }
+          if (processCode.equals(share.selGate.processCode)) {
+            share.selGate1.startStatus = 2;
+            mainOutMessage("启动角色网关二成功！");
+            return;
+          }
+        }
+        break;
+      case RUN_GATE_PROCESS_CODE:
+        for (int i = 0; i < share.runGate.size(); i++) {
+          Share.Program program = share.runGate.get(i);
+          if (program.getStart && program.startStatus == 1) {
+            if (program.processCode == null) {
+              program.processCode = processCode;
+              mainOutMessage("正在启动游戏网关[" + (i + 1) + "]...");
+              return;
+            }
+            if (processCode.equals(program.processCode)) {
+              program.startStatus = 2;
+              mainOutMessage("启动游戏网关[" + (i + 1) + "]成功！");
+              return;
+            }
+          }
+        }
+        break;
+      case PLUG_TOP_PROCESS_CODE:
+        if (share.plugTop.processCode == null) {
+          share.plugTop.processCode = processCode;
+          mainOutMessage("正在启动游戏排行榜引擎...");
+          return;
+        }
+        share.plugTop.startStatus = 2;
+        mainOutMessage("启动游戏排行榜引擎成功！");
         break;
     }
-    mainOutMessage(data);
+  }
+
+  public class CheckRunTask extends TimerTask {
+    @Override public void run() {
+      if (share.dbServer.getStart) {
+        if (share.dbServer.process == null || !share.dbServer.process.isAlive()) {
+          share.dbServer.disposable = share.dbServer.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("数据库异常关闭，已被重新启动...");
+        }
+      }
+      if (share.loginServer.getStart) {
+        if (share.loginServer.process == null || !share.loginServer.process.isAlive()) {
+          share.loginServer.disposable = share.loginServer.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("登录服务器异常关闭，已被重新启动...");
+        }
+      }
+      if (share.logServer.getStart) {
+        if (share.logServer.process == null || !share.logServer.process.isAlive()) {
+          share.logServer.disposable = share.logServer.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("日志服务器异常关闭，已被重新启动...");
+        }
+      }
+      if (share.m2Server.getStart) {
+        if (share.m2Server.process == null || !share.m2Server.process.isAlive()) {
+          share.m2Server.disposable = share.m2Server.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("游戏引擎服务器异常关闭，已被重新启动...");
+        }
+      }
+      for (int i = 0; i < share.runGate.size(); i++) {
+        Share.Program program = share.runGate.get(i);
+        if (program.getStart) {
+          if (program.process == null || !program.process.isAlive()) {
+            generateMultiRunGateConfig(i);
+            program.processCode = null;
+            program.disposable = program.start()
+                .observeOn(JavaFxScheduler.platform())
+                .subscribe(Controller.this::handleProcessMessage);
+            mainOutMessage("游戏网关[" + (i + 1) + "]异常关闭，已被重新启动...");
+          }
+        }
+      }
+      if (share.selGate.getStart) {
+        if (share.selGate.process == null || !share.selGate.process.isAlive()) {
+          generateMultiSelGateConfig(0);
+          share.selGate.processCode = null;
+          share.selGate.disposable = share.selGate.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("角色网关一异常关闭，已被重新启动...");
+        }
+      }
+      if (share.selGate1.getStart) {
+        if (share.selGate1.process == null || !share.selGate1.process.isAlive()) {
+          generateMultiSelGateConfig(1);
+          share.selGate1.processCode = null;
+          share.selGate1.disposable = share.selGate1.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("角色网关二异常关闭，已被重新启动...");
+        }
+      }
+      if (share.loginGate.getStart) {
+        if (share.loginGate.process == null || !share.loginGate.process.isAlive()) {
+          generateMultiLoginGateConfig(0);
+          share.loginGate.processCode = null;
+          share.loginGate.disposable = share.loginGate.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("登录网关一异常关闭，已被重新启动...");
+        }
+      }
+      if (share.loginGate2.getStart) {
+        if (share.loginGate2.process == null || !share.loginGate2.process.isAlive()) {
+          generateMultiLoginGateConfig(1);
+          share.loginGate2.processCode = null;
+          share.loginGate2.disposable = share.loginGate2.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("登录网关二异常关闭，已被重新启动...");
+        }
+      }
+      if (share.plugTop.getStart) {
+        if (share.plugTop.process == null || !share.plugTop.process.isAlive()) {
+          share.plugTop.processCode = null;
+          share.plugTop.disposable = share.plugTop.start()
+              .observeOn(JavaFxScheduler.platform())
+              .subscribe(Controller.this::handleProcessMessage);
+          mainOutMessage("排行榜插件异常关闭，已被重新启动...");
+        }
+      }
+    }
+  }
+
+  public class StopGameTask extends TimerTask {
+
+    @Override public void run() {
+      if (share.loginGate.getStart && share.loginGate.startStatus > 1) {
+        if (share.loginGate.process != null && share.loginGate.process.isAlive()) {
+          if (share.loginGate.startStatus == 3) {
+            if ((System.currentTimeMillis() - share.stopTick) > share.stopTimeout) {
+              share.loginGate.stop();
+              mainOutMessage("正常关闭超时，登陆网关一已被强行停止...");
+            }
+            return;
+          }
+          share.loginGate.sendMessage(QUIT_CODE);
+          share.stopTick = System.currentTimeMillis();
+          share.loginGate.startStatus = 3;
+          return;
+        } else {
+          share.loginGate.startStatus = 0;
+          mainOutMessage("登陆网关一已停止...");
+        }
+      }
+
+      if (share.loginGate2.getStart && share.loginGate2.startStatus > 1) {
+        if (share.loginGate2.process != null && share.loginGate2.process.isAlive()) {
+          if (share.loginGate2.startStatus == 3) {
+            if ((System.currentTimeMillis() - share.stopTick) > share.stopTimeout) {
+              share.loginGate2.stop();
+              mainOutMessage("正常关闭超时，登陆网关二已被强行停止...");
+            }
+            return;
+          }
+          share.loginGate2.sendMessage(QUIT_CODE);
+          share.stopTick = System.currentTimeMillis();
+          share.loginGate2.startStatus = 3;
+          return;
+        } else {
+          share.loginGate2.startStatus = 0;
+          mainOutMessage("登陆网关二已停止...");
+        }
+      }
+
+      if (share.selGate.getStart && share.selGate.startStatus > 1) {
+        if (share.selGate.process != null && share.selGate.process.isAlive()) {
+          if (share.selGate.startStatus == 3) {
+            if ((System.currentTimeMillis() - share.stopTick) > share.stopTimeout) {
+              share.selGate.stop();
+              mainOutMessage("正常关闭超时，角色网关一已被强行停止...");
+            }
+            return;
+          }
+          share.selGate.sendMessage(QUIT_CODE);
+          share.stopTick = System.currentTimeMillis();
+          share.selGate.startStatus = 3;
+          return;
+        } else {
+          share.selGate.startStatus = 0;
+          mainOutMessage("角色网关一已停止...");
+        }
+      }
+
+      if (share.selGate1.getStart && share.selGate1.startStatus > 1) {
+        if (share.selGate1.process != null && share.selGate1.process.isAlive()) {
+          if (share.selGate1.startStatus == 3) {
+            if ((System.currentTimeMillis() - share.stopTick) > share.stopTimeout) {
+              share.selGate1.stop();
+              mainOutMessage("正常关闭超时，角色网关二已被强行停止...");
+            }
+            return;
+          }
+          share.selGate1.sendMessage(QUIT_CODE);
+          share.stopTick = System.currentTimeMillis();
+          share.selGate1.startStatus = 3;
+          return;
+        } else {
+          share.selGate1.startStatus = 0;
+          mainOutMessage("角色网关二已停止...");
+        }
+      }
+
+      for (int i = 0; i < share.runGate.size(); i++) {
+        Share.Program program = share.runGate.get(i);
+        if (program.getStart && program.startStatus > 1) {
+          if (program.process != null && program.process.isAlive()) {
+            if (program.startStatus == 3) {
+              if ((System.currentTimeMillis() - share.stopTick) > share.stopTimeout) {
+                program.stop();
+                mainOutMessage("正常关闭超时，游戏网关[" + (i + 1) + "]已被强行停止...");
+              }
+              return;
+            }
+            program.sendMessage(QUIT_CODE);
+            // fixme 全局变量不能用于多个游戏网关的判断，这里会出现 bug
+            share.stopTick = System.currentTimeMillis();
+            program.startStatus = 3;
+            return;
+          } else {
+            program.startStatus = 0;
+            mainOutMessage("游戏网关[" + (i + 1) + "]已停止...");
+          }
+        }
+      }
+
+      if (getStopRunGate()) {
+        gateStopped = false;
+        return;
+      }
+
+      if (share.m2Server.getStart && share.m2Server.startStatus > 1) {
+        if (!gateStopped) {
+          gateStopped = true;
+          gateStopTick = System.currentTimeMillis() + 5000;
+          mainOutMessage("网关已全部关闭，延时5秒关闭游戏引擎...");
+          return;
+        }
+        if (gateStopTick > System.currentTimeMillis()) {
+          return;
+        }
+
+        if (share.m2Server.process != null && share.m2Server.process.isAlive()) {
+          if (share.m2Server.startStatus == 3) {
+            return;
+          }
+          share.m2Server.sendMessage(QUIT_CODE);
+          share.stopTick = System.currentTimeMillis();
+          share.m2Server.startStatus = 3;
+          return;
+        } else {
+          share.m2Server.startStatus = 0;
+          mainOutMessage("游戏引擎主程序已停止...");
+        }
+      }
+
+      if (share.loginServer.getStart && share.loginServer.startStatus > 1) {
+        if (share.loginServer.process != null && share.loginServer.process.isAlive()) {
+          if (share.loginServer.startStatus == 3) {
+            if ((System.currentTimeMillis() - share.stopTick) > share.stopTimeout) {
+              // todo 1000 delay
+              share.loginServer.stop();
+              mainOutMessage("正常关闭超时，登陆服务器已被强行停止...");
+            }
+            return;
+          }
+          share.loginServer.sendMessage(QUIT_CODE);
+          share.stopTick = System.currentTimeMillis();
+          share.loginServer.startStatus = 3;
+          return;
+        } else {
+          share.loginServer.startStatus = 0;
+          mainOutMessage("登陆服务器已停止...");
+        }
+      }
+
+      if (share.logServer.getStart && share.logServer.startStatus > 1) {
+        if (share.logServer.process != null && share.logServer.process.isAlive()) {
+          if (share.logServer.startStatus == 3) {
+            if ((System.currentTimeMillis() - share.stopTick) > share.stopTimeout) {
+              share.logServer.stop();
+              mainOutMessage("正常关闭超时，日志服务器已被强行停止...");
+            }
+            return;
+          }
+          share.logServer.sendMessage(QUIT_CODE);
+          share.stopTick = System.currentTimeMillis();
+          share.logServer.startStatus = 3;
+          return;
+        } else {
+          share.logServer.startStatus = 0;
+          mainOutMessage("日志服务器已停止...");
+        }
+      }
+
+      if (share.dbServer.getStart && share.dbServer.startStatus > 1) {
+        if (share.dbServer.process != null && share.dbServer.process.isAlive()) {
+          if (share.dbServer.startStatus == 3) {
+            if ((System.currentTimeMillis() - share.stopTick) > share.stopTimeout) {
+              share.dbServer.stop();
+              mainOutMessage("正常关闭超时，数据库服务器已被强行停止...");
+            }
+            return;
+          }
+          share.dbServer.sendMessage(QUIT_CODE);
+          share.stopTick = System.currentTimeMillis();
+          share.dbServer.startStatus = 3;
+          return;
+        } else {
+          share.dbServer.startStatus = 0;
+          mainOutMessage("数据库服务器已停止...");
+        }
+      }
+
+      mainOutMessage("所有程序停止完毕！");
+      stopGameTimer.cancel();
+      stopGameTimer = new Timer();
+      Platform.runLater(() -> btnStartGame.setText(share.textStartGame));
+      startState = STOPPED_STATE;
+    }
+
+    private boolean getStopRunGate() {
+      for (int i = 0; i < share.runGate.size(); i++) {
+        Share.Program program = share.runGate.get(i);
+        if (program.getStart && program.startStatus > 1) {
+          return true;
+        }
+      }
+      return false;
+    }
   }
 }

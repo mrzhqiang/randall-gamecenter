@@ -15,7 +15,7 @@
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
+      <pattern>%date{MM-dd HH:mm:ss ZZZZ} %level [%thread] - %message%n%xException{10}</pattern>
     </encoder>
   </appender>
 
@@ -23,7 +23,7 @@
     <appender-ref ref="FILE"/>
   </appender>
 
-  <logger name="randall" level="WARN"/>
+  <logger name="randall" level="INFO"/>
 
   <root level="INFO">
     <appender-ref ref="ASYNCFILE"/>

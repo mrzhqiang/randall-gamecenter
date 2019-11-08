@@ -4,14 +4,18 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.List;
-import javafx.application.Platform;
+import java.util.UUID;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 import randall.gamecenter.util.Dialogs;
@@ -24,6 +28,8 @@ import randall.gamecenter.util.Files;
  */
 public final class Share {
   public static final int MAX_RUN_GATE_COUNT = 8;
+
+  public static final String QUIT_CODE = ":QUIT";
 
   public static final String BASIC_SECTION_NAME = "GameConfig";
   public static final String DB_SERVER_SECTION_NAME = "DBServer";
@@ -55,12 +61,12 @@ public final class Share {
   public static final String SEL_GATE_SECTION_NAME_2 = "SelGate";
   public static final String LOGIN_GATE_SECTION_NAME_2 = "LoginGate";
 
-  private static final String DEFAULT_GAME_DIRECTORY = "D:\\randall-m2\\MirServer\\";
-  private static final String DEFAULT_DB_NAME = "HeroDB";
-  private static final String DEFAULT_GAME_NAME = "兰达尔第一季";
-  private static final Boolean DEFAULT_AUTO_RUN_BACKUP = false;
-  private static final boolean DEFAULT_IP_2_ENABLED = false;
-  private static final boolean DEFAULT_CLOSE_WUXING_ENABLED = false;
+  public static final String DEFAULT_GAME_DIRECTORY = "D:\\randall-m2\\MirServer\\";
+  public static final String DEFAULT_DB_NAME = "HeroDB";
+  public static final String DEFAULT_GAME_NAME = "兰达尔第一季";
+  public static final Boolean DEFAULT_AUTO_RUN_BACKUP = false;
+  public static final boolean DEFAULT_IP_2_ENABLED = false;
+  public static final boolean DEFAULT_CLOSE_WUXING_ENABLED = false;
 
   public Ini ini;
 
@@ -79,6 +85,9 @@ public final class Share {
   public boolean closeWuXinEnabled = DEFAULT_CLOSE_WUXING_ENABLED;
   public boolean ip2Enabled = DEFAULT_IP_2_ENABLED;
 
+  public long stopTick;
+  public long stopTimeout = 10000;
+
   public final Config config = new Config();
 
   public final Program dbServer = new Program();
@@ -93,12 +102,12 @@ public final class Share {
   public final Program plugTop = new Program();
 
   public Share() {
-    File file = new File(this.configFile);
-    Files.create(file);
     try {
+      File file = new File(this.configFile);
+      Files.create(file);
       ini = new Wini(file);
     } catch (IOException e) {
-      Dialogs.error("初始化配置文件出错！！", e);
+      Dialogs.error("初始化配置文件出错！！", e).show();
     }
   }
 
@@ -313,7 +322,7 @@ public final class Share {
     try {
       ini.store();
     } catch (IOException e) {
-      Dialogs.error("保存配置文件时出错！", e);
+      Dialogs.error("保存配置文件时出错！", e).show();
     }
   }
 
@@ -323,41 +332,69 @@ public final class Share {
     // 0 default; 1 starting; 2 started; 9 failed or error
     public byte startStatus;
     public Process process;
+    public UUID processCode;
     public String programFile;
     public String directory;
     public Integer mainFormX;
     public Integer mainFormY;
 
-    public void start() {
-      ProcessBuilder builder = new ProcessBuilder(programFile);
-      if (!Strings.isNullOrEmpty(directory)) {
-        builder.directory(new File(directory));
-      }
-      if (mainFormX != null) {
-        builder.command().add(mainFormX.toString());
-      }
-      if (mainFormY != null) {
-        builder.command().add(mainFormY.toString());
-      }
-      try {
-        process = builder.start();
-      } catch (IOException e) {
-        Platform.runLater(() -> Dialogs.error(e).show());
-      }
-    }
+    public Disposable disposable;
 
-    public Observable<String> listener() {
+    public Observable<String> start() {
+      if (Strings.isNullOrEmpty(directory)) {
+        directory = ".\\";
+      }
+      if (!directory.endsWith("\\")) {
+        directory = directory + "\\";
+      }
+      String command = String.format("%s%s %d %d", directory, programFile, mainFormX, mainFormY);
+      try {
+        process = Runtime.getRuntime().exec(command);
+      } catch (IOException e) {
+        throw new RuntimeException("启动程序[" + programFile + "]出错！！", e);
+      }
       return Observable.create((ObservableEmitter<String> emitter) -> {
-        if (process != null && process.isAlive()) {
-          InputStream inputStream = process.getInputStream();
-          BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        InputStream inputStream = process.getInputStream();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
           String line;
           while ((line = reader.readLine()) != null) {
             emitter.onNext(line);
+            if (!process.isAlive()) {
+              return;
+            }
           }
+        } catch (IOException e) {
+          emitter.tryOnError(e);
         }
+        startStatus = 0;
+        process = null;
+        processCode = null;
         emitter.onComplete();
       }).subscribeOn(Schedulers.io());
+    }
+
+    public void stop() {
+      if (disposable != null && !disposable.isDisposed()) {
+        disposable.dispose();
+        disposable = null;
+      }
+      processCode = null;
+      if (process.isAlive()) {
+        process.destroy();
+        process = null;
+      }
+    }
+
+    public void sendMessage(String message) {
+      if (process != null && process.isAlive()) {
+        OutputStream outputStream = process.getOutputStream();
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
+          writer.write(message);
+          writer.flush();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
   }
 
@@ -430,13 +467,13 @@ public final class Share {
   }
 
   public static class Config {
-    public final DBServerConfig dbServer = new DBServerConfig();
-    public final LoginSrvConfig loginSrv = new LoginSrvConfig();
-    public final M2ServerConfig m2Server = new M2ServerConfig();
-    public final LogServerConfig logServer = new LogServerConfig();
-    public final RunGateConfig runGate = new RunGateConfig();
-    public final SelGateConfig selGate = new SelGateConfig();
-    public final LoginGateConfig loginGate = new LoginGateConfig();
-    public final PlugTopConfig plugTop = new PlugTopConfig();
+    public DBServerConfig dbServer = new DBServerConfig();
+    public LoginSrvConfig loginSrv = new LoginSrvConfig();
+    public M2ServerConfig m2Server = new M2ServerConfig();
+    public LogServerConfig logServer = new LogServerConfig();
+    public RunGateConfig runGate = new RunGateConfig();
+    public SelGateConfig selGate = new SelGateConfig();
+    public LoginGateConfig loginGate = new LoginGateConfig();
+    public PlugTopConfig plugTop = new PlugTopConfig();
   }
 }
