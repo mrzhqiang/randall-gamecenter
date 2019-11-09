@@ -22,6 +22,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -220,6 +221,10 @@ public final class Controller {
   }
 
   private void addListener() {
+    hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
+    minutesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
+    allPortPlusSpinner.setValueFactory(
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 65535, 0));
     startModeComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (StartMode.NORMAL.equals(newValue)) {
         runTime = 0;
@@ -242,9 +247,8 @@ public final class Controller {
         runTime = dateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
       }
     });
-    doubleAddressCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-      secondAddressTextField.setDisable(newValue);
-    });
+    doubleAddressCheckBox.selectedProperty().addListener((observable, oldValue, newValue) ->
+        secondAddressTextField.setDisable(!newValue));
     dynamicAddressCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
       primaryAddressTextField.setDisable(newValue);
       secondAddressTextField.setDisable(newValue);
