@@ -16,6 +16,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -24,6 +25,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.ini4j.Ini;
@@ -103,7 +106,7 @@ public final class Controller {
   public Spinner<Integer> hoursSpinner;
   public Spinner<Integer> minutesSpinner;
   public TextArea gameInfoTextArea;
-  public Button btnStartGame;
+  public Button startGameButton;
 
   /* 配置向导 */
   public TabPane configTabPane;
@@ -168,6 +171,26 @@ public final class Controller {
   public CheckBox openPlugTopCheckBox;
   public TextField plugTopFormXTextField;
   public TextField plugTopFormYTextField;
+  /* 数据备份 */
+  public TableView dataBackupTableView;
+  public TableColumn dataDirectoryTableColumn;
+  public TableColumn backupDirectoryTableColumn;
+  public CheckBox dayBackupModeCheckBox;
+  public CheckBox intervalBackupModeCheckBox;
+  public Spinner dayModeHoursSpinner;
+  public Spinner intervalModeHoursSpinner;
+  public Spinner dayModeMinutesSpinner;
+  public Spinner intervalModeMinutesSpinner;
+  public CheckBox backupFunctionCheckBox;
+  public CheckBox compressFunctionCheckBox;
+  public CheckBox autoRunBackupCheckBox;
+  public TextField dataDirectoryTextField;
+  public TextField backupDirectoryTextField;
+  public Button modifyBackupButton;
+  public Button deleteBackupButton;
+  public Button addBackupButton;
+  public Button saveBackupButton;
+  public Button startBackupButton;
 
   private boolean opened = false;
   private boolean gateStopped;
@@ -480,11 +503,11 @@ public final class Controller {
     stopGameTimer.cancel();
     stopGameTimer = new Timer();
     startState = RUNNING_STATE;
-    btnStartGame.setText(share.textStopGame);
+    startGameButton.setText(share.textStopGame);
   }
 
   private void stopGame() {
-    btnStartGame.setText(share.textCancelStopGame);
+    startGameButton.setText(share.textCancelStopGame);
     mainOutMessage("正在开始停止服务器...");
     // todo cancel task and do not new Timer
     checkRunTimer.cancel();
@@ -498,7 +521,7 @@ public final class Controller {
     startGameTimer.cancel();
     startGameTimer = new Timer();
     startState = RUNNING_STATE;
-    btnStartGame.setText(share.textStopGame);
+    startGameButton.setText(share.textStopGame);
   }
 
   private void startGame() {
@@ -600,13 +623,16 @@ public final class Controller {
     gameGateCheckBox7.setSelected(share.config.runGate.getStart[6]);
     gameGateCheckBox8.setSelected(share.config.runGate.getStart[7]);
 
-    btnStartGame.setText(share.textCancelStartGame);
+    startGameButton.setText(share.textCancelStartGame);
     startState = STARTING_STATE;
 
     startGameTimer.schedule(new StartGameTask(), 1000, 1000);
   }
 
   private void loadBackupList() {
+    deleteBackupButton.setDisable(true);
+    modifyBackupButton.setDisable(true);
+
     // todo 加载备份列表
   }
 
@@ -1343,6 +1369,46 @@ public final class Controller {
     Files.onceWrite(new File(dbServerDir, "FUserName.txt"), ";创建人物过滤字符，一行一个过滤");
   }
 
+  public void onModifyBackupClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onDeleteBackupClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onAddBackupClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onSaveBackupClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onStartBackupClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onBackupFunctionClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onCompressFunctionClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onAutoRunBackupClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onChooseDataDirectoryClicked(ActionEvent actionEvent) {
+
+  }
+
+  public void onChooseBackupDirectoryClicked(ActionEvent actionEvent) {
+
+  }
+
   public enum StartMode {
     NORMAL("正常启动"),
     DELAY("延时启动"),
@@ -1562,7 +1628,7 @@ public final class Controller {
       startGameTimer.cancel();
       startGameTimer = new Timer();
       checkRunTimer.schedule(new CheckRunTask(), 1000, 1000);
-      Platform.runLater(() -> btnStartGame.setText(share.textStopGame));
+      Platform.runLater(() -> startGameButton.setText(share.textStopGame));
       startState = RUNNING_STATE;
     }
 
@@ -1991,7 +2057,7 @@ public final class Controller {
       mainOutMessage("所有程序停止完毕！");
       stopGameTimer.cancel();
       stopGameTimer = new Timer();
-      Platform.runLater(() -> btnStartGame.setText(share.textStartGame));
+      Platform.runLater(() -> startGameButton.setText(share.textStartGame));
       startState = STOPPED_STATE;
     }
 

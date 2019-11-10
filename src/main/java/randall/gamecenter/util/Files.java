@@ -17,6 +17,18 @@ public enum Files {
 
   private static final Logger LOGGER = LoggerFactory.getLogger("randall");
 
+  public static String filename(String name) {
+    Preconditions.checkNotNull(name, "name == null");
+    int i = name.lastIndexOf(File.separator);
+    if (i == -1) {
+      return name;
+    }
+    if (name.endsWith(File.separator)) {
+      return "";
+    }
+    return name.substring(i + 1);
+  }
+
   public static void mkdir(File directory) {
     Preconditions.checkNotNull(directory, "directory == null");
     try {
