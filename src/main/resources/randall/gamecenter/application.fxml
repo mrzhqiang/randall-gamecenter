@@ -5,6 +5,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TableColumn?>
@@ -12,6 +13,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -1370,7 +1372,12 @@
                                 </HBox.margin>
                               </Button>
                               <Button fx:id="startBackupButton" mnemonicParsing="false"
-                                  onAction="#onStartBackupClicked" prefWidth="64.0" text="启动"/>
+                                  onAction="#onStartBackupClicked" prefWidth="64.0" text="启动">
+                                <HBox.margin>
+                                  <Insets right="8.0"/>
+                                </HBox.margin>
+                              </Button>
+                              <Label fx:id="backupMessageLabel"/>
                             </children>
                           </HBox>
                           <GridPane GridPane.rowIndex="1">
@@ -1404,10 +1411,6 @@
                                       vgrow="SOMETIMES"/>
                                 </rowConstraints>
                                 <children>
-                                  <CheckBox fx:id="dayBackupModeCheckBox" mnemonicParsing="false"
-                                      text="每天"/>
-                                  <CheckBox fx:id="intervalBackupModeCheckBox"
-                                      mnemonicParsing="false" text="每隔" GridPane.rowIndex="1"/>
                                   <Spinner fx:id="dayModeHoursSpinner" GridPane.columnIndex="1"/>
                                   <Spinner fx:id="intervalModeHoursSpinner" GridPane.columnIndex="1"
                                       GridPane.rowIndex="1"/>
@@ -1418,19 +1421,28 @@
                                   <Label text="小时" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
                                   <Label text="分" GridPane.columnIndex="4"/>
                                   <Label text="分钟" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+                                  <RadioButton fx:id="dayBackupModeRadioButton"
+                                      mnemonicParsing="false" text="每天">
+                                    <toggleGroup>
+                                      <ToggleGroup fx:id="backupModeToggleGroup"/>
+                                    </toggleGroup>
+                                  </RadioButton>
+                                  <RadioButton fx:id="intervalBackupModeRadioButton"
+                                      mnemonicParsing="false" text="每隔"
+                                      toggleGroup="$backupModeToggleGroup" GridPane.rowIndex="1"/>
                                 </children>
                               </GridPane>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0"
                                   GridPane.columnIndex="1">
                                 <children>
                                   <CheckBox fx:id="backupFunctionCheckBox" mnemonicParsing="false"
-                                      onAction="#onBackupFunctionClicked" text="备份">
+                                      text="备份">
                                     <HBox.margin>
                                       <Insets right="16.0"/>
                                     </HBox.margin>
                                   </CheckBox>
                                   <CheckBox fx:id="compressFunctionCheckBox" mnemonicParsing="false"
-                                      onAction="#onCompressFunctionClicked" text="压缩">
+                                      text="压缩">
                                     <HBox.margin>
                                       <Insets right="16.0"/>
                                     </HBox.margin>

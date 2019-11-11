@@ -75,6 +75,7 @@ public final class Share {
   public String textCancelStartGame = "取消启动服务器";
   public String textCancelStopGame = "取消停止服务器";
   public String configFile = ".\\Config.ini";
+  public String backupListFile = ".\\BackupList.txt";
 
   public String gameName = DEFAULT_GAME_NAME;
   public String gameDirectory = DEFAULT_GAME_DIRECTORY;
@@ -101,9 +102,12 @@ public final class Share {
   public final Program loginGate2 = new Program();
   public final Program plugTop = new Program();
 
+  public BackupManager backupManager = new BackupManager();
+  public int backupStartStatus = 0;
+
   public Share() {
     try {
-      File file = new File(this.configFile);
+      File file = new File(gameDirectory, this.configFile);
       Files.create(file);
       ini = new Wini(file);
     } catch (IOException e) {

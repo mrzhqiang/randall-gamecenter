@@ -10,18 +10,20 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TabPane;
@@ -29,7 +31,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import org.ini4j.Ini;
+import org.ini4j.Profile;
 import org.ini4j.Wini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +44,7 @@ import randall.gamecenter.util.Files;
 import randall.gamecenter.util.Networks;
 
 import static randall.gamecenter.Share.ALL_IP_ADDRESS;
+import static randall.gamecenter.Share.BASIC_SECTION_NAME;
 import static randall.gamecenter.Share.DB_SERVER_SECTION_NAME_2;
 import static randall.gamecenter.Share.DEFAULT_AUTO_RUN_BACKUP;
 import static randall.gamecenter.Share.DEFAULT_CLOSE_WUXING_ENABLED;
@@ -172,15 +179,16 @@ public final class Controller {
   public TextField plugTopFormXTextField;
   public TextField plugTopFormYTextField;
   /* 数据备份 */
-  public TableView dataBackupTableView;
-  public TableColumn dataDirectoryTableColumn;
-  public TableColumn backupDirectoryTableColumn;
-  public CheckBox dayBackupModeCheckBox;
-  public CheckBox intervalBackupModeCheckBox;
-  public Spinner dayModeHoursSpinner;
-  public Spinner intervalModeHoursSpinner;
-  public Spinner dayModeMinutesSpinner;
-  public Spinner intervalModeMinutesSpinner;
+  public TableView<BackupManager.BackupObject> dataBackupTableView;
+  public TableColumn<BackupManager.BackupObject, String> dataDirectoryTableColumn;
+  public TableColumn<BackupManager.BackupObject, String> backupDirectoryTableColumn;
+  public RadioButton dayBackupModeRadioButton;
+  public RadioButton intervalBackupModeRadioButton;
+  public ToggleGroup backupModeToggleGroup;
+  public Spinner<Integer> dayModeHoursSpinner;
+  public Spinner<Integer> intervalModeHoursSpinner;
+  public Spinner<Integer> dayModeMinutesSpinner;
+  public Spinner<Integer> intervalModeMinutesSpinner;
   public CheckBox backupFunctionCheckBox;
   public CheckBox compressFunctionCheckBox;
   public CheckBox autoRunBackupCheckBox;
@@ -191,6 +199,7 @@ public final class Controller {
   public Button addBackupButton;
   public Button saveBackupButton;
   public Button startBackupButton;
+  public Label backupMessageLabel;
 
   private boolean opened = false;
   private boolean gateStopped;
@@ -213,6 +222,8 @@ public final class Controller {
 
   @FXML
   public void initialize() {
+    // 额外添加的监听器
+    addListener();
     opened = false;
     mainTabPane.getSelectionModel().select(0);
     configTabPane.getSelectionModel().select(0);
@@ -224,26 +235,23 @@ public final class Controller {
     loadBackupList();
     refBackupListToView();
     if (!startService()) {
-      Platform.exit();
+      return;
     }
-    // 额外添加的监听器
-    addListener();
     refGameConsole();
-    // todo backup check from autoRunBakEnabled
-
+    autoRunBackupCheckBox.setSelected(share.autoRunBakEnabled);
     opened = true;
     if (share.autoRunBakEnabled) {
-      // todo run backup service
+      onStartBackupClicked();
     }
+  }
+
+  private void addListener() {
     startModeComboBox.setItems(FXCollections.observableArrayList(StartMode.values()));
     startModeComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
       hoursSpinner.setDisable(newValue.equals(StartMode.NORMAL));
       minutesSpinner.setDisable(newValue.equals(StartMode.NORMAL));
     });
     startModeComboBox.getSelectionModel().select(StartMode.NORMAL);
-  }
-
-  private void addListener() {
     hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
     minutesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
     allPortPlusSpinner.setValueFactory(
@@ -300,6 +308,49 @@ public final class Controller {
       m2ServerServerPortTextField.setText(
           String.valueOf(share.config.m2Server.msgSrvPort + newValue));
     });
+    dataDirectoryTableColumn.setCellValueFactory(param -> param.getValue().sourceDir);
+    backupDirectoryTableColumn.setCellValueFactory(param -> param.getValue().destinationDir);
+    dataBackupTableView.setItems(share.backupManager.backupList);
+    dataBackupTableView.getSelectionModel().selectedItemProperty()
+        .addListener((observable, oldValue, newValue) -> {
+          dataDirectoryTextField.setText(newValue.sourceDir.get());
+          backupDirectoryTextField.setText(newValue.destinationDir.get());
+          backupFunctionCheckBox.setSelected(newValue.backupEnabled);
+          compressFunctionCheckBox.setSelected(newValue.compressEnabled);
+          if (newValue.backupMode == 0) {
+            backupModeToggleGroup.selectToggle(dayBackupModeRadioButton);
+            dayModeHoursSpinner.getValueFactory().setValue(newValue.hours);
+            dayModeMinutesSpinner.getValueFactory().setValue(newValue.minutes);
+          } else {
+            backupModeToggleGroup.selectToggle(intervalBackupModeRadioButton);
+            intervalModeHoursSpinner.getValueFactory().setValue(newValue.hours);
+            intervalModeMinutesSpinner.getValueFactory().setValue(newValue.minutes);
+          }
+          deleteBackupButton.setDisable(false);
+          modifyBackupButton.setDisable(false);
+        });
+    dayModeHoursSpinner.setValueFactory(
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
+    dayModeMinutesSpinner.setValueFactory(
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
+    intervalModeHoursSpinner.setValueFactory(
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99, 0));
+    intervalModeMinutesSpinner.setValueFactory(
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
+    dayBackupModeRadioButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+      intervalModeHoursSpinner.setDisable(newValue);
+      intervalModeMinutesSpinner.setDisable(newValue);
+      dayModeHoursSpinner.setDisable(!newValue);
+      dayModeMinutesSpinner.setDisable(!newValue);
+    });
+    intervalBackupModeRadioButton.selectedProperty()
+        .addListener((observable, oldValue, newValue) -> {
+          dayModeHoursSpinner.setDisable(newValue);
+          dayModeMinutesSpinner.setDisable(newValue);
+          intervalModeHoursSpinner.setDisable(!newValue);
+          intervalModeMinutesSpinner.setDisable(!newValue);
+        });
+    backupModeToggleGroup.selectToggle(dayBackupModeRadioButton);
   }
 
   private void refGameConsole() {
@@ -632,18 +683,44 @@ public final class Controller {
   private void loadBackupList() {
     deleteBackupButton.setDisable(true);
     modifyBackupButton.setDisable(true);
-
-    // todo 加载备份列表
+    try {
+      File backupFile = new File(share.gameDirectory, share.backupListFile);
+      Files.create(backupFile);
+      Ini ini = new Wini(backupFile);
+      Collection<Profile.Section> sections = ini.values();
+      int index = 0;
+      for (Profile.Section section : sections) {
+        String source = section.get("Source", "");
+        String destination = section.get("Save", "");
+        if (Strings.isNullOrEmpty(source) || Strings.isNullOrEmpty(destination)) {
+          continue;
+        }
+        BackupManager.BackupObject object = new BackupManager.BackupObject();
+        object.index = index;
+        index++;
+        object.sourceDir.set(source);
+        object.destinationDir.set(destination);
+        object.hours = section.get("Hour", Integer.class, 0);
+        object.minutes = section.get("Min", Integer.class, 0);
+        object.backupMode = section.get("BackMode", Integer.class, 0);
+        object.backupEnabled = section.get("GetBack", Boolean.class, true);
+        object.compressEnabled = section.get("Zip", Boolean.class, true);
+        share.backupManager.addToList(object);
+      }
+    } catch (IOException e) {
+      Dialogs.error("读取备份文件列表出错！", e).show();
+    }
   }
 
   private void refBackupListToView() {
-
+    // 不做任何事，因为我们已经在视图上绑定好了数据
   }
 
   public void onDestroy() {
     startGameTimer.cancel();
     stopGameTimer.cancel();
     checkRunTimer.cancel();
+    share.backupManager.stop();
   }
 
   public void onOpenLoginGateClicked() {
@@ -1369,44 +1446,167 @@ public final class Controller {
     Files.onceWrite(new File(dbServerDir, "FUserName.txt"), ";创建人物过滤字符，一行一个过滤");
   }
 
-  public void onModifyBackupClicked(ActionEvent actionEvent) {
-
+  public void onModifyBackupClicked() {
+    BackupManager.BackupObject object = dataBackupTableView.getSelectionModel().getSelectedItem();
+    if (object != null) {
+      String source = dataDirectoryTextField.getText().trim();
+      if (Strings.isNullOrEmpty(source)) {
+        Dialogs.warn("请选择数据目录！！").show();
+        return;
+      }
+      String destination = backupDirectoryTextField.getText().trim();
+      if (Strings.isNullOrEmpty(destination)) {
+        Dialogs.warn("请选择备份目录！！").show();
+        return;
+      }
+      int hours;
+      int minutes;
+      if (dayBackupModeRadioButton.isSelected()) {
+        hours = dayModeHoursSpinner.getValue();
+        minutes = dayModeMinutesSpinner.getValue();
+      } else {
+        hours = intervalModeHoursSpinner.getValue();
+        minutes = intervalModeMinutesSpinner.getValue();
+      }
+      object.sourceDir.set(source);
+      object.destinationDir.set(destination);
+      object.hours = hours;
+      object.minutes = minutes;
+      object.backupEnabled = backupFunctionCheckBox.isSelected();
+      object.compressEnabled = compressFunctionCheckBox.isSelected();
+      if (dayBackupModeRadioButton.isSelected()) {
+        object.backupMode = 0;
+      } else {
+        object.backupMode = 1;
+      }
+      Dialogs.info("修改成功！！").show();
+    }
   }
 
-  public void onDeleteBackupClicked(ActionEvent actionEvent) {
-
+  public void onDeleteBackupClicked() {
+    BackupManager.BackupObject object = dataBackupTableView.getSelectionModel().getSelectedItem();
+    if (object != null) {
+      share.backupManager.backupList.remove(object);
+      Dialogs.info("删除成功！").show();
+    } else {
+      Dialogs.info("删除失败！").show();
+    }
   }
 
-  public void onAddBackupClicked(ActionEvent actionEvent) {
-
+  public void onAddBackupClicked() {
+    String source = dataDirectoryTextField.getText().trim();
+    if (Strings.isNullOrEmpty(source)) {
+      Dialogs.warn("请选择数据目录！！").show();
+      return;
+    }
+    String destination = backupDirectoryTextField.getText().trim();
+    if (Strings.isNullOrEmpty(destination)) {
+      Dialogs.warn("请选择备份目录！！").show();
+      return;
+    }
+    if (share.backupManager.findObject(source).isPresent()) {
+      Dialogs.warn("此数据目录已在备份列表内！！");
+      return;
+    }
+    int hours;
+    int minutes;
+    if (dayBackupModeRadioButton.isSelected()) {
+      hours = dayModeHoursSpinner.getValue();
+      minutes = dayModeMinutesSpinner.getValue();
+    } else {
+      hours = intervalModeHoursSpinner.getValue();
+      minutes = intervalModeMinutesSpinner.getValue();
+    }
+    BackupManager.BackupObject object = new BackupManager.BackupObject();
+    object.index = share.backupManager.backupList.size();
+    object.sourceDir.set(source);
+    object.destinationDir.set(destination);
+    object.hours = hours;
+    object.minutes = minutes;
+    object.backupEnabled = backupFunctionCheckBox.isSelected();
+    object.compressEnabled = compressFunctionCheckBox.isSelected();
+    if (dayBackupModeRadioButton.isSelected()) {
+      object.backupMode = 0;
+    } else {
+      object.backupMode = 1;
+    }
+    share.backupManager.backupList.add(object);
+    refBackupListToView();
+    Dialogs.info("增加成功！！").show();
   }
 
-  public void onSaveBackupClicked(ActionEvent actionEvent) {
-
+  public void onSaveBackupClicked() {
+    saveBackupButton.setDisable(true);
+    File backupFile = new File(share.gameDirectory, share.backupListFile);
+    try {
+      Files.delete(backupFile);
+      Files.create(backupFile);
+      Ini ini = new Wini(backupFile);
+      for (int i = 0; i < share.backupManager.backupList.size(); i++) {
+        BackupManager.BackupObject object = share.backupManager.backupList.get(i);
+        ini.put(String.valueOf(i), "Source", object.sourceDir.get());
+        ini.put(String.valueOf(i), "Save", object.destinationDir.get());
+        ini.put(String.valueOf(i), "Hour", object.hours);
+        ini.put(String.valueOf(i), "Min", object.minutes);
+        ini.put(String.valueOf(i), "BackModeBackMode", object.backupMode);
+        ini.put(String.valueOf(i), "GetBack", object.backupEnabled);
+        ini.put(String.valueOf(i), "Zip", object.compressEnabled);
+      }
+      ini.store();
+    } catch (IOException e) {
+      Dialogs.error("保存备份配置失败！", e).show();
+    }
+    Dialogs.info("保存成功！").show();
+    saveBackupButton.setDisable(false);
   }
 
-  public void onStartBackupClicked(ActionEvent actionEvent) {
-
+  public void onStartBackupClicked() {
+    switch (share.backupStartStatus) {
+      case 0:
+        share.backupStartStatus = 1;
+        startBackupButton.setText("停止");
+        share.backupManager.start();
+        backupMessageLabel.setTextFill(Color.GREEN);
+        backupMessageLabel.setText("数据备份功能启动中...");
+        break;
+      case 1:
+        share.backupStartStatus = 0;
+        startBackupButton.setText("启动");
+        share.backupManager.stop();
+        backupMessageLabel.setTextFill(Color.RED);
+        backupMessageLabel.setText("数据备份功能已停止...");
+        break;
+    }
   }
 
-  public void onBackupFunctionClicked(ActionEvent actionEvent) {
-
+  public void onAutoRunBackupClicked() {
+    share.autoRunBakEnabled = autoRunBackupCheckBox.isSelected();
+    share.ini.put(BASIC_SECTION_NAME, "AutoRunBak", share.autoRunBakEnabled);
+    try {
+      share.ini.store();
+    } catch (IOException e) {
+      LOGGER.error("保存备份配置失败！", e);
+    }
   }
 
-  public void onCompressFunctionClicked(ActionEvent actionEvent) {
-
+  public void onChooseDataDirectoryClicked() {
+    DirectoryChooser chooser = new DirectoryChooser();
+    chooser.setTitle("请选择你要备份的数据目录");
+    chooser.setInitialDirectory(new File(share.gameDirectory));
+    File file = chooser.showDialog(null);
+    if (file != null) {
+      dataDirectoryTextField.setText(file.getAbsolutePath());
+    }
   }
 
-  public void onAutoRunBackupClicked(ActionEvent actionEvent) {
-
-  }
-
-  public void onChooseDataDirectoryClicked(ActionEvent actionEvent) {
-
-  }
-
-  public void onChooseBackupDirectoryClicked(ActionEvent actionEvent) {
-
+  public void onChooseBackupDirectoryClicked() {
+    DirectoryChooser chooser = new DirectoryChooser();
+    chooser.setTitle("请选择备份文件的输出目录");
+    chooser.setInitialDirectory(new File(share.gameDirectory));
+    File file = chooser.showDialog(null);
+    if (file != null) {
+      backupDirectoryTextField.setText(file.getAbsolutePath());
+    }
   }
 
   public enum StartMode {
