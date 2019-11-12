@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -39,6 +40,9 @@ public final class BackupManager {
 
   public void start() {
     clearStack();
+    if (startTimer == null) {
+      startTimer = new Timer();
+    }
     startTimer.schedule(new TimerTask() {
       @Override public void run() {
         BackupManager.this.run();
@@ -58,8 +62,10 @@ public final class BackupManager {
   }
 
   public void stop() {
-    startTimer.cancel();
-    startTimer = new Timer();
+    if (startTimer != null) {
+      startTimer.cancel();
+    }
+    startTimer = null;
     started = false;
   }
 
@@ -135,11 +141,7 @@ public final class BackupManager {
     }
 
     private String lastDirName() {
-      String[] split = sourceDir.get().split(File.separator);
-      if (split.length > 0) {
-        return split[split.length - 1];
-      }
-      return formatDate();
+      return new File(sourceDir.get()).getName();
     }
 
     private String getDirName(String filename) {
@@ -187,9 +189,9 @@ public final class BackupManager {
 
                   if (compressEnabled) {
                     if (errorCount < 2) {
-                      String destination = destinationDir.get() + formatDate() + File.separator;
+                      String destination = destinationDir.get();
                       Files.mkdir(new File(destination));
-                      destination = destination + lastDirName() + ".zip";
+                      destination = destination + lastDirName() + "-" + formatDate() + ".zip";
                       try {
                         Compressor.zipCompress(sourceDir.get(), destination);
                       } catch (Exception e) {
@@ -197,6 +199,7 @@ public final class BackupManager {
                         errorCount++;
                       }
                     }
+                    status = 2;
                     return;
                   }
 
@@ -207,10 +210,11 @@ public final class BackupManager {
                       return;
                     }
                     String newFilename = filename.replace(sourceDir.get(), destination);
-                    String dirName = getDirName(filename);
-                    Files.mkdir(new File(dirName));
+                    //String dirName = getDirName(newFilename);
+                    //Files.mkdir(new File(dirName));
                     try {
-                      java.nio.file.Files.copy(Paths.get(filename), Paths.get(newFilename));
+                      java.nio.file.Files.copy(Paths.get(filename), Paths.get(newFilename),
+                          StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
                     } catch (IOException ignore) {
                     }
                   }
@@ -241,9 +245,9 @@ public final class BackupManager {
                   backupFileList.clear();
                   if (compressEnabled) {
                     if (errorCount < 2) {
-                      String destination = destinationDir.get() + formatDate() + File.separator;
+                      String destination = destinationDir.get();
                       Files.mkdir(new File(destination));
-                      destination = destination + lastDirName() + ".zip";
+                      destination = destination + lastDirName() + "-" + formatDate() + ".zip";
                       try {
                         Compressor.zipCompress(sourceDir.get(), destination);
                       } catch (Exception e) {
@@ -251,6 +255,7 @@ public final class BackupManager {
                         errorCount++;
                       }
                     }
+                    status = 2;
                     return;
                   }
 
@@ -261,10 +266,11 @@ public final class BackupManager {
                       return;
                     }
                     String newFilename = filename.replace(sourceDir.get(), destination);
-                    String dirName = getDirName(filename);
-                    Files.mkdir(new File(dirName));
+                    //String dirName = getDirName(newFilename);
+                    //Files.mkdir(new File(dirName));
                     try {
-                      java.nio.file.Files.copy(Paths.get(filename), Paths.get(newFilename));
+                      java.nio.file.Files.copy(Paths.get(filename), Paths.get(newFilename),
+                          StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
                     } catch (IOException ignore) {
                     }
                   }

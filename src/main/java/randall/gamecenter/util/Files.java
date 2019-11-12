@@ -4,6 +4,9 @@ import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +78,30 @@ public enum Files {
     }
   }
 
+  public static void deleteAll(File directory) {
+    Preconditions.checkNotNull(directory, "directoryy == null");
+    if (!directory.exists()) {
+      return;
+    }
+    try {
+      if (directory.isDirectory()) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+          for (File file : files) {
+            if (file.isDirectory()) {
+              deleteAll(file);
+            } else {
+              delete(file);
+            }
+          }
+        }
+      } else {
+        delete(directory);
+      }
+    } catch (Exception ignore) {
+    }
+  }
+
   public static void onceWrite(File file, String content) {
     Preconditions.checkNotNull(content, "content == null");
     create(file);
@@ -96,6 +123,17 @@ public enum Files {
     } catch (IOException e) {
       String message = String.format("无法追加到 [%s]", file.getPath());
       throw new RuntimeException(message, e);
+    }
+  }
+
+  public static List<String> lineRead(File file) {
+    try {
+      if (file.exists()) {
+        return java.nio.file.Files.lines(file.toPath()).collect(Collectors.toList());
+      }
+      return Collections.emptyList();
+    } catch (IOException e) {
+      throw new RuntimeException(String.format("无法按行读取文件内容 [%s]", file.getPath()), e);
     }
   }
 }

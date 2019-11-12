@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -45,6 +46,7 @@ import randall.gamecenter.util.Networks;
 
 import static randall.gamecenter.Share.ALL_IP_ADDRESS;
 import static randall.gamecenter.Share.BASIC_SECTION_NAME;
+import static randall.gamecenter.Share.DB_SERVER_PROCESS_CODE;
 import static randall.gamecenter.Share.DB_SERVER_SECTION_NAME_2;
 import static randall.gamecenter.Share.DEFAULT_AUTO_RUN_BACKUP;
 import static randall.gamecenter.Share.DEFAULT_CLOSE_WUXING_ENABLED;
@@ -52,20 +54,32 @@ import static randall.gamecenter.Share.DEFAULT_DB_NAME;
 import static randall.gamecenter.Share.DEFAULT_GAME_DIRECTORY;
 import static randall.gamecenter.Share.DEFAULT_GAME_NAME;
 import static randall.gamecenter.Share.DEFAULT_IP_2_ENABLED;
+import static randall.gamecenter.Share.ERROR_STATE;
+import static randall.gamecenter.Share.LOGIN_GATE_PROCESS_CODE;
 import static randall.gamecenter.Share.LOGIN_GATE_SECTION_NAME_2;
+import static randall.gamecenter.Share.LOGIN_SERVER_PROCESS_CODE;
 import static randall.gamecenter.Share.LOGIN_SRV_SECTION_NAME_2;
+import static randall.gamecenter.Share.LOG_SERVER_PROCESS_CODE;
 import static randall.gamecenter.Share.LOG_SERVER_SECTION_2;
 import static randall.gamecenter.Share.M2_SERVER_CONFIG_FILE;
+import static randall.gamecenter.Share.M2_SERVER_PROCESS_CODE;
 import static randall.gamecenter.Share.M2_SERVER_SECTION_NAME_1;
 import static randall.gamecenter.Share.M2_SERVER_SECTION_NAME_2;
 import static randall.gamecenter.Share.MAX_RUN_GATE_COUNT;
 import static randall.gamecenter.Share.ONLINE_USER_LIMIT;
+import static randall.gamecenter.Share.PLUG_TOP_PROCESS_CODE;
 import static randall.gamecenter.Share.PRIMARY_IP_ADDRESS;
 import static randall.gamecenter.Share.QUIT_CODE;
+import static randall.gamecenter.Share.RUNNING_STATE;
+import static randall.gamecenter.Share.RUN_GATE_PROCESS_CODE;
 import static randall.gamecenter.Share.RUN_GATE_SECTION_NAME_2;
 import static randall.gamecenter.Share.SECOND_IP_ADDRESS;
+import static randall.gamecenter.Share.SEL_GATE_PROCESS_CODE;
 import static randall.gamecenter.Share.SEL_GATE_SECTION_NAME_2;
 import static randall.gamecenter.Share.SERVER_CONFIG_FILE;
+import static randall.gamecenter.Share.STARTING_STATE;
+import static randall.gamecenter.Share.STOPPED_STATE;
+import static randall.gamecenter.Share.STOPPING_STATE;
 
 /**
  * 控制器。
@@ -74,21 +88,6 @@ import static randall.gamecenter.Share.SERVER_CONFIG_FILE;
  */
 public final class Controller {
   private static final Logger LOGGER = LoggerFactory.getLogger("randall");
-
-  public static final int DB_SERVER_PROCESS_CODE = 1001;
-  public static final int LOGIN_SERVER_PROCESS_CODE = 1002;
-  public static final int LOG_SERVER_PROCESS_CODE = 1003;
-  public static final int M2_SERVER_PROCESS_CODE = 1004;
-  public static final int LOGIN_GATE_PROCESS_CODE = 1005;
-  public static final int SEL_GATE_PROCESS_CODE = 1006;
-  public static final int RUN_GATE_PROCESS_CODE = 1007;
-  public static final int PLUG_TOP_PROCESS_CODE = 1008;
-
-  public static final int STOPPED_STATE = 0;
-  public static final int STARTING_STATE = 1;
-  public static final int RUNNING_STATE = 2;
-  public static final int STOPPING_STATE = 3;
-  public static final int ERROR_STATE = 9;
 
   /* 控制面板 */
   public TabPane mainTabPane;
@@ -114,7 +113,6 @@ public final class Controller {
   public Spinner<Integer> minutesSpinner;
   public TextArea gameInfoTextArea;
   public Button startGameButton;
-
   /* 配置向导 */
   public TabPane configTabPane;
   public TextField primaryAddressTextField;
@@ -200,12 +198,26 @@ public final class Controller {
   public Button saveBackupButton;
   public Button startBackupButton;
   public Label backupMessageLabel;
+  /* 开区数据清理 */
+  public CheckBox deleteRoleDataCheckBox;
+  public CheckBox deleteNPCMakeDataCheckBox;
+  public CheckBox deleteAccountDataCheckBox;
+  public CheckBox deleteEMailDataCheckBox;
+  public CheckBox deleteGuildDataCheckBox;
+  public CheckBox deleteAccountLoggerCheckBox;
+  public CheckBox clearSabacDataCheckBox;
+  public CheckBox deleteM2ServerLoggerCheckBox;
+  public CheckBox clearGlobalVariateCheckBox;
+  public CheckBox deleteGameLoggerCheckBox;
+  public CheckBox resetItemIDCountCheckBox;
+  public CheckBox clearRoleRelationDataCheckBox;
+  public Button startClearDataButton;
 
   private boolean opened = false;
   private boolean gateStopped;
   private long gateStopTick;
   // 0 -- default; 1 -- starting; 2 -- running; 3 -- stopping; 9 -- error
-  private int startState = 0;
+  public int startState = 0;
   // 0 -- disabled; 1 -- enabled;
   private int backupState = 0;
 
@@ -350,7 +362,7 @@ public final class Controller {
           intervalModeHoursSpinner.setDisable(!newValue);
           intervalModeMinutesSpinner.setDisable(!newValue);
         });
-    backupModeToggleGroup.selectToggle(dayBackupModeRadioButton);
+    //backupModeToggleGroup.selectToggle(dayBackupModeRadioButton);
   }
 
   private void refGameConsole() {
@@ -720,7 +732,9 @@ public final class Controller {
     startGameTimer.cancel();
     stopGameTimer.cancel();
     checkRunTimer.cancel();
-    share.backupManager.stop();
+    if (share.backupManager != null) {
+      share.backupManager.stop();
+    }
   }
 
   public void onOpenLoginGateClicked() {
@@ -1283,7 +1297,7 @@ public final class Controller {
       Ini ini = new Wini(logSrvFile);
       ini.put(LOG_SERVER_SECTION_2, "ServerName", share.gameName);
       ini.put(LOG_SERVER_SECTION_2, "Port", share.config.logServer.port);
-      ini.put(LOG_SERVER_SECTION_2, "BaseDir", ".\\BaseDir\\");
+      ini.put(LOG_SERVER_SECTION_2, "BaseDir", "BaseDir\\");
       ini.store();
     } catch (IOException e) {
       Dialogs.error("生成日志服务器配置文件出错！！", e).show();
@@ -1314,17 +1328,17 @@ public final class Controller {
       ini.put(M2_SERVER_SECTION_NAME_1, "LogServerPort", share.config.logServer.port);
       ini.put(M2_SERVER_SECTION_NAME_1, "CloseWuXin", share.closeWuXinEnabled);
 
-      ini.put(M2_SERVER_SECTION_NAME_2, "GuildDir", ".\\GuildBase\\Guilds\\");
-      ini.put(M2_SERVER_SECTION_NAME_2, "GuildFile", ".\\GuildBase\\GuildList.txt");
-      ini.put(M2_SERVER_SECTION_NAME_2, "ConLogDir", ".\\ConLog\\");
-      ini.put(M2_SERVER_SECTION_NAME_2, "CastleDir", ".\\Castle\\");
-      ini.put(M2_SERVER_SECTION_NAME_2, "CastleFile", ".\\Castle\\List.txt");
-      ini.put(M2_SERVER_SECTION_NAME_2, "GameDataDir", ".\\Envir\\");
-      ini.put(M2_SERVER_SECTION_NAME_2, "EnvirDir", ".\\Envir\\");
-      ini.put(M2_SERVER_SECTION_NAME_2, "MapDir", ".\\Map\\");
-      ini.put(M2_SERVER_SECTION_NAME_2, "NoticeDir", ".\\Notice\\");
-      ini.put(M2_SERVER_SECTION_NAME_2, "LogDir", ".\\Log\\");
-      ini.put(M2_SERVER_SECTION_NAME_2, "EMailDir", ".\\EMail\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "GuildDir", "GuildBase\\Guilds\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "GuildFile", "GuildBase\\GuildList.txt");
+      ini.put(M2_SERVER_SECTION_NAME_2, "ConLogDir", "ConLog\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "CastleDir", "Castle\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "CastleFile", "Castle\\List.txt");
+      ini.put(M2_SERVER_SECTION_NAME_2, "GameDataDir", "Envir\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "EnvirDir", "Envir\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "MapDir", "Map\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "NoticeDir", "Notice\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "LogDir", "Log\\");
+      ini.put(M2_SERVER_SECTION_NAME_2, "EMailDir", "EMail\\");
       ini.store();
     } catch (IOException e) {
       Dialogs.error("生成服务端核心配置出错！！", e).show();
@@ -1359,8 +1373,8 @@ public final class Controller {
       ini.put(LOGIN_SRV_SECTION_NAME_2, "MonAddr", ALL_IP_ADDRESS);
       ini.put(LOGIN_SRV_SECTION_NAME_2, "MonPort", share.config.loginSrv.monPort);
       ini.put(LOGIN_SRV_SECTION_NAME_2, "CloseWuXin", share.closeWuXinEnabled);
-      ini.put(LOGIN_SRV_SECTION_NAME_2, "IDDir", ".\\DB\\");
-      ini.put(LOGIN_SRV_SECTION_NAME_2, "CountLogDir", ".\\ChrLog\\");
+      ini.put(LOGIN_SRV_SECTION_NAME_2, "IDDir", "DB\\");
+      ini.put(LOGIN_SRV_SECTION_NAME_2, "CountLogDir", "ChrLog\\");
       ini.store();
     } catch (IOException e) {
       Dialogs.error("生成登陆服务器配置文件出错", e).show();
@@ -1413,7 +1427,7 @@ public final class Controller {
       ini.put(DB_SERVER_SECTION_NAME_2, "IDSAddr", PRIMARY_IP_ADDRESS);
       ini.put(DB_SERVER_SECTION_NAME_2, "IDSPort", share.config.loginSrv.serverPort);
       ini.put(DB_SERVER_SECTION_NAME_2, "DBName", share.heroDBName);
-      ini.put(DB_SERVER_SECTION_NAME_2, "DBDir", ".\\DB\\");
+      ini.put(DB_SERVER_SECTION_NAME_2, "DBDir", "DB\\");
       ini.store();
     } catch (IOException e) {
       Dialogs.error("生成数据库服务器配置文件出错！！", e).show();
@@ -1548,7 +1562,7 @@ public final class Controller {
         ini.put(String.valueOf(i), "Save", object.destinationDir.get());
         ini.put(String.valueOf(i), "Hour", object.hours);
         ini.put(String.valueOf(i), "Min", object.minutes);
-        ini.put(String.valueOf(i), "BackModeBackMode", object.backupMode);
+        ini.put(String.valueOf(i), "BackMode", object.backupMode);
         ini.put(String.valueOf(i), "GetBack", object.backupEnabled);
         ini.put(String.valueOf(i), "Zip", object.compressEnabled);
       }
@@ -1606,6 +1620,115 @@ public final class Controller {
     File file = chooser.showDialog(null);
     if (file != null) {
       backupDirectoryTextField.setText(file.getAbsolutePath());
+    }
+  }
+
+  public void onStartClearDataClicked() {
+    if (startState == STOPPED_STATE) {
+      startClearDataButton.setDisable(true);
+      File homeDirectory = new File(share.gameDirectory);
+      if (deleteRoleDataCheckBox.isSelected()) {
+        Files.delete(new File(homeDirectory, "DBServer\\DB\\Hum.DB"));
+        Files.delete(new File(homeDirectory, "DBServer\\DB\\Mir.DB"));
+        Files.delete(new File(homeDirectory, "DBServer\\DB\\Mir.DB.idx"));
+      }
+      if (deleteAccountDataCheckBox.isSelected()) {
+        Files.delete(new File(homeDirectory, "LoginSrv\\DB\\Id.DB"));
+        Files.delete(new File(homeDirectory, "LoginSrv\\DB\\Id.DB.idx"));
+      }
+      if (deleteGuildDataCheckBox.isSelected()) {
+        Files.deleteAll(new File(homeDirectory, "Mir200\\GuildBase\\Guilds\\"));
+        File guildListFile = new File(homeDirectory, "Mir200\\GuildBase\\GuildList.txt");
+        if (guildListFile.exists()) {
+          Files.onceWrite(guildListFile, "");
+        }
+      }
+      if (clearSabacDataCheckBox.isSelected()) {
+        List<String> castleList =
+            Files.lineRead(new File(homeDirectory, "Mir200\\Castle\\List.txt"));
+        castleList.stream()
+            .map(s -> String.format("Mir200\\Castle\\%s\\AttackSabukWall.txt", s))
+            .map(s -> new File(homeDirectory, s))
+            .forEach(file -> Files.onceWrite(file, ""));
+        castleList.stream()
+            .map(s -> String.format("Mir200\\Castle\\%s\\SabukW.txt", s))
+            .map(s -> new File(homeDirectory, s))
+            .filter(File::exists)
+            .forEach(file -> {
+              try {
+                Ini ini = new Wini(file);
+                ini.put("Setup", "OwnGuild", "");
+                ini.put("Setup", "ChangeDate", "");
+                ini.put("Setup", "WarDate", "");
+                ini.put("Setup", "IncomeToday", "");
+                ini.put("Setup", "TotalGold", "");
+                ini.put("Setup", "TodayIncome", "");
+
+                ini.put("Defense", "MainDoorHP", "10000");
+                ini.put("Defense", "LeftWallHP", "5000");
+                ini.put("Defense", "CenterWallHP", "5000");
+                ini.put("Defense", "RightWallHP", "5000");
+                ini.put("Defense", "Archer_1_HP", "2000");
+                ini.put("Defense", "Archer_2_HP", "2000");
+                ini.put("Defense", "Archer_3_HP", "2000");
+                ini.put("Defense", "Archer_4_HP", "2000");
+                ini.put("Defense", "Archer_5_HP", "2000");
+                ini.put("Defense", "Archer_6_HP", "2000");
+                ini.put("Defense", "Archer_7_HP", "2000");
+                ini.put("Defense", "Archer_8_HP", "2000");
+                ini.put("Defense", "Archer_9_HP", "2000");
+                ini.put("Defense", "Archer_10_HP", "2000");
+                ini.put("Defense", "Archer_11_HP", "2000");
+                ini.put("Defense", "Archer_12_HP", "2000");
+                ini.store();
+              } catch (IOException e) {
+                LOGGER.error("清理沙巴克数据的配置文件出错！", e);
+              }
+            });
+      }
+      if (clearGlobalVariateCheckBox.isSelected()) {
+        Files.delete(new File(homeDirectory, "Mir200\\Global.ini"));
+      }
+      if (resetItemIDCountCheckBox.isSelected()) {
+        File mir2SetupFile = new File(homeDirectory, "Mir200\\!Setup.txt");
+        if (mir2SetupFile.exists()) {
+          try {
+            Ini ini = new Wini(mir2SetupFile);
+            ini.put("Setup", "ItemNumber", 10000);
+            ini.put("Setup", "ItemNumberEx", 2000000000);
+            ini.store();
+          } catch (IOException e) {
+            LOGGER.error("复位物品 ID 计数出错！", e);
+          }
+        }
+      }
+      if (clearRoleRelationDataCheckBox.isSelected()) {
+        Files.onceWrite(new File(homeDirectory, "Mir200\\Envir\\UnForceMaster.txt"), "");
+        Files.onceWrite(new File(homeDirectory, "Mir200\\Envir\\UnFriend.txt"), "");
+        Files.onceWrite(new File(homeDirectory, "Mir200\\Envir\\UnMarry.txt"), "");
+        Files.onceWrite(new File(homeDirectory, "Mir200\\Envir\\UnMaster.txt"), "");
+      }
+      if (deleteNPCMakeDataCheckBox.isSelected()) {
+        Files.deleteAll(new File(homeDirectory, "Mir200\\Envir\\Market_Upg\\"));
+      }
+      if (deleteEMailDataCheckBox.isSelected()) {
+        Files.delete(new File(homeDirectory, "Mir200\\EMail\\EMailData.dat"));
+        Files.delete(new File(homeDirectory, "Mir200\\EMail\\EMailName.txt"));
+      }
+      if (deleteAccountLoggerCheckBox.isSelected()) {
+        Files.deleteAll(new File(homeDirectory, "LoginSrv\\ChrLog\\"));
+      }
+      if (deleteM2ServerLoggerCheckBox.isSelected()) {
+        Files.deleteAll(new File(homeDirectory, "Mir200\\Log\\"));
+        Files.deleteAll(new File(homeDirectory, "Mir200\\ConLog\\"));
+      }
+      if (deleteGameLoggerCheckBox.isSelected()) {
+        Files.deleteAll(new File(homeDirectory, "LogServer\\BaseDir\\"));
+      }
+      startClearDataButton.setDisable(false);
+      Dialogs.info("全部清理完成！").show();
+    } else {
+      Dialogs.warn("请将服务器处于停止状态下再进行操作！").show();
     }
   }
 

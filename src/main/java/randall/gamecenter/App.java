@@ -2,9 +2,11 @@ package randall.gamecenter;
 
 import java.net.URL;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import randall.gamecenter.util.Dialogs;
 import randall.gamecenter.util.Monitor;
 
 public final class App extends Application {
@@ -24,6 +26,19 @@ public final class App extends Application {
       scene.getStylesheets().add(CSS.toExternalForm());
       primaryStage.setScene(scene);
       controller = loader.getController();
+      primaryStage.setOnCloseRequest(event -> {
+        if (controller.startState == Share.RUNNING_STATE) {
+          Dialogs.confirm("游戏服务器正在运行，是否停止游戏服务器？")
+              .ifPresent(buttonType -> controller.onStartGameClicked());
+          event.consume();
+          return;
+        }
+        Dialogs.confirm("是否确认关闭控制台？")
+            .ifPresent(buttonType -> {
+              controller.onDestroy();
+              Platform.exit();
+            });
+      });
       primaryStage.show();
     } catch (Exception e) {
       e.printStackTrace();

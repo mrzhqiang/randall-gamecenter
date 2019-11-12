@@ -29,6 +29,21 @@ import randall.gamecenter.util.Files;
 public final class Share {
   public static final int MAX_RUN_GATE_COUNT = 8;
 
+  public static final int DB_SERVER_PROCESS_CODE = 1001;
+  public static final int LOGIN_SERVER_PROCESS_CODE = 1002;
+  public static final int LOG_SERVER_PROCESS_CODE = 1003;
+  public static final int M2_SERVER_PROCESS_CODE = 1004;
+  public static final int LOGIN_GATE_PROCESS_CODE = 1005;
+  public static final int SEL_GATE_PROCESS_CODE = 1006;
+  public static final int RUN_GATE_PROCESS_CODE = 1007;
+  public static final int PLUG_TOP_PROCESS_CODE = 1008;
+
+  public static final int STOPPED_STATE = 0;
+  public static final int STARTING_STATE = 1;
+  public static final int RUNNING_STATE = 2;
+  public static final int STOPPING_STATE = 3;
+  public static final int ERROR_STATE = 9;
+
   public static final String QUIT_CODE = ":QUIT";
 
   public static final String BASIC_SECTION_NAME = "GameConfig";

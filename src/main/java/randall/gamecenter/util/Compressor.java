@@ -57,7 +57,7 @@ public enum Compressor {
   private static void compress(File sourceFile, ZipOutputStream outputStream, String baseDir) {
     if (sourceFile.isDirectory()) {
       for (File file : Objects.requireNonNull(sourceFile.listFiles())) {
-        compress(file, outputStream, baseDir + file.getName() + File.separator);
+        compress(file, outputStream, baseDir + sourceFile.getName() + File.separator);
       }
     } else {
       compressFile(sourceFile, outputStream, baseDir);

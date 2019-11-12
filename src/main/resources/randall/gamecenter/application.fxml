@@ -197,7 +197,6 @@
                                         <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -265,9 +264,6 @@
                                                 <TextField fx:id="dbNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                                 <TextField fx:id="gameDirTextField" GridPane.columnIndex="1" />
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane GridPane.rowIndex="2">
                                             <columnConstraints>
@@ -282,9 +278,6 @@
                                              <children>
                                                 <CheckBox fx:id="closeWuxingCheckBox" mnemonicParsing="false" text="关闭服务器五行功能" />
                                              </children>
-                                             <padding>
-                                                <Insets left="16.0" right="16.0" />
-                                             </padding>
                                           </GridPane>
                                          <Button mnemonicParsing="false"
                                              onAction="#onDefaultBasicConfigClicked"
@@ -292,7 +285,12 @@
                                              GridPane.rowIndex="1"/>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                          <padding>
+                                            <Insets bottom="16.0" left="16.0" right="16.0"
+                                                top="16.0"/>
+                                          </padding>
+                                        </AnchorPane>
                                     </content>
                                 </Tab>
                                 <Tab text="第二步：登录网关">
@@ -310,7 +308,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -354,9 +351,6 @@
                                                    onAction="#onOpenLoginGate2Clicked"
                                                    text="启动登录网关二" GridPane.rowIndex="1"/>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                             <columnConstraints>
@@ -393,21 +387,23 @@
                                                    </children>
                                                 </HBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
                                  </children>
+                                <padding>
+                                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+                                </padding>
                               </AnchorPane>
                            </content>
                                 </Tab>
                                 <Tab text="第三步：角色网关">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                      <AnchorPane>
                                  <children>
-                                    <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
+                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -418,7 +414,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -462,9 +457,6 @@
                                                    onAction="#onOpenSelGate2Clicked" text="启动角色网关二"
                                                    GridPane.rowIndex="1"/>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                              <columnConstraints>
@@ -507,20 +499,24 @@
                                                    </children>
                                                 </HBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                        <padding>
+                                          <Insets bottom="16.0" left="16.0" right="16.0"
+                                              top="16.0"/>
+                                        </padding>
+                                      </AnchorPane>
                                     </content>
                                 </Tab>
                                 <Tab text="第四步：游戏网关">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                      <AnchorPane>
                                  <children>
-                                    <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
+                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -531,7 +527,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -598,9 +593,6 @@
                                                    onAction="#onOpenRunGate8Clicked" text="启动网关八"
                                                    GridPane.columnIndex="3" GridPane.rowIndex="1"/>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                              <columnConstraints>
@@ -679,20 +671,24 @@
                                                    </children>
                                                 </HBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                        <padding>
+                                          <Insets bottom="16.0" left="16.0" right="16.0"
+                                              top="16.0"/>
+                                        </padding>
+                                      </AnchorPane>
                                     </content>
                                 </Tab>
                                 <Tab text="第五步：登录服务器">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                      <AnchorPane>
                                  <children>
-                                    <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
+                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -703,7 +699,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -743,9 +738,6 @@
                                                    onAction="#onOpenLoginSrvClicked"
                                                    text="启动登录服务器"/>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                              <columnConstraints>
@@ -794,20 +786,24 @@
                                                    </children>
                                                 </HBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                        <padding>
+                                          <Insets bottom="16.0" left="16.0" right="16.0"
+                                              top="16.0"/>
+                                        </padding>
+                                      </AnchorPane>
                                     </content>
                                 </Tab>
                                 <Tab text="第六步：数据库服务器">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                      <AnchorPane>
                                  <children>
-                                    <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
+                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -818,7 +814,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -858,9 +853,6 @@
                                                    onAction="#onOpenDBServerClicked"
                                                    text="启动数据库服务"/>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                              <columnConstraints>
@@ -903,20 +895,24 @@
                                                    </children>
                                                 </HBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                        <padding>
+                                          <Insets bottom="16.0" left="16.0" right="16.0"
+                                              top="16.0"/>
+                                        </padding>
+                                      </AnchorPane>
                                     </content>
                                 </Tab>
                                 <Tab text="第七步：游戏日志服务器">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                      <AnchorPane>
                                  <children>
-                                    <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
+                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -927,7 +923,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button minWidth="64.0" mnemonicParsing="false"
@@ -966,9 +961,6 @@
                                                    onAction="#onOpenLogServerClicked"
                                                    text="启动日志服务器"/>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                              <columnConstraints>
@@ -1005,20 +997,24 @@
                                                    </children>
                                                 </HBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                        <padding>
+                                          <Insets bottom="16.0" left="16.0" right="16.0"
+                                              top="16.0"/>
+                                        </padding>
+                                      </AnchorPane>
                                     </content>
                                 </Tab>
                                 <Tab text="第八步：游戏引擎主服务器">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                      <AnchorPane>
                                  <children>
-                                    <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
+                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -1029,7 +1025,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -1069,9 +1064,6 @@
                                                    onAction="#onOpenM2ServerClicked"
                                                    text="启动游戏服务器"/>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                              <columnConstraints>
@@ -1114,20 +1106,24 @@
                                                    </children>
                                                 </HBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                        <padding>
+                                          <Insets bottom="16.0" left="16.0" right="16.0"
+                                              top="16.0"/>
+                                        </padding>
+                                      </AnchorPane>
                                     </content>
                                 </Tab>
                                 <Tab text="第九步：排行榜插件">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                      <AnchorPane>
                                  <children>
-                                    <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
+                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -1138,7 +1134,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -1177,9 +1172,6 @@
                                                    mnemonicParsing="false"
                                                    onAction="#onOpenPlugTopClicked" text="启动排行榜插件"/>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                              <columnConstraints>
@@ -1209,20 +1201,24 @@
                                                    </children>
                                                 </HBox>
                                              </children>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                        <padding>
+                                          <Insets bottom="16.0" left="16.0" right="16.0"
+                                              top="16.0"/>
+                                        </padding>
+                                      </AnchorPane>
                                     </content>
                                 </Tab>
                                 <Tab text="第十步：保存配置">
                                     <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                      <AnchorPane>
                                  <children>
-                                    <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
+                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -1233,7 +1229,6 @@
                                           <RowConstraints maxHeight="287.0" minHeight="10.0" prefHeight="131.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
                                                <Button mnemonicParsing="false"
@@ -1267,9 +1262,6 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
-                                             <padding>
-                                                <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                                             </padding>
                                           </GridPane>
                                           <GridPane>
                                              <columnConstraints>
@@ -1284,13 +1276,15 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
-                                             <padding>
-                                                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                                             </padding>
                                           </GridPane>
                                        </children>
                                     </GridPane>
-                                 </children></AnchorPane>
+                                 </children>
+                                        <padding>
+                                          <Insets bottom="16.0" left="16.0" right="16.0"
+                                              top="16.0"/>
+                                        </padding>
+                                      </AnchorPane>
                                     </content>
                                 </Tab>
                             </tabs>
@@ -1497,7 +1491,88 @@
         </Tab>
         <Tab text="开区数据清理">
             <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <padding>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+                </padding>
+                <children>
+                  <GridPane prefHeight="451.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0"
+                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                      AnchorPane.topAnchor="0.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="361.0" minHeight="10.0" prefHeight="314.0"
+                          vgrow="SOMETIMES"/>
+                      <RowConstraints maxHeight="79.0" minHeight="0.0" prefHeight="71.0"
+                          vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <children>
+                      <VBox prefHeight="299.0" prefWidth="608.0">
+                        <children>
+                          <Label text="清理选项"/>
+                          <GridPane>
+                            <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                  prefWidth="100.0"/>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
+                                  prefWidth="100.0"/>
+                            </columnConstraints>
+                            <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                            </rowConstraints>
+                            <children>
+                              <CheckBox fx:id="deleteRoleDataCheckBox" mnemonicParsing="false"
+                                  selected="true" text="删除人物数据"/>
+                              <CheckBox fx:id="deleteNPCMakeDataCheckBox" mnemonicParsing="false"
+                                  selected="true" text="删除NPC打造数据" GridPane.columnIndex="1"/>
+                              <CheckBox fx:id="deleteAccountDataCheckBox" mnemonicParsing="false"
+                                  selected="true" text="删除账号数据" GridPane.rowIndex="1"/>
+                              <CheckBox fx:id="deleteEMailDataCheckBox" mnemonicParsing="false"
+                                  selected="true" text="删除邮件数据" GridPane.columnIndex="1"
+                                  GridPane.rowIndex="1"/>
+                              <CheckBox fx:id="deleteGuildDataCheckBox" mnemonicParsing="false"
+                                  selected="true" text="删除行会数据" GridPane.rowIndex="2"/>
+                              <CheckBox fx:id="deleteAccountLoggerCheckBox" mnemonicParsing="false"
+                                  selected="true" text="删除账号日志记录" GridPane.columnIndex="1"
+                                  GridPane.rowIndex="2"/>
+                              <CheckBox fx:id="clearSabacDataCheckBox" mnemonicParsing="false"
+                                  selected="true" text="清空沙巴克数据" GridPane.rowIndex="3"/>
+                              <CheckBox fx:id="deleteM2ServerLoggerCheckBox" mnemonicParsing="false"
+                                  selected="true" text="删除引擎日志记录" GridPane.columnIndex="1"
+                                  GridPane.rowIndex="3"/>
+                              <CheckBox fx:id="clearGlobalVariateCheckBox" mnemonicParsing="false"
+                                  text="清空全局变量" GridPane.rowIndex="4"/>
+                              <CheckBox fx:id="deleteGameLoggerCheckBox" mnemonicParsing="false"
+                                  selected="true" text="删除游戏日志记录" GridPane.columnIndex="1"
+                                  GridPane.rowIndex="4"/>
+                              <CheckBox fx:id="resetItemIDCountCheckBox" mnemonicParsing="false"
+                                  selected="true" text="复位物品ID计数" GridPane.rowIndex="5"/>
+                              <CheckBox fx:id="clearRoleRelationDataCheckBox"
+                                  mnemonicParsing="false" selected="true" text="清空出师、离婚、断交数据"
+                                  GridPane.rowIndex="6"/>
+                            </children>
+                          </GridPane>
+                        </children>
+                      </VBox>
+                      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0"
+                          GridPane.rowIndex="1">
+                        <children>
+                          <Button fx:id="startClearDataButton" mnemonicParsing="false"
+                              onAction="#onStartClearDataClicked" prefWidth="64.0" text="开始清理"/>
+                        </children>
+                      </HBox>
+                    </children>
+                  </GridPane>
+                </children>
+              </AnchorPane>
             </content>
         </Tab>
     </tabs>
