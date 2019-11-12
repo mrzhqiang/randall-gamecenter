@@ -6,7 +6,7 @@
 
     <groupId>com.github.mrzhqiang.randall</groupId>
     <artifactId>gamecenter</artifactId>
-    <version>1.0-SNAPSHOT</version>
+  <version>2019.1.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -106,7 +106,7 @@
                     <version>8.8.3</version>
                     <configuration>
                         <vendor>Randall</vendor>
-                        <mainClass>randall.gamecenter.App</mainClass>
+                      <mainClass>randall.gamecenter.GameCenter</mainClass>
                     </configuration>
                 </plugin>
             </plugins>

@@ -9,10 +9,10 @@ import javafx.stage.Stage;
 import randall.gamecenter.util.Dialogs;
 import randall.gamecenter.util.Monitor;
 
-public final class App extends Application {
+public final class GameCenter extends Application {
   private static final String TITLE = "游戏控制器";
-  private static final URL FXML = App.class.getResource("application.fxml");
-  private static final URL CSS = App.class.getResource("application.css");
+  private static final URL FXML = GameCenter.class.getResource("application.fxml");
+  private static final URL CSS = GameCenter.class.getResource("application.css");
   private Controller controller;
 
   @Override
