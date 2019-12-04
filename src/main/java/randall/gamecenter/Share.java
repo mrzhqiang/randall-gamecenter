@@ -14,12 +14,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
-import randall.gamecenter.util.Dialogs;
-import randall.gamecenter.util.Files;
+import randall.common.ui.Dialogs;
+import randall.common.util.IOHelper;
 
 /**
  * 共享逻辑。
@@ -89,8 +92,8 @@ public final class Share {
   public String textStopGame = "停止游戏服务器";
   public String textCancelStartGame = "取消启动服务器";
   public String textCancelStopGame = "取消停止服务器";
-  public String configFile = ".\\Config.ini";
-  public String backupListFile = ".\\BackupList.txt";
+  public String configFile = "Config.ini";
+  public String backupListFile = "BackupList.txt";
 
   public String gameName = DEFAULT_GAME_NAME;
   public String gameDirectory = DEFAULT_GAME_DIRECTORY;
@@ -122,9 +125,12 @@ public final class Share {
 
   public Share() {
     try {
-      File file = new File(gameDirectory, this.configFile);
-      Files.create(file);
-      ini = new Wini(file);
+      Path path = Paths.get(gameDirectory, this.configFile);
+      if (Files.notExists(path)) {
+        IOHelper.mkdir(path.getParent());
+        IOHelper.create(path);
+      }
+      ini = new Wini(path.toFile());
     } catch (IOException e) {
       Dialogs.error("初始化配置文件出错！！", e).show();
     }

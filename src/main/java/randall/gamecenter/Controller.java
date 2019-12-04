@@ -5,6 +5,9 @@ import helper.DateTimeHelper;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -40,9 +43,9 @@ import org.ini4j.Profile;
 import org.ini4j.Wini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import randall.gamecenter.util.Dialogs;
-import randall.gamecenter.util.Files;
-import randall.gamecenter.util.Networks;
+import randall.common.ui.Dialogs;
+import randall.common.util.IOHelper;
+import randall.common.util.Networks;
 
 import static randall.gamecenter.Share.ALL_IP_ADDRESS;
 import static randall.gamecenter.Share.BASIC_SECTION_NAME;
@@ -696,9 +699,11 @@ public final class Controller {
     deleteBackupButton.setDisable(true);
     modifyBackupButton.setDisable(true);
     try {
-      File backupFile = new File(share.gameDirectory, share.backupListFile);
-      Files.create(backupFile);
-      Ini ini = new Wini(backupFile);
+      Path path = Paths.get(share.gameDirectory, share.backupListFile);
+      if (Files.notExists(path)) {
+        IOHelper.create(path);
+      }
+      Ini ini = new Wini(path.toFile());
       Collection<Profile.Section> sections = ini.values();
       int index = 0;
       for (Profile.Section section : sections) {
@@ -808,7 +813,7 @@ public final class Controller {
   public void onReloadAllConfigClicked() {
     share.loadConfig();
     refGameConsole();
-    Dialogs.info("配置重加载完成...").show();
+    Dialogs.alert("配置重加载完成...").show();
   }
 
   public void onNextBasicConfigClicked() {
@@ -1124,7 +1129,7 @@ public final class Controller {
 
   public void onSaveConfigClicked() {
     share.saveConfig();
-    Dialogs.info("配置文件已经保存完毕...")
+    Dialogs.alert("配置文件已经保存完毕...")
         .showAndWait()
         .filter(ButtonType.OK::equals)
         .flatMap(buttonType -> Dialogs.confirm("是否生成新的游戏服务器配置文件？"))
@@ -1138,11 +1143,11 @@ public final class Controller {
   public void onGenerateConfigClicked() {
     generateGameConfig();
     refGameConsole();
-    Dialogs.info("引擎配置文件已经生成完毕...").show();
+    Dialogs.alert("引擎配置文件已经生成完毕...").show();
   }
 
   private void generateGameConfig() {
-    Files.mkdir(new File(share.gameDirectory));
+    IOHelper.mkdir(Paths.get(share.gameDirectory));
     generateDBServerConfig();
     generateLoginServerConfig();
     generateM2ServerConfig();
@@ -1154,13 +1159,13 @@ public final class Controller {
 
   private void generateMultiRunGateConfig(int index) {
     if (index > 0 && index < MAX_RUN_GATE_COUNT) {
-      File runGateDir = new File(share.gameDirectory, "RunGate\\");
-      Files.mkdir(runGateDir);
+      Path runGateDir = Paths.get(share.gameDirectory, "RunGate\\");
+      IOHelper.mkdir(runGateDir);
 
       try {
-        File runGateConfigFile = new File(runGateDir, SERVER_CONFIG_FILE);
-        Files.create(runGateConfigFile);
-        Ini ini = new Wini(runGateConfigFile);
+        Path runGateConfigPath = Paths.get(runGateDir.toString(), SERVER_CONFIG_FILE);
+        IOHelper.create(runGateConfigPath);
+        Ini ini = new Wini(runGateConfigPath.toFile());
         ini.put(RUN_GATE_SECTION_NAME_2, "Title", share.gameName);
         ini.put(RUN_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
         ini.put(RUN_GATE_SECTION_NAME_2, "GatePort", share.config.runGate.gatePort[index]);
@@ -1175,13 +1180,13 @@ public final class Controller {
     if (index != 0 && index != 1) {
       return;
     }
-    File selGateDir = new File(share.gameDirectory, "SelGate\\");
-    Files.mkdir(selGateDir);
+    Path selGateDir = Paths.get(share.gameDirectory, "SelGate\\");
+    IOHelper.mkdir(selGateDir);
 
     try {
-      File selGateConfigFile = new File(selGateDir, SERVER_CONFIG_FILE);
-      Files.create(selGateConfigFile);
-      Ini ini = new Wini(selGateConfigFile);
+      Path selGateConfigPath = Paths.get(selGateDir.toString(), SERVER_CONFIG_FILE);
+      IOHelper.create(selGateConfigPath);
+      Ini ini = new Wini(selGateConfigPath.toFile());
       ini.put(SEL_GATE_SECTION_NAME_2, "Title", share.gameName);
       ini.put(SEL_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
       ini.put(SEL_GATE_SECTION_NAME_2, "GatePort", share.config.selGate.gatePort[index]);
@@ -1202,13 +1207,13 @@ public final class Controller {
     if (index != 0 && index != 1) {
       return;
     }
-    File loginGateDir = new File(share.gameDirectory, "LoginGate\\");
-    Files.mkdir(loginGateDir);
+    Path loginGateDir = Paths.get(share.gameDirectory, "LoginGate\\");
+    IOHelper.mkdir(loginGateDir);
 
     try {
-      File loginGateConfigFile = new File(loginGateDir, SERVER_CONFIG_FILE);
-      Files.create(loginGateConfigFile);
-      Ini ini = new Wini(loginGateConfigFile);
+      Path loginGateConfigPath = Paths.get(loginGateDir.toString(), SERVER_CONFIG_FILE);
+      IOHelper.create(loginGateConfigPath);
+      Ini ini = new Wini(loginGateConfigPath.toFile());
       ini.put(LOGIN_SRV_SECTION_NAME_2, "Title", share.gameName);
       ini.put(LOGIN_SRV_SECTION_NAME_2, "GatePort", share.config.loginGate.gatePort);
       if (share.ip2Enabled) {
@@ -1229,13 +1234,13 @@ public final class Controller {
   }
 
   private void generateLoginGateConfig() {
-    File loginGateDir = new File(share.gameDirectory, "LoginGate\\");
-    Files.mkdir(loginGateDir);
+    Path loginGateDir = Paths.get(share.gameDirectory, "LoginGate\\");
+    IOHelper.mkdir(loginGateDir);
 
     try {
-      File configFile = new File(loginGateDir, SERVER_CONFIG_FILE);
-      Files.create(configFile);
-      Ini ini = new Wini(configFile);
+      Path configPath = Paths.get(loginGateDir.toString(), SERVER_CONFIG_FILE);
+      IOHelper.create(configPath);
+      Ini ini = new Wini(configPath.toFile());
       ini.put(LOGIN_GATE_SECTION_NAME_2, "Title", share.gameName);
       ini.put(LOGIN_GATE_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
       ini.put(LOGIN_GATE_SECTION_NAME_2, "ServerPort", share.config.loginSrv.gatePort);
@@ -1248,13 +1253,13 @@ public final class Controller {
   }
 
   private void generateSelGateConfig() {
-    File selGateDir = new File(share.gameDirectory, "SelGate\\");
-    Files.mkdir(selGateDir);
+    Path selGateDir = Paths.get(share.gameDirectory, "SelGate\\");
+    IOHelper.mkdir(selGateDir);
 
     try {
-      File configFile = new File(selGateDir, SERVER_CONFIG_FILE);
-      Files.create(configFile);
-      Ini ini = new Wini(configFile);
+      Path configPath = Paths.get(selGateDir.toString(), SERVER_CONFIG_FILE);
+      IOHelper.create(configPath);
+      Ini ini = new Wini(configPath.toFile());
       ini.put(SEL_GATE_SECTION_NAME_2, "Title", share.gameName);
       ini.put(SEL_GATE_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
       ini.put(SEL_GATE_SECTION_NAME_2, "ServerPort", share.config.dbServer.gatePort);
@@ -1267,13 +1272,13 @@ public final class Controller {
   }
 
   private void generateRunGateConfig() {
-    File runGateDir = new File(share.gameDirectory, "RunGate\\");
-    Files.mkdir(runGateDir);
+    Path runGateDir = Paths.get(share.gameDirectory, "RunGate\\");
+    IOHelper.mkdir(runGateDir);
 
     try {
-      File configFile = new File(runGateDir, SERVER_CONFIG_FILE);
-      Files.create(configFile);
-      Ini ini = new Wini(configFile);
+      Path configPath = Paths.get(runGateDir.toString(), SERVER_CONFIG_FILE);
+      IOHelper.create(configPath);
+      Ini ini = new Wini(configPath.toFile());
       ini.put(RUN_GATE_SECTION_NAME_2, "Title", share.gameName);
       ini.put(RUN_GATE_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
       ini.put(RUN_GATE_SECTION_NAME_2, "ServerPort", share.config.m2Server.gatePort);
@@ -1288,13 +1293,13 @@ public final class Controller {
   }
 
   private void generateLogServerConfig() {
-    File logSrvDir = new File(share.gameDirectory, "LogServer\\");
-    Files.mkdir(logSrvDir);
+    Path logSrvDir = Paths.get(share.gameDirectory, "LogServer\\");
+    IOHelper.mkdir(logSrvDir);
 
     try {
-      File logSrvFile = new File(logSrvDir, "LogData.ini");
-      Files.create(logSrvFile);
-      Ini ini = new Wini(logSrvFile);
+      Path logSrvPath = Paths.get(logSrvDir.toString(), "LogData.ini");
+      IOHelper.create(logSrvPath);
+      Ini ini = new Wini(logSrvPath.toFile());
       ini.put(LOG_SERVER_SECTION_2, "ServerName", share.gameName);
       ini.put(LOG_SERVER_SECTION_2, "Port", share.config.logServer.port);
       ini.put(LOG_SERVER_SECTION_2, "BaseDir", "BaseDir\\");
@@ -1303,17 +1308,17 @@ public final class Controller {
       Dialogs.error("生成日志服务器配置文件出错！！", e).show();
     }
 
-    Files.mkdir(new File(logSrvDir, "BaseDir\\"));
+    IOHelper.mkdir(Paths.get(logSrvDir.toString(), "BaseDir\\"));
   }
 
   private void generateM2ServerConfig() {
-    File m2SrvDir = new File(share.gameDirectory, "Mir200\\");
-    Files.mkdir(m2SrvDir);
+    Path m2SrvDir = Paths.get(share.gameDirectory, "Mir200\\");
+    IOHelper.mkdir(m2SrvDir);
 
     try {
-      File m2SrvFile = new File(m2SrvDir, M2_SERVER_CONFIG_FILE);
-      Files.create(m2SrvFile);
-      Ini ini = new Wini(m2SrvFile);
+      Path m2SrvPath = Paths.get(m2SrvDir.toString(), M2_SERVER_CONFIG_FILE);
+      IOHelper.create(m2SrvPath);
+      Ini ini = new Wini(m2SrvPath.toFile());
       ini.put(M2_SERVER_SECTION_NAME_1, "ServerName", share.gameName);
       ini.put(M2_SERVER_SECTION_NAME_1, "DBName", share.heroDBName);
       ini.put(M2_SERVER_SECTION_NAME_1, "GateAddr", ALL_IP_ADDRESS);
@@ -1345,27 +1350,27 @@ public final class Controller {
     }
 
     // todo 批量创建文件
-    Files.mkdir(new File(m2SrvDir, "GuildBase\\"));
-    Files.mkdir(new File(m2SrvDir, "GuildBase\\Guilds\\"));
-    Files.mkdir(new File(m2SrvDir, "ConLog\\"));
-    Files.mkdir(new File(m2SrvDir, "Castle\\"));
-    Files.mkdir(new File(m2SrvDir, "Envir\\"));
-    Files.mkdir(new File(m2SrvDir, "Map\\"));
-    Files.mkdir(new File(m2SrvDir, "Notice\\"));
-    Files.mkdir(new File(m2SrvDir, "Log\\"));
-    Files.mkdir(new File(m2SrvDir, "EMail\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "GuildBase\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "GuildBase\\Guilds\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "ConLog\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "Castle\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "Envir\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "Map\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "Notice\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "Log\\"));
+    IOHelper.mkdir(Paths.get(m2SrvDir.toString(), "EMail\\"));
 
-    Files.onceWrite(new File(m2SrvDir, "!servertable.txt"), PRIMARY_IP_ADDRESS);
+    IOHelper.write(Paths.get(m2SrvDir.toString(), "!servertable.txt"), PRIMARY_IP_ADDRESS);
   }
 
   private void generateLoginServerConfig() {
-    File loginSrvDir = new File(share.gameDirectory, "LoginSrv\\");
-    Files.mkdir(loginSrvDir);
+    Path loginSrvDir = Paths.get(share.gameDirectory, "LoginSrv\\");
+    IOHelper.mkdir(loginSrvDir);
 
     try {
-      File loginSrvFile = new File(loginSrvDir, "Logsrv.ini");
-      Files.create(loginSrvFile);
-      Ini ini = new Wini(loginSrvFile);
+      Path loginSrvPath = Paths.get(loginSrvDir.toString(), "Logsrv.ini");
+      IOHelper.create(loginSrvPath);
+      Ini ini = new Wini(loginSrvPath.toFile());
       ini.put(LOGIN_SRV_SECTION_NAME_2, "ServerAddr", ALL_IP_ADDRESS);
       ini.put(LOGIN_SRV_SECTION_NAME_2, "ServerPort", share.config.loginSrv.serverPort);
       ini.put(LOGIN_SRV_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
@@ -1384,10 +1389,10 @@ public final class Controller {
     if (share.ip2Enabled) {
       builder.append(System.lineSeparator()).append(SECOND_IP_ADDRESS);
     }
-    Files.onceWrite(new File(loginSrvDir, "!serveraddr.txt"), builder.toString());
+    IOHelper.write(Paths.get(loginSrvDir.toString(), "!serveraddr.txt"), builder.toString());
 
     String content = String.format("%s %s %d", share.gameName, share.gameName, ONLINE_USER_LIMIT);
-    Files.onceWrite(new File(loginSrvDir, "!UserLimit.txt"), content);
+    IOHelper.write(Paths.get(loginSrvDir.toString(), "!UserLimit.txt"), content);
 
     builder = new StringBuilder(PRIMARY_IP_ADDRESS);
     if (share.config.selGate.getStart1) {
@@ -1404,21 +1409,21 @@ public final class Controller {
         builder.append(String.format(" %s %d", share.extIPAddr, share.config.selGate.gatePort[1]));
       }
     }
-    Files.onceWrite(new File(loginSrvDir, "!addrtable.txt"), builder.toString());
-    Files.mkdir(new File(loginSrvDir, "ChrLog\\"));
-    Files.mkdir(new File(loginSrvDir, "DB\\"));
+    IOHelper.write(Paths.get(loginSrvDir.toString(), "!addrtable.txt"), builder.toString());
+    IOHelper.mkdir(Paths.get(loginSrvDir.toString(), "ChrLog\\"));
+    IOHelper.mkdir(Paths.get(loginSrvDir.toString(), "DB\\"));
   }
 
   private void generateDBServerConfig() {
-    File dbServerDir = new File(share.gameDirectory, "DBServer\\");
-    Files.mkdir(dbServerDir);
-    File dbFileDir = new File(dbServerDir, "DB\\");
-    Files.mkdir(dbFileDir);
+    Path dbServerDir = Paths.get(share.gameDirectory, "DBServer\\");
+    IOHelper.mkdir(dbServerDir);
+    Path dbFileDir = Paths.get(dbServerDir.toString(), "DB\\");
+    IOHelper.mkdir(dbFileDir);
 
     try {
-      File dbSrcFile = new File(dbServerDir, "Dbsrc.ini");
-      Files.create(dbSrcFile);
-      Ini ini = new Wini(dbSrcFile);
+      Path dbSrcPath = Paths.get(dbServerDir.toString(), "Dbsrc.ini");
+      IOHelper.create(dbSrcPath);
+      Ini ini = new Wini(dbSrcPath.toFile());
       ini.put(DB_SERVER_SECTION_NAME_2, "ServerName", share.gameName);
       ini.put(DB_SERVER_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
       ini.put(DB_SERVER_SECTION_NAME_2, "ServerPort", share.config.dbServer.serverPort);
@@ -1437,7 +1442,7 @@ public final class Controller {
     if (share.ip2Enabled) {
       builder.append(System.lineSeparator()).append(SECOND_IP_ADDRESS);
     }
-    Files.onceWrite(new File(dbServerDir, "!addrtable.txt"), builder.toString());
+    IOHelper.write(Paths.get(dbServerDir.toString(), "!addrtable.txt"), builder.toString());
 
     builder = new StringBuilder(PRIMARY_IP_ADDRESS);
     for (int i = 0; i < share.config.runGate.getStart.length; i++) {
@@ -1456,8 +1461,8 @@ public final class Controller {
         }
       }
     }
-    Files.onceWrite(new File(dbServerDir, "!serverinfo.txt"), builder.toString());
-    Files.onceWrite(new File(dbServerDir, "FUserName.txt"), ";创建人物过滤字符，一行一个过滤");
+    IOHelper.write(Paths.get(dbServerDir.toString(), "!serverinfo.txt"), builder.toString());
+    IOHelper.write(Paths.get(dbServerDir.toString(), "FUserName.txt"), ";创建人物过滤字符，一行一个过滤");
   }
 
   public void onModifyBackupClicked() {
@@ -1493,7 +1498,7 @@ public final class Controller {
       } else {
         object.backupMode = 1;
       }
-      Dialogs.info("修改成功！！").show();
+      Dialogs.alert("修改成功！！").show();
     }
   }
 
@@ -1501,9 +1506,9 @@ public final class Controller {
     BackupManager.BackupObject object = dataBackupTableView.getSelectionModel().getSelectedItem();
     if (object != null) {
       share.backupManager.backupList.remove(object);
-      Dialogs.info("删除成功！").show();
+      Dialogs.alert("删除成功！").show();
     } else {
-      Dialogs.info("删除失败！").show();
+      Dialogs.alert("删除失败！").show();
     }
   }
 
@@ -1546,16 +1551,16 @@ public final class Controller {
     }
     share.backupManager.backupList.add(object);
     refBackupListToView();
-    Dialogs.info("增加成功！！").show();
+    Dialogs.alert("增加成功！！").show();
   }
 
   public void onSaveBackupClicked() {
     saveBackupButton.setDisable(true);
-    File backupFile = new File(share.gameDirectory, share.backupListFile);
+    Path path = Paths.get(share.gameDirectory, share.backupListFile);
     try {
-      Files.delete(backupFile);
-      Files.create(backupFile);
-      Ini ini = new Wini(backupFile);
+      IOHelper.delete(path);
+      IOHelper.create(path);
+      Ini ini = new Wini(path.toFile());
       for (int i = 0; i < share.backupManager.backupList.size(); i++) {
         BackupManager.BackupObject object = share.backupManager.backupList.get(i);
         ini.put(String.valueOf(i), "Source", object.sourceDir.get());
@@ -1570,7 +1575,7 @@ public final class Controller {
     } catch (IOException e) {
       Dialogs.error("保存备份配置失败！", e).show();
     }
-    Dialogs.info("保存成功！").show();
+    Dialogs.alert("保存成功！").show();
     saveBackupButton.setDisable(false);
   }
 
@@ -1628,28 +1633,28 @@ public final class Controller {
       startClearDataButton.setDisable(true);
       File homeDirectory = new File(share.gameDirectory);
       if (deleteRoleDataCheckBox.isSelected()) {
-        Files.delete(new File(homeDirectory, "DBServer\\DB\\Hum.DB"));
-        Files.delete(new File(homeDirectory, "DBServer\\DB\\Mir.DB"));
-        Files.delete(new File(homeDirectory, "DBServer\\DB\\Mir.DB.idx"));
+        IOHelper.delete(Paths.get(homeDirectory.getPath(), "DBServer\\DB\\Hum.DB"));
+        IOHelper.delete(Paths.get(homeDirectory.getPath(), "DBServer\\DB\\Mir.DB"));
+        IOHelper.delete(Paths.get(homeDirectory.getPath(), "DBServer\\DB\\Mir.DB.idx"));
       }
       if (deleteAccountDataCheckBox.isSelected()) {
-        Files.delete(new File(homeDirectory, "LoginSrv\\DB\\Id.DB"));
-        Files.delete(new File(homeDirectory, "LoginSrv\\DB\\Id.DB.idx"));
+        IOHelper.delete(Paths.get(homeDirectory.getPath(), "LoginSrv\\DB\\Id.DB"));
+        IOHelper.delete(Paths.get(homeDirectory.getPath(), "LoginSrv\\DB\\Id.DB.idx"));
       }
       if (deleteGuildDataCheckBox.isSelected()) {
-        Files.deleteAll(new File(homeDirectory, "Mir200\\GuildBase\\Guilds\\"));
-        File guildListFile = new File(homeDirectory, "Mir200\\GuildBase\\GuildList.txt");
-        if (guildListFile.exists()) {
-          Files.onceWrite(guildListFile, "");
+        IOHelper.deleteAll(Paths.get(homeDirectory.getPath(), "Mir200\\GuildBase\\Guilds\\"));
+        Path guildListPath = Paths.get(homeDirectory.getPath(), "Mir200\\GuildBase\\GuildList.txt");
+        if (Files.exists(guildListPath)) {
+          IOHelper.write(guildListPath, "");
         }
       }
       if (clearSabacDataCheckBox.isSelected()) {
         List<String> castleList =
-            Files.lineRead(new File(homeDirectory, "Mir200\\Castle\\List.txt"));
+            IOHelper.lines(Paths.get(homeDirectory.getPath(), "Mir200\\Castle\\List.txt"));
         castleList.stream()
             .map(s -> String.format("Mir200\\Castle\\%s\\AttackSabukWall.txt", s))
-            .map(s -> new File(homeDirectory, s))
-            .forEach(file -> Files.onceWrite(file, ""));
+            .map(s -> Paths.get(homeDirectory.getPath(), s))
+            .forEach(file -> IOHelper.write(file, ""));
         castleList.stream()
             .map(s -> String.format("Mir200\\Castle\\%s\\SabukW.txt", s))
             .map(s -> new File(homeDirectory, s))
@@ -1687,7 +1692,7 @@ public final class Controller {
             });
       }
       if (clearGlobalVariateCheckBox.isSelected()) {
-        Files.delete(new File(homeDirectory, "Mir200\\Global.ini"));
+        IOHelper.delete(Paths.get(homeDirectory.getPath(), "Mir200\\Global.ini"));
       }
       if (resetItemIDCountCheckBox.isSelected()) {
         File mir2SetupFile = new File(homeDirectory, "Mir200\\!Setup.txt");
@@ -1703,30 +1708,30 @@ public final class Controller {
         }
       }
       if (clearRoleRelationDataCheckBox.isSelected()) {
-        Files.onceWrite(new File(homeDirectory, "Mir200\\Envir\\UnForceMaster.txt"), "");
-        Files.onceWrite(new File(homeDirectory, "Mir200\\Envir\\UnFriend.txt"), "");
-        Files.onceWrite(new File(homeDirectory, "Mir200\\Envir\\UnMarry.txt"), "");
-        Files.onceWrite(new File(homeDirectory, "Mir200\\Envir\\UnMaster.txt"), "");
+        IOHelper.write(Paths.get(homeDirectory.getPath(), "Mir200\\Envir\\UnForceMaster.txt"), "");
+        IOHelper.write(Paths.get(homeDirectory.getPath(), "Mir200\\Envir\\UnFriend.txt"), "");
+        IOHelper.write(Paths.get(homeDirectory.getPath(), "Mir200\\Envir\\UnMarry.txt"), "");
+        IOHelper.write(Paths.get(homeDirectory.getPath(), "Mir200\\Envir\\UnMaster.txt"), "");
       }
       if (deleteNPCMakeDataCheckBox.isSelected()) {
-        Files.deleteAll(new File(homeDirectory, "Mir200\\Envir\\Market_Upg\\"));
+        IOHelper.deleteAll(Paths.get(homeDirectory.getPath(), "Mir200\\Envir\\Market_Upg\\"));
       }
       if (deleteEMailDataCheckBox.isSelected()) {
-        Files.delete(new File(homeDirectory, "Mir200\\EMail\\EMailData.dat"));
-        Files.delete(new File(homeDirectory, "Mir200\\EMail\\EMailName.txt"));
+        IOHelper.delete(Paths.get(homeDirectory.getPath(), "Mir200\\EMail\\EMailData.dat"));
+        IOHelper.delete(Paths.get(homeDirectory.getPath(), "Mir200\\EMail\\EMailName.txt"));
       }
       if (deleteAccountLoggerCheckBox.isSelected()) {
-        Files.deleteAll(new File(homeDirectory, "LoginSrv\\ChrLog\\"));
+        IOHelper.deleteAll(Paths.get(homeDirectory.getPath(), "LoginSrv\\ChrLog\\"));
       }
       if (deleteM2ServerLoggerCheckBox.isSelected()) {
-        Files.deleteAll(new File(homeDirectory, "Mir200\\Log\\"));
-        Files.deleteAll(new File(homeDirectory, "Mir200\\ConLog\\"));
+        IOHelper.deleteAll(Paths.get(homeDirectory.getPath(), "Mir200\\Log\\"));
+        IOHelper.deleteAll(Paths.get(homeDirectory.getPath(), "Mir200\\ConLog\\"));
       }
       if (deleteGameLoggerCheckBox.isSelected()) {
-        Files.deleteAll(new File(homeDirectory, "LogServer\\BaseDir\\"));
+        IOHelper.deleteAll(Paths.get(homeDirectory.getPath(), "LogServer\\BaseDir\\"));
       }
       startClearDataButton.setDisable(false);
-      Dialogs.info("全部清理完成！").show();
+      Dialogs.alert("全部清理完成！").show();
     } else {
       Dialogs.warn("请将服务器处于停止状态下再进行操作！").show();
     }

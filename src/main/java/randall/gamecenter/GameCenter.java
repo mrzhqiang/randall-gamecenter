@@ -6,8 +6,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import randall.gamecenter.util.Dialogs;
-import randall.gamecenter.util.Monitor;
+import randall.common.Monitor;
+import randall.common.ui.Dialogs;
 
 public final class GameCenter extends Application {
   private static final String TITLE = "游戏控制器";
