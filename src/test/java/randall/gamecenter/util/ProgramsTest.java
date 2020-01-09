@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import randall.gamecenter.Share;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mrzhqiang

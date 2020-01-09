@@ -4,6 +4,13 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.2.2.RELEASE</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+
   <groupId>com.github.mrzhqiang</groupId>
   <artifactId>randall-gamecenter</artifactId>
   <version>2019.1.0</version>
@@ -12,6 +19,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.8</java.version>
     <junit.version>4.12</junit.version>
+    <springboot-javafx.version>2.1.6</springboot-javafx.version>
   </properties>
 
   <repositories>
@@ -22,23 +30,56 @@
   </repositories>
 
   <dependencies>
-    <!-- https://mvnrepository.com/artifact/junit/junit -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
+      <groupId>de.roskenet</groupId>
+      <artifactId>springboot-javafx-support</artifactId>
+      <version>${springboot-javafx.version}</version>
     </dependency>
+    <!-- https://jitpack.io/#mrzhqiang/randall-common/b378c0d632 -->
     <dependency>
       <groupId>com.github.mrzhqiang</groupId>
       <artifactId>randall-common</artifactId>
       <version>01e6214ccb</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -71,7 +112,7 @@
           <version>8.8.3</version>
           <configuration>
             <vendor>Randall</vendor>
-            <mainClass>randall.gamecenter.GameCenter</mainClass>
+            <mainClass>randall.gamecenter.GameCenterApplication</mainClass>
           </configuration>
         </plugin>
       </plugins>

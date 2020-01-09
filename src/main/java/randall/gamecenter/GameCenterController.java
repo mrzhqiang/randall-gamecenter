@@ -1,6 +1,7 @@
 package randall.gamecenter;
 
 import com.google.common.base.Strings;
+import de.felixroske.jfxsupport.FXMLController;
 import helper.DateTimeHelper;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import java.io.File;
@@ -89,7 +90,8 @@ import static randall.gamecenter.Share.STOPPING_STATE;
  *
  * @author mrzhqiang
  */
-public final class Controller {
+@FXMLController
+public final class GameCenterController {
   private static final Logger LOGGER = LoggerFactory.getLogger("randall");
 
   /* 控制面板 */
@@ -1763,7 +1765,7 @@ public final class Controller {
           case 0:
             share.dbServer.disposable = share.dbServer.start()
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.dbServer.startStatus = 1;
             return;
           case 1:
@@ -1781,7 +1783,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   share.loginServer.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.loginServer.startStatus = 1;
             return;
           case 1:
@@ -1798,7 +1800,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   share.logServer.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.logServer.startStatus = 1;
             return;
           case 1:
@@ -1815,7 +1817,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   share.m2Server.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.m2Server.startStatus = 1;
             return;
           case 1:
@@ -1838,7 +1840,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   runGateProgram.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             runGateProgram.startStatus = 1;
             startRunGateOK = false;
           }
@@ -1858,7 +1860,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   share.selGate.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.selGate.startStatus = 1;
             return;
           case 1:
@@ -1876,7 +1878,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   share.selGate1.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.selGate1.startStatus = 1;
             return;
           case 1:
@@ -1908,7 +1910,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   share.loginGate.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.loginGate.startStatus = 1;
             return;
           case 1:
@@ -1926,7 +1928,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   share.loginGate2.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.loginGate2.startStatus = 1;
             return;
           case 1:
@@ -1944,7 +1946,7 @@ public final class Controller {
                   Dialogs.error(throwable).show();
                   share.plugTop.startStatus = 9;
                 })
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             share.plugTop.startStatus = 1;
             return;
           case 1:
@@ -2099,7 +2101,7 @@ public final class Controller {
         if (share.dbServer.process == null || !share.dbServer.process.isAlive()) {
           share.dbServer.disposable = share.dbServer.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("数据库异常关闭，已被重新启动...");
         }
       }
@@ -2107,7 +2109,7 @@ public final class Controller {
         if (share.loginServer.process == null || !share.loginServer.process.isAlive()) {
           share.loginServer.disposable = share.loginServer.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("登录服务器异常关闭，已被重新启动...");
         }
       }
@@ -2115,7 +2117,7 @@ public final class Controller {
         if (share.logServer.process == null || !share.logServer.process.isAlive()) {
           share.logServer.disposable = share.logServer.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("日志服务器异常关闭，已被重新启动...");
         }
       }
@@ -2123,7 +2125,7 @@ public final class Controller {
         if (share.m2Server.process == null || !share.m2Server.process.isAlive()) {
           share.m2Server.disposable = share.m2Server.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("游戏引擎服务器异常关闭，已被重新启动...");
         }
       }
@@ -2135,7 +2137,7 @@ public final class Controller {
             program.processCode = null;
             program.disposable = program.start()
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(Controller.this::handleProcessMessage);
+                .subscribe(GameCenterController.this::handleProcessMessage);
             mainOutMessage("游戏网关[" + (i + 1) + "]异常关闭，已被重新启动...");
           }
         }
@@ -2146,7 +2148,7 @@ public final class Controller {
           share.selGate.processCode = null;
           share.selGate.disposable = share.selGate.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("角色网关一异常关闭，已被重新启动...");
         }
       }
@@ -2156,7 +2158,7 @@ public final class Controller {
           share.selGate1.processCode = null;
           share.selGate1.disposable = share.selGate1.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("角色网关二异常关闭，已被重新启动...");
         }
       }
@@ -2166,7 +2168,7 @@ public final class Controller {
           share.loginGate.processCode = null;
           share.loginGate.disposable = share.loginGate.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("登录网关一异常关闭，已被重新启动...");
         }
       }
@@ -2176,7 +2178,7 @@ public final class Controller {
           share.loginGate2.processCode = null;
           share.loginGate2.disposable = share.loginGate2.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("登录网关二异常关闭，已被重新启动...");
         }
       }
@@ -2185,7 +2187,7 @@ public final class Controller {
           share.plugTop.processCode = null;
           share.plugTop.disposable = share.plugTop.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(Controller.this::handleProcessMessage);
+              .subscribe(GameCenterController.this::handleProcessMessage);
           mainOutMessage("排行榜插件异常关闭，已被重新启动...");
         }
       }
