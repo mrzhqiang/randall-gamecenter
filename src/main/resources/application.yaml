@@ -1,2 +1,3 @@
-# javafx:
+javafx:
 #  title: 游戏控制器
+  appicons: "logo.png"
