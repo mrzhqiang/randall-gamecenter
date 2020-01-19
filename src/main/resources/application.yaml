@@ -1,3 +1,66 @@
 javafx:
-#  title: 游戏控制器
+  #  title: 游戏控制器
   appicons: "logo.png"
+
+gamecenter:
+  home:
+    path: "${user.dir}\\"
+    name: "兰达尔"
+    alias: "第一季"
+    version: "1.0"
+    fullName: "${gamecenter.home.name}-${gamecenter.home.alias}(v${gamecenter.home.version})"
+    database: "randall"
+    host: "127.0.0.1"
+    backup: true
+    wuxing: false
+  database:
+    x: 0
+    y: 373
+    port: 5100
+    serverPort: 6000
+    enabled: true
+    path: "${gamecenter.home.path}Server\\Database.exe"
+  account:
+    x: 252
+    y: 0
+    port: 5500
+    serverPort: 5600
+    monitorPort: 3000
+    enabled: true
+    path: "${gamecenter.home.path}Server\\Account.exe"
+  core:
+    x: 561
+    y: 0
+    port: 5000
+    serverPort: 4900
+    enabled: true
+    path: "${gamecenter.home.path}Server\\Core.exe"
+  logger:
+    x: 252
+    y: 286
+    port: 10000
+    enabled: true
+    path: "${gamecenter.home.path}Server\\Logger.exe"
+  run:
+    x: 437
+    y: 373
+    port: 7200
+    enabled: true
+    path: "${gamecenter.home.path}Gate\\Run.exe"
+  role:
+    x: 0
+    y: 180
+    port: 7100
+    enabled: true
+    path: "${gamecenter.home.path}Gate\\Role.exe"
+  login:
+    x: 0
+    y: 0
+    port: 7000
+    enabled: true
+    path: "${gamecenter.home.path}Gate\\Login.exe"
+  top:
+    x: 200
+    y: 0
+    enabled: true
+    path: "${gamecenter.home.path}Plug\\Top.exe"

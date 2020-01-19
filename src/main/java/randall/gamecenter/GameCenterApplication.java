@@ -8,8 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import randall.common.ui.Dialogs;
-import randall.gamecenter.controller.GameCenterController;
-import randall.gamecenter.model.Share;
 import randall.gamecenter.view.GameCenterView;
 
 @Slf4j(topic = "randall")
@@ -31,18 +29,8 @@ public class GameCenterApplication extends AbstractJavaFxApplicationSupport {
   @Override public void beforeInitialView(Stage stage, ConfigurableApplicationContext ctx) {
     log.info("准备初始化视图.");
     stage.setTitle(TITLE);
-    stage.setOnCloseRequest(event -> {
-      // 一定要在这里进行 Bean 的获取，因为在初始化之前，Bean 不存在
-      GameCenterView view = ctx.getBean(GameCenterView.class);
-      GameCenterController controller = (GameCenterController) view.getPresenter();
-      if (controller.startState == Share.RUNNING_STATE) {
-        Dialogs.confirm("游戏服务器正在运行，是否停止游戏服务器？")
-            .ifPresent(buttonType -> controller.onStartGameClicked());
-        event.consume();
-        return;
-      }
-      Dialogs.confirm("是否确认关闭控制台？")
-          .ifPresent(buttonType -> Platform.exit());
-    });
+    stage.setOnCloseRequest(event ->
+        Dialogs.confirm("是否确认关闭控制台？")
+            .ifPresent(buttonType -> Platform.exit()));
   }
 }
