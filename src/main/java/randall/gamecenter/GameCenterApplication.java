@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import randall.common.ui.Dialogs;
 import randall.gamecenter.controller.GameCenterController;
 import randall.gamecenter.model.Share;
+import randall.gamecenter.view.GameCenterView;
 
 @Slf4j(topic = "randall")
 @EnableScheduling
