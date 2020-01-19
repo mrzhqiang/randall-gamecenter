@@ -1,7 +1,7 @@
 package randall.gamecenter.model.profile;
 
-import org.ini4j.Profile;
+import org.ini4j.Ini;
 
 public interface IniWriter {
-  void write(Profile.Section section);
+  void write(Ini ini);
 }

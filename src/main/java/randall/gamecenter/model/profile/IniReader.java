@@ -1,7 +1,7 @@
 package randall.gamecenter.model.profile;
 
-import org.ini4j.Profile;
+import org.ini4j.Ini;
 
 public interface IniReader {
-  void read(Profile.Section section);
+  void read(Ini ini);
 }

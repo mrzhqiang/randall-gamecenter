@@ -228,7 +228,7 @@ public final class GameCenterController {
     backupState = 0;
     gameInfoTextArea.clear();
     refTick = System.currentTimeMillis();
-    share.loadConfig();
+    share.config.save();
     loadBackupList();
     refBackupListToView();
     if (!startService()) {
@@ -591,7 +591,7 @@ public final class GameCenterController {
   }
 
   public void onReloadAllConfigClicked() {
-    share.loadConfig();
+    share.config.load();
     refGameConsole();
     Dialogs.alert("配置重加载完成...").show();
   }
@@ -842,7 +842,7 @@ public final class GameCenterController {
   }
 
   public void onSaveConfigClicked() {
-    share.saveConfig();
+    share.config.save();
     Dialogs.alert("配置文件已经保存完毕...")
         .showAndWait()
         .filter(ButtonType.OK::equals)
@@ -1295,9 +1295,9 @@ public final class GameCenterController {
 
   public void onAutoRunBackupClicked() {
     share.autoRunBakEnabled = autoRunBackupCheckBox.isSelected();
-    share.ini.put(BASIC_SECTION_NAME, "AutoRunBak", share.autoRunBakEnabled);
+    share.config.ini.put(BASIC_SECTION_NAME, "AutoRunBak", share.autoRunBakEnabled);
     try {
-      share.ini.store();
+      share.config.ini.store();
     } catch (IOException e) {
       LOGGER.error("保存备份配置失败！", e);
     }
