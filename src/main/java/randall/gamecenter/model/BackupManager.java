@@ -1,4 +1,4 @@
-package randall.gamecenter;
+package randall.gamecenter.model;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

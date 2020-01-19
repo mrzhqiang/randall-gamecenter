@@ -1,4 +1,4 @@
-package randall.gamecenter;
+package randall.gamecenter.controller;
 
 import com.google.common.base.Strings;
 import de.felixroske.jfxsupport.FXMLController;
@@ -47,43 +47,45 @@ import org.slf4j.LoggerFactory;
 import randall.common.ui.Dialogs;
 import randall.common.util.IOHelper;
 import randall.common.util.Networks;
+import randall.gamecenter.model.Share;
+import randall.gamecenter.model.BackupManager;
 
-import static randall.gamecenter.Share.ALL_IP_ADDRESS;
-import static randall.gamecenter.Share.BASIC_SECTION_NAME;
-import static randall.gamecenter.Share.DB_SERVER_PROCESS_CODE;
-import static randall.gamecenter.Share.DB_SERVER_SECTION_NAME_2;
-import static randall.gamecenter.Share.DEFAULT_AUTO_RUN_BACKUP;
-import static randall.gamecenter.Share.DEFAULT_CLOSE_WUXING_ENABLED;
-import static randall.gamecenter.Share.DEFAULT_DB_NAME;
-import static randall.gamecenter.Share.DEFAULT_GAME_DIRECTORY;
-import static randall.gamecenter.Share.DEFAULT_GAME_NAME;
-import static randall.gamecenter.Share.DEFAULT_IP_2_ENABLED;
-import static randall.gamecenter.Share.ERROR_STATE;
-import static randall.gamecenter.Share.LOGIN_GATE_PROCESS_CODE;
-import static randall.gamecenter.Share.LOGIN_GATE_SECTION_NAME_2;
-import static randall.gamecenter.Share.LOGIN_SERVER_PROCESS_CODE;
-import static randall.gamecenter.Share.LOGIN_SRV_SECTION_NAME_2;
-import static randall.gamecenter.Share.LOG_SERVER_PROCESS_CODE;
-import static randall.gamecenter.Share.LOG_SERVER_SECTION_2;
-import static randall.gamecenter.Share.M2_SERVER_CONFIG_FILE;
-import static randall.gamecenter.Share.M2_SERVER_PROCESS_CODE;
-import static randall.gamecenter.Share.M2_SERVER_SECTION_NAME_1;
-import static randall.gamecenter.Share.M2_SERVER_SECTION_NAME_2;
-import static randall.gamecenter.Share.MAX_RUN_GATE_COUNT;
-import static randall.gamecenter.Share.ONLINE_USER_LIMIT;
-import static randall.gamecenter.Share.PLUG_TOP_PROCESS_CODE;
-import static randall.gamecenter.Share.PRIMARY_IP_ADDRESS;
-import static randall.gamecenter.Share.QUIT_CODE;
-import static randall.gamecenter.Share.RUNNING_STATE;
-import static randall.gamecenter.Share.RUN_GATE_PROCESS_CODE;
-import static randall.gamecenter.Share.RUN_GATE_SECTION_NAME_2;
-import static randall.gamecenter.Share.SECOND_IP_ADDRESS;
-import static randall.gamecenter.Share.SEL_GATE_PROCESS_CODE;
-import static randall.gamecenter.Share.SEL_GATE_SECTION_NAME_2;
-import static randall.gamecenter.Share.SERVER_CONFIG_FILE;
-import static randall.gamecenter.Share.STARTING_STATE;
-import static randall.gamecenter.Share.STOPPED_STATE;
-import static randall.gamecenter.Share.STOPPING_STATE;
+import static randall.gamecenter.model.Share.ALL_IP_ADDRESS;
+import static randall.gamecenter.model.Share.BASIC_SECTION_NAME;
+import static randall.gamecenter.model.Share.DB_SERVER_PROCESS_CODE;
+import static randall.gamecenter.model.Share.DB_SERVER_SECTION_NAME_2;
+import static randall.gamecenter.model.Share.DEFAULT_AUTO_RUN_BACKUP;
+import static randall.gamecenter.model.Share.DEFAULT_CLOSE_WUXING_ENABLED;
+import static randall.gamecenter.model.Share.DEFAULT_DB_NAME;
+import static randall.gamecenter.model.Share.DEFAULT_GAME_DIRECTORY;
+import static randall.gamecenter.model.Share.DEFAULT_GAME_NAME;
+import static randall.gamecenter.model.Share.DEFAULT_IP_2_ENABLED;
+import static randall.gamecenter.model.Share.ERROR_STATE;
+import static randall.gamecenter.model.Share.LOGIN_GATE_PROCESS_CODE;
+import static randall.gamecenter.model.Share.LOGIN_GATE_SECTION_NAME_2;
+import static randall.gamecenter.model.Share.LOGIN_SERVER_PROCESS_CODE;
+import static randall.gamecenter.model.Share.LOGIN_SRV_SECTION_NAME_2;
+import static randall.gamecenter.model.Share.LOG_SERVER_PROCESS_CODE;
+import static randall.gamecenter.model.Share.LOG_SERVER_SECTION_2;
+import static randall.gamecenter.model.Share.M2_SERVER_CONFIG_FILE;
+import static randall.gamecenter.model.Share.M2_SERVER_PROCESS_CODE;
+import static randall.gamecenter.model.Share.M2_SERVER_SECTION_NAME_1;
+import static randall.gamecenter.model.Share.M2_SERVER_SECTION_NAME_2;
+import static randall.gamecenter.model.Share.MAX_RUN_GATE_COUNT;
+import static randall.gamecenter.model.Share.ONLINE_USER_LIMIT;
+import static randall.gamecenter.model.Share.PLUG_TOP_PROCESS_CODE;
+import static randall.gamecenter.model.Share.PRIMARY_IP_ADDRESS;
+import static randall.gamecenter.model.Share.QUIT_CODE;
+import static randall.gamecenter.model.Share.RUNNING_STATE;
+import static randall.gamecenter.model.Share.RUN_GATE_PROCESS_CODE;
+import static randall.gamecenter.model.Share.RUN_GATE_SECTION_NAME_2;
+import static randall.gamecenter.model.Share.SECOND_IP_ADDRESS;
+import static randall.gamecenter.model.Share.SEL_GATE_PROCESS_CODE;
+import static randall.gamecenter.model.Share.SEL_GATE_SECTION_NAME_2;
+import static randall.gamecenter.model.Share.SERVER_CONFIG_FILE;
+import static randall.gamecenter.model.Share.STARTING_STATE;
+import static randall.gamecenter.model.Share.STOPPED_STATE;
+import static randall.gamecenter.model.Share.STOPPING_STATE;
 
 /**
  * 控制器。
@@ -111,7 +113,6 @@ public final class GameCenterController {
   public CheckBox selGateCheckBox1;
   public CheckBox selGateCheckBox2;
   public CheckBox loginGateCheckBox;
-  public CheckBox loginGateCheckBox2;
   public CheckBox plugTopCheckBox;
   public ComboBox<StartMode> startModeComboBox;
   public Spinner<Integer> hoursSpinner;
@@ -121,16 +122,12 @@ public final class GameCenterController {
   /* 配置向导 */
   public TabPane configTabPane;
   public TextField primaryAddressTextField;
-  public CheckBox doubleAddressCheckBox;
-  public TextField secondAddressTextField;
-  public CheckBox dynamicAddressCheckBox;
   public TextField gameNameTextField;
   public TextField dbNameTextField;
   public TextField gameDirTextField;
   public Spinner<Integer> allPortPlusSpinner;
   public CheckBox closeWuxingCheckBox;
   public CheckBox openLoginGateCheckBox;
-  public CheckBox openLoginGateCheckBox2;
   public TextField loginGateFormXTextField;
   public TextField loginGateFormYTextField;
   public TextField loginGatePortTextField;
@@ -295,12 +292,6 @@ public final class GameCenterController {
         runTime = dateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
       }
     });
-    doubleAddressCheckBox.selectedProperty().addListener((observable, oldValue, newValue) ->
-        secondAddressTextField.setDisable(!newValue));
-    dynamicAddressCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-      primaryAddressTextField.setDisable(newValue);
-      secondAddressTextField.setDisable(newValue);
-    });
     allPortPlusSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
       loginGatePortTextField.setText(String.valueOf(share.config.loginGate.gatePort + newValue));
       selGatePortTextField1.setText(String.valueOf(share.config.selGate.gatePort[0] + newValue));
@@ -396,8 +387,6 @@ public final class GameCenterController {
     dbNameTextField.setText(share.heroDBName);
     gameNameTextField.setText(share.gameName);
     primaryAddressTextField.setText(share.extIPAddr);
-    secondAddressTextField.setText(share.extIPAddr2);
-    dynamicAddressCheckBox.setSelected(share.ip2Enabled);
     closeWuxingCheckBox.setSelected(share.closeWuXinEnabled);
     // 第二步 登录网关
     loginGateFormXTextField.setText(String.valueOf(share.config.loginGate.mainFormX));
@@ -848,20 +837,11 @@ public final class GameCenterController {
       primaryAddressTextField.requestFocus();
       return;
     }
-    boolean doubleAddress = doubleAddressCheckBox.isSelected();
-    String ipAddress2 = secondAddressTextField.getText().trim();
-    if (doubleAddress && (Strings.isNullOrEmpty(ipAddress2) || !Networks.isAddressV4(ipAddress2))) {
-      Dialogs.warn("游戏 IP 地址输入不正确！！").show();
-      secondAddressTextField.requestFocus();
-      return;
-    }
 
     share.gameDirectory = gameDir;
     share.gameName = gameName;
     share.heroDBName = dbName;
     share.extIPAddr = ipAddress1;
-    share.ip2Enabled = doubleAddress;
-    share.extIPAddr2 = ipAddress2;
     share.closeWuXinEnabled = closeWuxingCheckBox.isSelected();
 
     configTabPane.getSelectionModel().selectNext();

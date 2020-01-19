@@ -1,4 +1,4 @@
-package randall.gamecenter;
+package randall.gamecenter.model;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -8,7 +8,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,6 +22,7 @@ import org.ini4j.Ini;
 import org.ini4j.Wini;
 import randall.common.ui.Dialogs;
 import randall.common.util.IOHelper;
+import randall.gamecenter.model.BackupManager;
 
 /**
  * 共享逻辑。

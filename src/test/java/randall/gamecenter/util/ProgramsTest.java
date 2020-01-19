@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import org.junit.jupiter.api.Test;
-import randall.gamecenter.Share;
+import randall.gamecenter.model.Share;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
