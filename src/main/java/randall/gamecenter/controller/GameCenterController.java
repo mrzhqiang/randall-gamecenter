@@ -40,11 +40,10 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javax.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import org.ini4j.Wini;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import randall.common.ui.Dialogs;
 import randall.common.util.IOHelper;
@@ -94,10 +93,9 @@ import static randall.gamecenter.model.Share.STOPPING_STATE;
  *
  * @author mrzhqiang
  */
+@Slf4j(topic = "randall")
 @FXMLController
 public final class GameCenterController {
-  private static final Logger LOGGER = LoggerFactory.getLogger("randall");
-
   /* 控制面板 */
   public TabPane mainTabPane;
   public CheckBox dbServerCheckBox;
@@ -193,16 +191,11 @@ public final class GameCenterController {
   public CheckBox clearRoleRelationDataCheckBox;
   public Button startClearDataButton;
 
-  private boolean opened = false;
   private boolean gateStopped;
   private long gateStopTick;
   // 0 -- default; 1 -- starting; 2 -- running; 3 -- stopping; 9 -- error
-  public int startState = 0;
-  // 0 -- disabled; 1 -- enabled;
-  private int backupState = 0;
+  private int startState = 0;
 
-  private long refTick;
-  private long showTick;
   private long runTick;
   private long runTime;
 
@@ -219,16 +212,12 @@ public final class GameCenterController {
 
   @FXML
   public void initialize() {
-    // 额外添加的监听器
-    addListener();
-    opened = false;
+    initView();
     mainTabPane.getSelectionModel().select(0);
     configTabPane.getSelectionModel().select(0);
     startState = 0;
-    backupState = 0;
     gameInfoTextArea.clear();
-    refTick = System.currentTimeMillis();
-    share.config.save();
+    share.config.load();
     loadBackupList();
     refBackupListToView();
     if (!startService()) {
@@ -236,13 +225,12 @@ public final class GameCenterController {
     }
     refGameConsole();
     autoRunBackupCheckBox.setSelected(share.autoRunBakEnabled);
-    opened = true;
     if (share.autoRunBakEnabled) {
       onStartBackupClicked();
     }
   }
 
-  private void addListener() {
+  private void initView() {
     startModeComboBox.setItems(FXCollections.observableArrayList(StartMode.values()));
     startModeComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
       hoursSpinner.setDisable(newValue.equals(StartMode.NORMAL));
@@ -252,71 +240,16 @@ public final class GameCenterController {
     hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
     minutesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
     allPortPlusSpinner.setValueFactory(
-        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 65535, 0));
-    startModeComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-      if (StartMode.NORMAL.equals(newValue)) {
-        runTime = 0;
-      } else if (StartMode.DELAY.equals(newValue)) {
-        Integer hours = hoursSpinner.getValue();
-        Integer minutes = minutesSpinner.getValue();
-        runTime = Duration.ofHours(hours)
-            .plus(Duration.ofMinutes(minutes))
-            .toMillis();
-      } else if (StartMode.TIMING.equals(newValue)) {
-        Integer hours = hoursSpinner.getValue();
-        Integer minutes = minutesSpinner.getValue();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime dateTime = LocalDateTime.of(now.toLocalDate(), LocalTime.of(hours, minutes));
-        // 如果指定时间在现在之前，那么就认为是第二天的时刻，所以时间要加一天
-        if (dateTime.isBefore(now)) {
-          dateTime = dateTime.plusDays(1);
-        }
-        // System.currentTimeMillis() 方法获取的本来就是 UTC 时间戳
-        runTime = dateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
-      }
-    });
-    allPortPlusSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-      loginGatePortTextField.setText(String.valueOf(share.config.getLogin().getPort() + newValue));
-      selGatePortTextField1.setText(String.valueOf(share.config.getRole().getPort() + newValue));
-      runGatePortTextField1.setText(String.valueOf(share.config.getRun().getPort() + newValue));
-      loginSrvGatePortTextField.setText(
-          String.valueOf(share.config.getAccount().getPort() + newValue));
-      loginSrvServerPortTextField.setText(
-          String.valueOf(share.config.getAccount().getServerPort() + newValue));
-      loginSrvMonPortTextField.setText(
-          String.valueOf(share.config.getAccount().getMonitorPort() + newValue));
-      dbServerGatePortTextField.setText(
-          String.valueOf(share.config.getDatabase().getPort() + newValue));
-      dbServerServerPortTextField.setText(
-          String.valueOf(share.config.getDatabase().getServerPort() + newValue));
-      logServerGatePortTextField.setText(
-          String.valueOf(share.config.getLogger().getPort() + newValue));
-      m2ServerGatePortTextField.setText(
-          String.valueOf(share.config.getCore().getPort() + newValue));
-      m2ServerServerPortTextField.setText(
-          String.valueOf(share.config.getCore().getServerPort() + newValue));
-    });
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99, 0));
+    startModeComboBox.valueProperty().addListener(
+        (observable, oldValue, newValue) -> computeRuntime(newValue));
+    allPortPlusSpinner.valueProperty().addListener(
+        (observable, oldValue, newValue) -> changeAllPort(newValue));
     dataDirectoryTableColumn.setCellValueFactory(param -> param.getValue().sourceDir);
     backupDirectoryTableColumn.setCellValueFactory(param -> param.getValue().destinationDir);
     dataBackupTableView.setItems(share.backupManager.backupList);
-    dataBackupTableView.getSelectionModel().selectedItemProperty()
-        .addListener((observable, oldValue, newValue) -> {
-          dataDirectoryTextField.setText(newValue.sourceDir.get());
-          backupDirectoryTextField.setText(newValue.destinationDir.get());
-          backupFunctionCheckBox.setSelected(newValue.backupEnabled);
-          compressFunctionCheckBox.setSelected(newValue.compressEnabled);
-          if (newValue.backupMode == 0) {
-            backupModeToggleGroup.selectToggle(dayBackupModeRadioButton);
-            dayModeHoursSpinner.getValueFactory().setValue(newValue.hours);
-            dayModeMinutesSpinner.getValueFactory().setValue(newValue.minutes);
-          } else {
-            backupModeToggleGroup.selectToggle(intervalBackupModeRadioButton);
-            intervalModeHoursSpinner.getValueFactory().setValue(newValue.hours);
-            intervalModeMinutesSpinner.getValueFactory().setValue(newValue.minutes);
-          }
-          deleteBackupButton.setDisable(false);
-          modifyBackupButton.setDisable(false);
-        });
+    dataBackupTableView.getSelectionModel().selectedItemProperty().addListener(
+        (observable, oldValue, newValue) -> changeBackupMode(newValue));
     dayModeHoursSpinner.setValueFactory(
         new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
     dayModeMinutesSpinner.setValueFactory(
@@ -341,9 +274,70 @@ public final class GameCenterController {
     //backupModeToggleGroup.selectToggle(dayBackupModeRadioButton);
   }
 
-  private void refGameConsole() {
-    opened = false;
+  private void changeBackupMode(BackupManager.BackupObject newValue) {
+    dataDirectoryTextField.setText(newValue.sourceDir.get());
+    backupDirectoryTextField.setText(newValue.destinationDir.get());
+    backupFunctionCheckBox.setSelected(newValue.backupEnabled);
+    compressFunctionCheckBox.setSelected(newValue.compressEnabled);
+    if (newValue.backupMode == 0) {
+      backupModeToggleGroup.selectToggle(dayBackupModeRadioButton);
+      dayModeHoursSpinner.getValueFactory().setValue(newValue.hours);
+      dayModeMinutesSpinner.getValueFactory().setValue(newValue.minutes);
+    } else {
+      backupModeToggleGroup.selectToggle(intervalBackupModeRadioButton);
+      intervalModeHoursSpinner.getValueFactory().setValue(newValue.hours);
+      intervalModeMinutesSpinner.getValueFactory().setValue(newValue.minutes);
+    }
+    deleteBackupButton.setDisable(false);
+    modifyBackupButton.setDisable(false);
+  }
 
+  private void changeAllPort(Integer newValue) {
+    loginGatePortTextField.setText(String.valueOf(share.config.getLogin().getPort() + newValue));
+    selGatePortTextField1.setText(String.valueOf(share.config.getRole().getPort() + newValue));
+    runGatePortTextField1.setText(String.valueOf(share.config.getRun().getPort() + newValue));
+    loginSrvGatePortTextField.setText(
+        String.valueOf(share.config.getAccount().getPort() + newValue));
+    loginSrvServerPortTextField.setText(
+        String.valueOf(share.config.getAccount().getServerPort() + newValue));
+    loginSrvMonPortTextField.setText(
+        String.valueOf(share.config.getAccount().getMonitorPort() + newValue));
+    dbServerGatePortTextField.setText(
+        String.valueOf(share.config.getDatabase().getPort() + newValue));
+    dbServerServerPortTextField.setText(
+        String.valueOf(share.config.getDatabase().getServerPort() + newValue));
+    logServerGatePortTextField.setText(
+        String.valueOf(share.config.getLogger().getPort() + newValue));
+    m2ServerGatePortTextField.setText(
+        String.valueOf(share.config.getCore().getPort() + newValue));
+    m2ServerServerPortTextField.setText(
+        String.valueOf(share.config.getCore().getServerPort() + newValue));
+  }
+
+  private void computeRuntime(StartMode mode) {
+    if (StartMode.NORMAL.equals(mode)) {
+      runTime = 0;
+    } else if (StartMode.DELAY.equals(mode)) {
+      Integer hours = hoursSpinner.getValue();
+      Integer minutes = minutesSpinner.getValue();
+      runTime = Duration.ofHours(hours)
+          .plus(Duration.ofMinutes(minutes))
+          .toMillis();
+    } else if (StartMode.TIMING.equals(mode)) {
+      Integer hours = hoursSpinner.getValue();
+      Integer minutes = minutesSpinner.getValue();
+      LocalDateTime now = LocalDateTime.now();
+      LocalDateTime dateTime = LocalDateTime.of(now.toLocalDate(), LocalTime.of(hours, minutes));
+      // 如果指定时间在现在之前，那么就认为是第二天的时刻，所以时间要加一天
+      if (dateTime.isBefore(now)) {
+        dateTime = dateTime.plusDays(1);
+      }
+      // System.currentTimeMillis() 方法获取的本来就是 UTC 时间戳
+      runTime = dateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
+    }
+  }
+
+  private void refGameConsole() {
     // 刷新控制台按钮的选中状态
     m2ServerCheckBox.setSelected(share.config.getCore().getEnabled());
     dbServerCheckBox.setSelected(share.config.getDatabase().getEnabled());
@@ -403,19 +397,16 @@ public final class GameCenterController {
     plugTopFormXTextField.setText(String.valueOf(share.config.getTop().getX()));
     plugTopFormYTextField.setText(String.valueOf(share.config.getTop().getY()));
     openPlugTopCheckBox.setSelected(share.config.getTop().getEnabled());
-
-    opened = true;
   }
 
   private boolean startService() {
     mainOutMessage("正在启动游戏客户端控制器...");
-    showTick = System.currentTimeMillis();
     mainOutMessage("游戏控制台启动完成...");
     return true;
   }
 
   private void mainOutMessage(String message) {
-    LOGGER.info(message);
+    log.info(message);
     gameInfoTextArea.appendText(String.format("[%s] -- %s" + System.lineSeparator(),
         DateTimeHelper.format(Date.from(Instant.now())),
         message));
@@ -1299,7 +1290,7 @@ public final class GameCenterController {
     try {
       share.config.ini.store();
     } catch (IOException e) {
-      LOGGER.error("保存备份配置失败！", e);
+      log.error("保存备份配置失败！", e);
     }
   }
 
@@ -1382,7 +1373,7 @@ public final class GameCenterController {
                 ini.put("Defense", "Archer_12_HP", "2000");
                 ini.store();
               } catch (IOException e) {
-                LOGGER.error("清理沙巴克数据的配置文件出错！", e);
+                log.error("清理沙巴克数据的配置文件出错！", e);
               }
             });
       }
@@ -1398,7 +1389,7 @@ public final class GameCenterController {
             ini.put("Setup", "ItemNumberEx", 2000000000);
             ini.store();
           } catch (IOException e) {
-            LOGGER.error("复位物品 ID 计数出错！", e);
+            log.error("复位物品 ID 计数出错！", e);
           }
         }
       }
@@ -1462,7 +1453,7 @@ public final class GameCenterController {
             share.dbServer.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待数据库服务器启动..");
+            log.debug("正在等待数据库服务器启动..");
             return;
         }
       }
@@ -1480,7 +1471,7 @@ public final class GameCenterController {
             share.loginServer.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待登陆服务器启动..");
+            log.debug("正在等待登陆服务器启动..");
             return;
         }
       }
@@ -1497,7 +1488,7 @@ public final class GameCenterController {
             share.logServer.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待日志服务器启动..");
+            log.debug("正在等待日志服务器启动..");
             return;
         }
       }
@@ -1514,7 +1505,7 @@ public final class GameCenterController {
             share.m2Server.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待核心服务器启动..");
+            log.debug("正在等待核心服务器启动..");
             return;
         }
       }
@@ -1540,7 +1531,7 @@ public final class GameCenterController {
         }
       }
       if (!startRunGateOK) {
-        LOGGER.debug("正在等待游戏网关全部启动..");
+        log.debug("正在等待游戏网关全部启动..");
         return;
       }
       if (share.selGate.getStart) {
@@ -1557,7 +1548,7 @@ public final class GameCenterController {
             share.selGate.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待角色网关一启动..");
+            log.debug("正在等待角色网关一启动..");
             return;
         }
       }
@@ -1575,7 +1566,7 @@ public final class GameCenterController {
             share.selGate1.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待角色网关二启动..");
+            log.debug("正在等待角色网关二启动..");
             return;
         }
       }
@@ -1607,7 +1598,7 @@ public final class GameCenterController {
             share.loginGate.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待登陆网关一启动..");
+            log.debug("正在等待登陆网关一启动..");
             return;
         }
       }
@@ -1625,7 +1616,7 @@ public final class GameCenterController {
             share.loginGate2.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待登陆网关一启动..");
+            log.debug("正在等待登陆网关一启动..");
             return;
         }
       }
@@ -1643,7 +1634,7 @@ public final class GameCenterController {
             share.plugTop.startStatus = 1;
             return;
           case 1:
-            LOGGER.debug("正在等待游戏排行榜插件启动..");
+            log.debug("正在等待游戏排行榜插件启动..");
             return;
         }
       }
