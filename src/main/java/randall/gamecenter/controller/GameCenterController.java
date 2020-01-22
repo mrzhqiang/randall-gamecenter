@@ -40,6 +40,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javax.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
@@ -50,6 +51,7 @@ import randall.common.util.IOHelper;
 import randall.common.util.Networks;
 import randall.gamecenter.model.BackupManager;
 import randall.gamecenter.model.Share;
+import randall.gamecenter.viewmodel.ControlViewModel;
 
 import static randall.gamecenter.model.Share.ALL_IP_ADDRESS;
 import static randall.gamecenter.model.Share.BASIC_SECTION_NAME;
@@ -94,102 +96,103 @@ import static randall.gamecenter.model.Share.STOPPING_STATE;
  * @author mrzhqiang
  */
 @Slf4j(topic = "randall")
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @FXMLController
 public final class GameCenterController {
   /* 控制面板 */
-  public TabPane mainTabPane;
-  public CheckBox dbServerCheckBox;
-  public CheckBox loginSrvCheckBox;
-  public CheckBox m2ServerCheckBox;
-  public CheckBox logServerCheckBox;
-  public CheckBox gameGateCheckBox1;
-  public CheckBox selGateCheckBox1;
-  public CheckBox loginGateCheckBox;
-  public CheckBox plugTopCheckBox;
-  public ComboBox<StartMode> startModeComboBox;
-  public Spinner<Integer> hoursSpinner;
-  public Spinner<Integer> minutesSpinner;
-  public TextArea gameInfoTextArea;
-  public Button startGameButton;
+  @FXML TabPane mainTabPane;
+  @FXML CheckBox dbServerCheckBox;
+  @FXML CheckBox loginSrvCheckBox;
+  @FXML CheckBox m2ServerCheckBox;
+  @FXML CheckBox logServerCheckBox;
+  @FXML CheckBox gameGateCheckBox1;
+  @FXML CheckBox selGateCheckBox1;
+  @FXML CheckBox loginGateCheckBox;
+  @FXML CheckBox plugTopCheckBox;
+  @FXML ComboBox<StartMode> startModeComboBox;
+  @FXML Spinner<Integer> hoursSpinner;
+  @FXML Spinner<Integer> minutesSpinner;
+  @FXML TextArea gameInfoTextArea;
+  @FXML Button startGameButton;
   /* 配置向导 */
-  public TabPane configTabPane;
-  public TextField primaryAddressTextField;
-  public TextField gameNameTextField;
-  public TextField dbNameTextField;
-  public TextField gameDirTextField;
-  public Spinner<Integer> allPortPlusSpinner;
-  public CheckBox closeWuxingCheckBox;
-  public CheckBox openLoginGateCheckBox;
-  public TextField loginGateFormXTextField;
-  public TextField loginGateFormYTextField;
-  public TextField loginGatePortTextField;
-  public CheckBox openSelGateCheckBox1;
-  public TextField selGateFormXTextField;
-  public TextField selGateFormYTextField;
-  public TextField selGatePortTextField1;
-  public CheckBox openRunGateCheckBox1;
-  public TextField runGateFormXTextField;
-  public TextField runGateFormYTextField;
-  public TextField runGatePortTextField1;
-  public CheckBox openLoginSrvCheckBox;
-  public TextField loginSrvFormXTextField;
-  public TextField loginSrvFormYTextField;
-  public TextField loginSrvGatePortTextField;
-  public TextField loginSrvMonPortTextField;
-  public TextField loginSrvServerPortTextField;
-  public CheckBox openDbServerCheckBox;
-  public TextField dbServerFormXTextField;
-  public TextField dbServerFormYTextField;
-  public TextField dbServerGatePortTextField;
-  public TextField dbServerServerPortTextField;
-  public CheckBox openLogServerCheckBox;
-  public TextField logServerFormXTextField;
-  public TextField logServerFormYTextField;
-  public TextField logServerGatePortTextField;
-  public CheckBox openM2ServerCheckBox;
-  public TextField m2ServerFormXTextField;
-  public TextField m2ServerFormYTextField;
-  public TextField m2ServerGatePortTextField;
-  public TextField m2ServerServerPortTextField;
-  public CheckBox openPlugTopCheckBox;
-  public TextField plugTopFormXTextField;
-  public TextField plugTopFormYTextField;
+  @FXML TabPane configTabPane;
+  @FXML TextField primaryAddressTextField;
+  @FXML TextField gameNameTextField;
+  @FXML TextField dbNameTextField;
+  @FXML TextField gameDirTextField;
+  @FXML Spinner<Integer> allPortPlusSpinner;
+  @FXML CheckBox closeWuxingCheckBox;
+  @FXML CheckBox openLoginGateCheckBox;
+  @FXML TextField loginGateFormXTextField;
+  @FXML TextField loginGateFormYTextField;
+  @FXML TextField loginGatePortTextField;
+  @FXML CheckBox openSelGateCheckBox1;
+  @FXML TextField selGateFormXTextField;
+  @FXML TextField selGateFormYTextField;
+  @FXML TextField selGatePortTextField1;
+  @FXML CheckBox openRunGateCheckBox1;
+  @FXML TextField runGateFormXTextField;
+  @FXML TextField runGateFormYTextField;
+  @FXML TextField runGatePortTextField1;
+  @FXML CheckBox openLoginSrvCheckBox;
+  @FXML TextField loginSrvFormXTextField;
+  @FXML TextField loginSrvFormYTextField;
+  @FXML TextField loginSrvGatePortTextField;
+  @FXML TextField loginSrvMonPortTextField;
+  @FXML TextField loginSrvServerPortTextField;
+  @FXML CheckBox openDbServerCheckBox;
+  @FXML TextField dbServerFormXTextField;
+  @FXML TextField dbServerFormYTextField;
+  @FXML TextField dbServerGatePortTextField;
+  @FXML TextField dbServerServerPortTextField;
+  @FXML CheckBox openLogServerCheckBox;
+  @FXML TextField logServerFormXTextField;
+  @FXML TextField logServerFormYTextField;
+  @FXML TextField logServerGatePortTextField;
+  @FXML CheckBox openM2ServerCheckBox;
+  @FXML TextField m2ServerFormXTextField;
+  @FXML TextField m2ServerFormYTextField;
+  @FXML TextField m2ServerGatePortTextField;
+  @FXML TextField m2ServerServerPortTextField;
+  @FXML CheckBox openPlugTopCheckBox;
+  @FXML TextField plugTopFormXTextField;
+  @FXML TextField plugTopFormYTextField;
   /* 数据备份 */
-  public TableView<BackupManager.BackupObject> dataBackupTableView;
-  public TableColumn<BackupManager.BackupObject, String> dataDirectoryTableColumn;
-  public TableColumn<BackupManager.BackupObject, String> backupDirectoryTableColumn;
-  public RadioButton dayBackupModeRadioButton;
-  public RadioButton intervalBackupModeRadioButton;
-  public ToggleGroup backupModeToggleGroup;
-  public Spinner<Integer> dayModeHoursSpinner;
-  public Spinner<Integer> intervalModeHoursSpinner;
-  public Spinner<Integer> dayModeMinutesSpinner;
-  public Spinner<Integer> intervalModeMinutesSpinner;
-  public CheckBox backupFunctionCheckBox;
-  public CheckBox compressFunctionCheckBox;
-  public CheckBox autoRunBackupCheckBox;
-  public TextField dataDirectoryTextField;
-  public TextField backupDirectoryTextField;
-  public Button modifyBackupButton;
-  public Button deleteBackupButton;
-  public Button addBackupButton;
-  public Button saveBackupButton;
-  public Button startBackupButton;
-  public Label backupMessageLabel;
+  @FXML TableView<BackupManager.BackupObject> dataBackupTableView;
+  @FXML TableColumn<BackupManager.BackupObject, String> dataDirectoryTableColumn;
+  @FXML TableColumn<BackupManager.BackupObject, String> backupDirectoryTableColumn;
+  @FXML RadioButton dayBackupModeRadioButton;
+  @FXML RadioButton intervalBackupModeRadioButton;
+  @FXML ToggleGroup backupModeToggleGroup;
+  @FXML Spinner<Integer> dayModeHoursSpinner;
+  @FXML Spinner<Integer> intervalModeHoursSpinner;
+  @FXML Spinner<Integer> dayModeMinutesSpinner;
+  @FXML Spinner<Integer> intervalModeMinutesSpinner;
+  @FXML CheckBox backupFunctionCheckBox;
+  @FXML CheckBox compressFunctionCheckBox;
+  @FXML CheckBox autoRunBackupCheckBox;
+  @FXML TextField dataDirectoryTextField;
+  @FXML TextField backupDirectoryTextField;
+  @FXML Button modifyBackupButton;
+  @FXML Button deleteBackupButton;
+  @FXML Button addBackupButton;
+  @FXML Button saveBackupButton;
+  @FXML Button startBackupButton;
+  @FXML Label backupMessageLabel;
   /* 开区数据清理 */
-  public CheckBox deleteRoleDataCheckBox;
-  public CheckBox deleteNPCMakeDataCheckBox;
-  public CheckBox deleteAccountDataCheckBox;
-  public CheckBox deleteEMailDataCheckBox;
-  public CheckBox deleteGuildDataCheckBox;
-  public CheckBox deleteAccountLoggerCheckBox;
-  public CheckBox clearSabacDataCheckBox;
-  public CheckBox deleteM2ServerLoggerCheckBox;
-  public CheckBox clearGlobalVariateCheckBox;
-  public CheckBox deleteGameLoggerCheckBox;
-  public CheckBox resetItemIDCountCheckBox;
-  public CheckBox clearRoleRelationDataCheckBox;
-  public Button startClearDataButton;
+  @FXML CheckBox deleteRoleDataCheckBox;
+  @FXML CheckBox deleteNPCMakeDataCheckBox;
+  @FXML CheckBox deleteAccountDataCheckBox;
+  @FXML CheckBox deleteEMailDataCheckBox;
+  @FXML CheckBox deleteGuildDataCheckBox;
+  @FXML CheckBox deleteAccountLoggerCheckBox;
+  @FXML CheckBox clearSabacDataCheckBox;
+  @FXML CheckBox deleteM2ServerLoggerCheckBox;
+  @FXML CheckBox clearGlobalVariateCheckBox;
+  @FXML CheckBox deleteGameLoggerCheckBox;
+  @FXML CheckBox resetItemIDCountCheckBox;
+  @FXML CheckBox clearRoleRelationDataCheckBox;
+  @FXML Button startClearDataButton;
 
   private boolean gateStopped;
   private long gateStopTick;
@@ -203,21 +206,18 @@ public final class GameCenterController {
   private Timer stopGameTimer = new Timer();
   private Timer checkRunTimer = new Timer();
 
+  private final ControlViewModel controlVM;
   private final Share share;
 
-  @Autowired
-  public GameCenterController(Share share) {
-    this.share = share;
-  }
+  @FXML void initialize() {
 
-  @FXML
-  public void initialize() {
+
     initView();
     mainTabPane.getSelectionModel().select(0);
     configTabPane.getSelectionModel().select(0);
     startState = 0;
     gameInfoTextArea.clear();
-    share.config.load();
+    share.profile.load();
     loadBackupList();
     refBackupListToView();
     if (!startService()) {
@@ -293,25 +293,25 @@ public final class GameCenterController {
   }
 
   private void changeAllPort(Integer newValue) {
-    loginGatePortTextField.setText(String.valueOf(share.config.getLogin().getPort() + newValue));
-    selGatePortTextField1.setText(String.valueOf(share.config.getRole().getPort() + newValue));
-    runGatePortTextField1.setText(String.valueOf(share.config.getRun().getPort() + newValue));
+    loginGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getPort() + newValue));
+    selGatePortTextField1.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getPort() + newValue));
+    runGatePortTextField1.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getPort() + newValue));
     loginSrvGatePortTextField.setText(
-        String.valueOf(share.config.getAccount().getPort() + newValue));
+        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getPort() + newValue));
     loginSrvServerPortTextField.setText(
-        String.valueOf(share.config.getAccount().getServerPort() + newValue));
+        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getServerPort() + newValue));
     loginSrvMonPortTextField.setText(
-        String.valueOf(share.config.getAccount().getMonitorPort() + newValue));
+        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getMonitorPort() + newValue));
     dbServerGatePortTextField.setText(
-        String.valueOf(share.config.getDatabase().getPort() + newValue));
+        String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getPort() + newValue));
     dbServerServerPortTextField.setText(
-        String.valueOf(share.config.getDatabase().getServerPort() + newValue));
+        String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getServerPort() + newValue));
     logServerGatePortTextField.setText(
-        String.valueOf(share.config.getLogger().getPort() + newValue));
+        String.valueOf(controlVM.getConfigModel().getConfig().getLogger().getPort() + newValue));
     m2ServerGatePortTextField.setText(
-        String.valueOf(share.config.getCore().getPort() + newValue));
+        String.valueOf(controlVM.getConfigModel().getConfig().getCore().getPort() + newValue));
     m2ServerServerPortTextField.setText(
-        String.valueOf(share.config.getCore().getServerPort() + newValue));
+        String.valueOf(controlVM.getConfigModel().getConfig().getCore().getServerPort() + newValue));
   }
 
   private void computeRuntime(StartMode mode) {
@@ -339,64 +339,64 @@ public final class GameCenterController {
 
   private void refGameConsole() {
     // 刷新控制台按钮的选中状态
-    m2ServerCheckBox.setSelected(share.config.getCore().getEnabled());
-    dbServerCheckBox.setSelected(share.config.getDatabase().getEnabled());
-    loginSrvCheckBox.setSelected(share.config.getAccount().getEnabled());
-    logServerCheckBox.setSelected(share.config.getLogger().getEnabled());
-    loginGateCheckBox.setSelected(share.config.getLogin().getEnabled());
-    selGateCheckBox1.setSelected(share.config.getRole().getEnabled());
-    gameGateCheckBox1.setSelected(share.config.getRun().getEnabled());
-    plugTopCheckBox.setSelected(share.config.getTop().getEnabled());
+    m2ServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getCore().getEnabled());
+    dbServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getDatabase().getEnabled());
+    loginSrvCheckBox.setSelected(controlVM.getConfigModel().getConfig().getAccount().getEnabled());
+    logServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogger().getEnabled());
+    loginGateCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogin().getEnabled());
+    selGateCheckBox1.setSelected(controlVM.getConfigModel().getConfig().getRole().getEnabled());
+    gameGateCheckBox1.setSelected(controlVM.getConfigModel().getConfig().getRun().getEnabled());
+    plugTopCheckBox.setSelected(controlVM.getConfigModel().getConfig().getTop().getEnabled());
 
     // 第一步 基本设置
-    gameDirTextField.setText(share.config.getHome().getPath());
-    dbNameTextField.setText(share.config.getHome().getDatabase());
-    gameNameTextField.setText(share.config.getHome().getFullName());
-    primaryAddressTextField.setText(share.config.getHome().getHost());
-    closeWuxingCheckBox.setSelected(share.config.getHome().getWuxing());
+    gameDirTextField.setText(controlVM.getConfigModel().getConfig().getHome().getPath());
+    dbNameTextField.setText(controlVM.getConfigModel().getConfig().getHome().getDatabase());
+    gameNameTextField.setText(controlVM.getConfigModel().getConfig().getHome().getFullName());
+    primaryAddressTextField.setText(controlVM.getConfigModel().getConfig().getHome().getHost());
+    closeWuxingCheckBox.setSelected(controlVM.getConfigModel().getConfig().getHome().getWuxing());
     // 第二步 登录网关
-    loginGateFormXTextField.setText(String.valueOf(share.config.getLogin().getX()));
-    loginGateFormYTextField.setText(String.valueOf(share.config.getLogin().getY()));
-    openLoginGateCheckBox.setSelected(share.config.getLogin().getEnabled());
-    loginGatePortTextField.setText(String.valueOf(share.config.getLogin().getPort()));
+    loginGateFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getX()));
+    loginGateFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getY()));
+    openLoginGateCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogin().getEnabled());
+    loginGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getPort()));
     // 第三步 角色网关
-    selGateFormXTextField.setText(String.valueOf(share.config.getRole().getX()));
-    selGateFormYTextField.setText(String.valueOf(share.config.getRole().getY()));
-    openSelGateCheckBox1.setSelected(share.config.getRole().getEnabled());
-    selGatePortTextField1.setText(String.valueOf(share.config.getRole().getPort()));
+    selGateFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getX()));
+    selGateFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getY()));
+    openSelGateCheckBox1.setSelected(controlVM.getConfigModel().getConfig().getRole().getEnabled());
+    selGatePortTextField1.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getPort()));
     // 第四步 游戏网关
-    runGateFormXTextField.setText(String.valueOf(share.config.getRun().getX()));
-    runGateFormYTextField.setText(String.valueOf(share.config.getRun().getY()));
-    openRunGateCheckBox1.setSelected(share.config.getRun().getEnabled());
-    runGatePortTextField1.setText(String.valueOf(share.config.getRun().getPort()));
+    runGateFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getX()));
+    runGateFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getY()));
+    openRunGateCheckBox1.setSelected(controlVM.getConfigModel().getConfig().getRun().getEnabled());
+    runGatePortTextField1.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getPort()));
     // 第五步 登录服务器
-    loginSrvFormXTextField.setText(String.valueOf(share.config.getAccount().getX()));
-    loginSrvFormYTextField.setText(String.valueOf(share.config.getAccount().getY()));
-    openLoginSrvCheckBox.setSelected(share.config.getAccount().getEnabled());
-    loginSrvGatePortTextField.setText(String.valueOf(share.config.getAccount().getPort()));
-    loginSrvServerPortTextField.setText(String.valueOf(share.config.getAccount().getServerPort()));
-    loginSrvMonPortTextField.setText(String.valueOf(share.config.getAccount().getMonitorPort()));
+    loginSrvFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getX()));
+    loginSrvFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getY()));
+    openLoginSrvCheckBox.setSelected(controlVM.getConfigModel().getConfig().getAccount().getEnabled());
+    loginSrvGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getPort()));
+    loginSrvServerPortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getServerPort()));
+    loginSrvMonPortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getMonitorPort()));
     // 第六步 数据库服务器
-    dbServerFormXTextField.setText(String.valueOf(share.config.getDatabase().getX()));
-    dbServerFormYTextField.setText(String.valueOf(share.config.getDatabase().getY()));
-    openDbServerCheckBox.setSelected(share.config.getDatabase().getEnabled());
-    dbServerGatePortTextField.setText(String.valueOf(share.config.getDatabase().getPort()));
-    dbServerServerPortTextField.setText(String.valueOf(share.config.getDatabase().getServerPort()));
+    dbServerFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getX()));
+    dbServerFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getY()));
+    openDbServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getDatabase().getEnabled());
+    dbServerGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getPort()));
+    dbServerServerPortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getServerPort()));
     // 第七步 游戏日志服务器
-    logServerFormXTextField.setText(String.valueOf(share.config.getLogger().getX()));
-    logServerFormYTextField.setText(String.valueOf(share.config.getLogger().getY()));
-    openLogServerCheckBox.setSelected(share.config.getLogger().getEnabled());
-    logServerGatePortTextField.setText(String.valueOf(share.config.getLogger().getPort()));
+    logServerFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogger().getX()));
+    logServerFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogger().getY()));
+    openLogServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogger().getEnabled());
+    logServerGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogger().getPort()));
     // 第八步 游戏主引擎服务器
-    m2ServerFormXTextField.setText(String.valueOf(share.config.getCore().getX()));
-    m2ServerFormYTextField.setText(String.valueOf(share.config.getCore().getY()));
-    openM2ServerCheckBox.setSelected(share.config.getCore().getEnabled());
-    m2ServerGatePortTextField.setText(String.valueOf(share.config.getCore().getPort()));
-    m2ServerServerPortTextField.setText(String.valueOf(share.config.getCore().getServerPort()));
+    m2ServerFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getCore().getX()));
+    m2ServerFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getCore().getY()));
+    openM2ServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getCore().getEnabled());
+    m2ServerGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getCore().getPort()));
+    m2ServerServerPortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getCore().getServerPort()));
     // 第九步 排行榜插件
-    plugTopFormXTextField.setText(String.valueOf(share.config.getTop().getX()));
-    plugTopFormYTextField.setText(String.valueOf(share.config.getTop().getY()));
-    openPlugTopCheckBox.setSelected(share.config.getTop().getEnabled());
+    plugTopFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getTop().getX()));
+    plugTopFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getTop().getY()));
+    openPlugTopCheckBox.setSelected(controlVM.getConfigModel().getConfig().getTop().getEnabled());
   }
 
   private boolean startService() {
@@ -413,35 +413,35 @@ public final class GameCenterController {
   }
 
   public void onDBServerClicked() {
-    share.config.getDatabase().setEnabled(dbServerCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getDatabase().setEnabled(dbServerCheckBox.isSelected());
   }
 
   public void onLoginSrvClicked() {
-    share.config.getAccount().setEnabled(loginSrvCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getAccount().setEnabled(loginSrvCheckBox.isSelected());
   }
 
   public void onM2ServerClicked() {
-    share.config.getCore().setEnabled(m2ServerCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getCore().setEnabled(m2ServerCheckBox.isSelected());
   }
 
   public void onLogServerClicked() {
-    share.config.getLogger().setEnabled(logServerCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getLogger().setEnabled(logServerCheckBox.isSelected());
   }
 
   public void onRunGate1Clicked() {
-    share.config.getRun().setEnabled(gameGateCheckBox1.isSelected());
+    controlVM.getConfigModel().getConfig().getRun().setEnabled(gameGateCheckBox1.isSelected());
   }
 
   public void onSelGate1Clicked() {
-    share.config.getRole().setEnabled(selGateCheckBox1.isSelected());
+    controlVM.getConfigModel().getConfig().getRole().setEnabled(selGateCheckBox1.isSelected());
   }
 
   public void onLoginGateClicked() {
-    share.config.getLogin().setEnabled(loginGateCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getLogin().setEnabled(loginGateCheckBox.isSelected());
   }
 
   public void onPlugTopClicked() {
-    share.config.getTop().setEnabled(plugTopCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getTop().setEnabled(plugTopCheckBox.isSelected());
   }
 
   public void onStartGameClicked() {
@@ -550,39 +550,39 @@ public final class GameCenterController {
   }
 
   public void onOpenLoginGateClicked() {
-    share.config.getLogin().setEnabled(openLoginGateCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getLogin().setEnabled(openLoginGateCheckBox.isSelected());
   }
 
   public void onOpenSelGate1Clicked() {
-    share.config.getRole().setEnabled(openSelGateCheckBox1.isSelected());
+    controlVM.getConfigModel().getConfig().getRole().setEnabled(openSelGateCheckBox1.isSelected());
   }
 
   public void onOpenRunGate1Clicked() {
-    share.config.getRun().setEnabled(openRunGateCheckBox1.isSelected());
+    controlVM.getConfigModel().getConfig().getRun().setEnabled(openRunGateCheckBox1.isSelected());
   }
 
   public void onOpenLoginSrvClicked() {
-    share.config.getAccount().setEnabled(openLoginSrvCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getAccount().setEnabled(openLoginSrvCheckBox.isSelected());
   }
 
   public void onOpenDBServerClicked() {
-    share.config.getDatabase().setEnabled(openDbServerCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getDatabase().setEnabled(openDbServerCheckBox.isSelected());
   }
 
   public void onOpenLogServerClicked() {
-    share.config.getLogger().setEnabled(openLogServerCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getLogger().setEnabled(openLogServerCheckBox.isSelected());
   }
 
   public void onOpenM2ServerClicked() {
-    share.config.getCore().setEnabled(openM2ServerCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getCore().setEnabled(openM2ServerCheckBox.isSelected());
   }
 
   public void onOpenPlugTopClicked() {
-    share.config.getTop().setEnabled(openPlugTopCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getTop().setEnabled(openPlugTopCheckBox.isSelected());
   }
 
   public void onReloadAllConfigClicked() {
-    share.config.load();
+    controlVM.getConfigModel().getConfig().load();
     refGameConsole();
     Dialogs.alert("配置重加载完成...").show();
   }
@@ -650,7 +650,7 @@ public final class GameCenterController {
       loginGatePortTextField.requestFocus();
       return;
     }
-    share.config.getLogin().setPort(port);
+    controlVM.getConfigModel().getConfig().getLogin().setPort(port);
     configTabPane.getSelectionModel().selectNext();
   }
 
@@ -670,7 +670,7 @@ public final class GameCenterController {
       selGatePortTextField1.requestFocus();
       return;
     }
-    share.config.getRole().setPort(port1);
+    controlVM.getConfigModel().getConfig().getRole().setPort(port1);
 
     configTabPane.getSelectionModel().selectNext();
   }
@@ -691,7 +691,7 @@ public final class GameCenterController {
       runGatePortTextField1.requestFocus();
       return;
     }
-    share.config.getRun().setPort(port1);
+    controlVM.getConfigModel().getConfig().getRun().setPort(port1);
 
     configTabPane.getSelectionModel().selectNext();
   }
@@ -725,9 +725,9 @@ public final class GameCenterController {
       return;
     }
 
-    share.config.getAccount().setPort(gatePort);
-    share.config.getAccount().setServerPort(serverPort);
-    share.config.getAccount().setMonitorPort(monPort);
+    controlVM.getConfigModel().getConfig().getAccount().setPort(gatePort);
+    controlVM.getConfigModel().getConfig().getAccount().setServerPort(serverPort);
+    controlVM.getConfigModel().getConfig().getAccount().setMonitorPort(monPort);
 
     configTabPane.getSelectionModel().selectNext();
   }
@@ -755,8 +755,8 @@ public final class GameCenterController {
       return;
     }
 
-    share.config.getDatabase().setPort(gatePort);
-    share.config.getDatabase().setServerPort(serverPort);
+    controlVM.getConfigModel().getConfig().getDatabase().setPort(gatePort);
+    controlVM.getConfigModel().getConfig().getDatabase().setServerPort(serverPort);
 
     configTabPane.getSelectionModel().selectNext();
   }
@@ -777,7 +777,7 @@ public final class GameCenterController {
       logServerGatePortTextField.requestFocus();
       return;
     }
-    share.config.getLogger().setPort(port);
+    controlVM.getConfigModel().getConfig().getLogger().setPort(port);
 
     configTabPane.getSelectionModel().selectNext();
   }
@@ -804,8 +804,8 @@ public final class GameCenterController {
       m2ServerServerPortTextField.requestFocus();
       return;
     }
-    share.config.getCore().setPort(gatePort);
-    share.config.getCore().setServerPort(serverPort);
+    controlVM.getConfigModel().getConfig().getCore().setPort(gatePort);
+    controlVM.getConfigModel().getConfig().getCore().setServerPort(serverPort);
 
     configTabPane.getSelectionModel().selectNext();
   }
@@ -833,7 +833,7 @@ public final class GameCenterController {
   }
 
   public void onSaveConfigClicked() {
-    share.config.save();
+    controlVM.getConfigModel().getConfig().save();
     Dialogs.alert("配置文件已经保存完毕...")
         .showAndWait()
         .filter(ButtonType.OK::equals)
@@ -873,7 +873,7 @@ public final class GameCenterController {
         Ini ini = new Wini(runGateConfigPath.toFile());
         ini.put(RUN_GATE_SECTION_NAME_2, "Title", share.gameName);
         ini.put(RUN_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
-        ini.put(RUN_GATE_SECTION_NAME_2, "GatePort", share.config.getRun().getPort());
+        ini.put(RUN_GATE_SECTION_NAME_2, "GatePort", controlVM.getConfigModel().getConfig().getRun().getPort());
         ini.store();
       } catch (IOException e) {
         Dialogs.error("生成游戏网关[" + (index + 1) + "]配置出错！！", e).show();
@@ -894,7 +894,7 @@ public final class GameCenterController {
       Ini ini = new Wini(selGateConfigPath.toFile());
       ini.put(SEL_GATE_SECTION_NAME_2, "Title", share.gameName);
       ini.put(SEL_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
-      ini.put(SEL_GATE_SECTION_NAME_2, "GatePort", share.config.getRole().getPort());
+      ini.put(SEL_GATE_SECTION_NAME_2, "GatePort", controlVM.getConfigModel().getConfig().getRole().getPort());
       if (share.ip2Enabled) {
         if (index == 0) {
           ini.put(SEL_GATE_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
@@ -920,7 +920,7 @@ public final class GameCenterController {
       IOHelper.create(loginGateConfigPath);
       Ini ini = new Wini(loginGateConfigPath.toFile());
       ini.put(LOGIN_SRV_SECTION_NAME_2, "Title", share.gameName);
-      ini.put(LOGIN_SRV_SECTION_NAME_2, "GatePort", share.config.getLogin().getPort());
+      ini.put(LOGIN_SRV_SECTION_NAME_2, "GatePort", controlVM.getConfigModel().getConfig().getLogin().getPort());
       if (share.ip2Enabled) {
         if (index == 0) {
           ini.put(LOGIN_SRV_SECTION_NAME_2, "GateAddr", share.extIPAddr);
@@ -948,9 +948,9 @@ public final class GameCenterController {
       Ini ini = new Wini(configPath.toFile());
       ini.put(LOGIN_GATE_SECTION_NAME_2, "Title", share.gameName);
       ini.put(LOGIN_GATE_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
-      ini.put(LOGIN_GATE_SECTION_NAME_2, "ServerPort", share.config.getAccount().getPort());
+      ini.put(LOGIN_GATE_SECTION_NAME_2, "ServerPort", controlVM.getConfigModel().getConfig().getAccount().getPort());
       ini.put(LOGIN_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
-      ini.put(LOGIN_GATE_SECTION_NAME_2, "GatePort", share.config.getLogin().getPort());
+      ini.put(LOGIN_GATE_SECTION_NAME_2, "GatePort", controlVM.getConfigModel().getConfig().getLogin().getPort());
       ini.store();
     } catch (IOException e) {
       Dialogs.error("生成登陆网关配置文件出错！！", e).show();
@@ -967,9 +967,9 @@ public final class GameCenterController {
       Ini ini = new Wini(configPath.toFile());
       ini.put(SEL_GATE_SECTION_NAME_2, "Title", share.gameName);
       ini.put(SEL_GATE_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
-      ini.put(SEL_GATE_SECTION_NAME_2, "ServerPort", share.config.getDatabase().getPort());
+      ini.put(SEL_GATE_SECTION_NAME_2, "ServerPort", controlVM.getConfigModel().getConfig().getDatabase().getPort());
       ini.put(SEL_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
-      ini.put(SEL_GATE_SECTION_NAME_2, "GatePort", share.config.getRole().getPort());
+      ini.put(SEL_GATE_SECTION_NAME_2, "GatePort", controlVM.getConfigModel().getConfig().getRole().getPort());
       ini.store();
     } catch (IOException e) {
       Dialogs.error("生成角色网关配置文件出错！！", e).show();
@@ -986,11 +986,11 @@ public final class GameCenterController {
       Ini ini = new Wini(configPath.toFile());
       ini.put(RUN_GATE_SECTION_NAME_2, "Title", share.gameName);
       ini.put(RUN_GATE_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
-      ini.put(RUN_GATE_SECTION_NAME_2, "ServerPort", share.config.getCore().getPort());
+      ini.put(RUN_GATE_SECTION_NAME_2, "ServerPort", controlVM.getConfigModel().getConfig().getCore().getPort());
       ini.put(RUN_GATE_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
-      ini.put(RUN_GATE_SECTION_NAME_2, "GatePort", share.config.getRun().getPort());
+      ini.put(RUN_GATE_SECTION_NAME_2, "GatePort", controlVM.getConfigModel().getConfig().getRun().getPort());
       ini.put(RUN_GATE_SECTION_NAME_2, "CenterAddr", PRIMARY_IP_ADDRESS);
-      ini.put(RUN_GATE_SECTION_NAME_2, "CenterPort", share.config.getAccount().getServerPort());
+      ini.put(RUN_GATE_SECTION_NAME_2, "CenterPort", controlVM.getConfigModel().getConfig().getAccount().getServerPort());
       ini.store();
     } catch (IOException e) {
       Dialogs.error("生成游戏网关配置文件出错！！", e).show();
@@ -1006,7 +1006,7 @@ public final class GameCenterController {
       IOHelper.create(logSrvPath);
       Ini ini = new Wini(logSrvPath.toFile());
       ini.put(LOG_SERVER_SECTION_2, "ServerName", share.gameName);
-      ini.put(LOG_SERVER_SECTION_2, "Port", share.config.getLogger().getPort());
+      ini.put(LOG_SERVER_SECTION_2, "Port", controlVM.getConfigModel().getConfig().getLogger().getPort());
       ini.put(LOG_SERVER_SECTION_2, "BaseDir", "BaseDir\\");
       ini.store();
     } catch (IOException e) {
@@ -1027,15 +1027,15 @@ public final class GameCenterController {
       ini.put(M2_SERVER_SECTION_NAME_1, "ServerName", share.gameName);
       ini.put(M2_SERVER_SECTION_NAME_1, "DBName", share.heroDBName);
       ini.put(M2_SERVER_SECTION_NAME_1, "GateAddr", ALL_IP_ADDRESS);
-      ini.put(M2_SERVER_SECTION_NAME_1, "GatePort", share.config.getCore().getPort());
+      ini.put(M2_SERVER_SECTION_NAME_1, "GatePort", controlVM.getConfigModel().getConfig().getCore().getPort());
       ini.put(M2_SERVER_SECTION_NAME_1, "DBAddr", PRIMARY_IP_ADDRESS);
-      ini.put(M2_SERVER_SECTION_NAME_1, "DBPort", share.config.getDatabase().getServerPort());
+      ini.put(M2_SERVER_SECTION_NAME_1, "DBPort", controlVM.getConfigModel().getConfig().getDatabase().getServerPort());
       ini.put(M2_SERVER_SECTION_NAME_1, "IDSAddr", PRIMARY_IP_ADDRESS);
-      ini.put(M2_SERVER_SECTION_NAME_1, "IDSPort", share.config.getAccount().getServerPort());
+      ini.put(M2_SERVER_SECTION_NAME_1, "IDSPort", controlVM.getConfigModel().getConfig().getAccount().getServerPort());
       ini.put(M2_SERVER_SECTION_NAME_1, "MsgSrvAddr", ALL_IP_ADDRESS);
-      ini.put(M2_SERVER_SECTION_NAME_1, "MsgSrvPort", share.config.getCore().getServerPort());
+      ini.put(M2_SERVER_SECTION_NAME_1, "MsgSrvPort", controlVM.getConfigModel().getConfig().getCore().getServerPort());
       ini.put(M2_SERVER_SECTION_NAME_1, "LogServerAddr", PRIMARY_IP_ADDRESS);
-      ini.put(M2_SERVER_SECTION_NAME_1, "LogServerPort", share.config.getLogger().getPort());
+      ini.put(M2_SERVER_SECTION_NAME_1, "LogServerPort", controlVM.getConfigModel().getConfig().getLogger().getPort());
       ini.put(M2_SERVER_SECTION_NAME_1, "CloseWuXin", share.closeWuXinEnabled);
 
       ini.put(M2_SERVER_SECTION_NAME_2, "GuildDir", "GuildBase\\Guilds\\");
@@ -1077,11 +1077,11 @@ public final class GameCenterController {
       IOHelper.create(loginSrvPath);
       Ini ini = new Wini(loginSrvPath.toFile());
       ini.put(LOGIN_SRV_SECTION_NAME_2, "ServerAddr", ALL_IP_ADDRESS);
-      ini.put(LOGIN_SRV_SECTION_NAME_2, "ServerPort", share.config.getAccount().getServerPort());
+      ini.put(LOGIN_SRV_SECTION_NAME_2, "ServerPort", controlVM.getConfigModel().getConfig().getAccount().getServerPort());
       ini.put(LOGIN_SRV_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
-      ini.put(LOGIN_SRV_SECTION_NAME_2, "GatePort", share.config.getAccount().getPort());
+      ini.put(LOGIN_SRV_SECTION_NAME_2, "GatePort", controlVM.getConfigModel().getConfig().getAccount().getPort());
       ini.put(LOGIN_SRV_SECTION_NAME_2, "MonAddr", ALL_IP_ADDRESS);
-      ini.put(LOGIN_SRV_SECTION_NAME_2, "MonPort", share.config.getAccount().getMonitorPort());
+      ini.put(LOGIN_SRV_SECTION_NAME_2, "MonPort", controlVM.getConfigModel().getConfig().getAccount().getMonitorPort());
       ini.put(LOGIN_SRV_SECTION_NAME_2, "CloseWuXin", share.closeWuXinEnabled);
       ini.put(LOGIN_SRV_SECTION_NAME_2, "IDDir", "DB\\");
       ini.put(LOGIN_SRV_SECTION_NAME_2, "CountLogDir", "ChrLog\\");
@@ -1100,8 +1100,8 @@ public final class GameCenterController {
     IOHelper.write(Paths.get(loginSrvDir.toString(), "!UserLimit.txt"), content);
 
     builder = new StringBuilder(PRIMARY_IP_ADDRESS);
-    if (share.config.getRole().getEnabled()) {
-      builder.append(String.format(" %s %d", share.extIPAddr, share.config.getRole().getPort()));
+    if (controlVM.getConfigModel().getConfig().getRole().isEnabled()) {
+      builder.append(String.format(" %s %d", share.extIPAddr, controlVM.getConfigModel().getConfig().getRole().getPort()));
     }
     builder.append(System.lineSeparator());
     IOHelper.write(Paths.get(loginSrvDir.toString(), "!addrtable.txt"), builder.toString());
@@ -1121,11 +1121,11 @@ public final class GameCenterController {
       Ini ini = new Wini(dbSrcPath.toFile());
       ini.put(DB_SERVER_SECTION_NAME_2, "ServerName", share.gameName);
       ini.put(DB_SERVER_SECTION_NAME_2, "ServerAddr", PRIMARY_IP_ADDRESS);
-      ini.put(DB_SERVER_SECTION_NAME_2, "ServerPort", share.config.getDatabase().getServerPort());
+      ini.put(DB_SERVER_SECTION_NAME_2, "ServerPort", controlVM.getConfigModel().getConfig().getDatabase().getServerPort());
       ini.put(DB_SERVER_SECTION_NAME_2, "GateAddr", ALL_IP_ADDRESS);
-      ini.put(DB_SERVER_SECTION_NAME_2, "GatePort", share.config.getDatabase().getPort());
+      ini.put(DB_SERVER_SECTION_NAME_2, "GatePort", controlVM.getConfigModel().getConfig().getDatabase().getPort());
       ini.put(DB_SERVER_SECTION_NAME_2, "IDSAddr", PRIMARY_IP_ADDRESS);
-      ini.put(DB_SERVER_SECTION_NAME_2, "IDSPort", share.config.getAccount().getServerPort());
+      ini.put(DB_SERVER_SECTION_NAME_2, "IDSPort", controlVM.getConfigModel().getConfig().getAccount().getServerPort());
       ini.put(DB_SERVER_SECTION_NAME_2, "DBName", share.heroDBName);
       ini.put(DB_SERVER_SECTION_NAME_2, "DBDir", "DB\\");
       ini.store();
@@ -1141,9 +1141,9 @@ public final class GameCenterController {
 
     builder = new StringBuilder(PRIMARY_IP_ADDRESS);
     //for (int i = 0; i < share.config.runGate.getStart.length; i++) {
-    if (share.config.getRun().getEnabled()) {
+    if (controlVM.getConfigModel().getConfig().getRun().isEnabled()) {
       builder.append(
-          String.format(" %s %d", share.extIPAddr, share.config.getRun().getPort()));
+          String.format(" %s %d", share.extIPAddr, controlVM.getConfigModel().getConfig().getRun().getPort()));
     }
     //}
     builder.append(System.lineSeparator());
@@ -1286,9 +1286,9 @@ public final class GameCenterController {
 
   public void onAutoRunBackupClicked() {
     share.autoRunBakEnabled = autoRunBackupCheckBox.isSelected();
-    share.config.ini.put(BASIC_SECTION_NAME, "AutoRunBak", share.autoRunBakEnabled);
+    share.profile.ini.put(BASIC_SECTION_NAME, "AutoRunBak", share.autoRunBakEnabled);
     try {
-      share.config.ini.store();
+      share.profile.ini.store();
     } catch (IOException e) {
       log.error("保存备份配置失败！", e);
     }

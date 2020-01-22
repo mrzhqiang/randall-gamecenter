@@ -107,11 +107,11 @@ public final class Share {
   public BackupManager backupManager = new BackupManager();
   public int backupStartStatus = 0;
 
-  public final randall.gamecenter.model.Config config;
+  public final Profile profile;
 
   @Autowired
-  public Share(randall.gamecenter.model.Config config) {
-    this.config = config;
+  public Share(Profile profile) {
+    this.profile = profile;
   }
 
   public static class Program {
