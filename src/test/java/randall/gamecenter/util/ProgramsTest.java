@@ -6,18 +6,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import org.junit.Test;
-import randall.gamecenter.Share;
+import org.junit.jupiter.api.Test;
+import randall.gamecenter.model.Share;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mrzhqiang
  */
-public class ProgramsTest {
+class ProgramsTest {
 
-  @Test
-  public void executePing() throws IOException {
+  @Test void executePing() throws IOException {
     Process process = Runtime.getRuntime().exec("ping 127.0.0.1");
     assertTrue(process.isAlive());
     InputStream inputStream = process.getInputStream();
@@ -32,8 +31,7 @@ public class ProgramsTest {
     //        System.out.println("code: " + code);
   }
 
-  @Test
-  public void start() throws Exception {
+  @Test void start() throws Exception {
     Share.Program program = new Share.Program();
     program.mainFormX = 100;
     program.mainFormY = 100;

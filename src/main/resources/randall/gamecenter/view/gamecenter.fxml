@@ -8,9 +8,9 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
@@ -21,15 +21,16 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<TabPane fx:id="mainTabPane" prefHeight="480.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="randall.gamecenter.Controller">
+
+<TabPane fx:id="mainTabPane" prefHeight="480.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="randall.gamecenter.controller.GameCenterController">
     <tabs>
-        <Tab text="服务端控制">
+        <Tab text="服务控制">
             <content>
                 <AnchorPane>
                     <children>
                         <VBox layoutX="93.0" layoutY="56.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <children>
-                                <Label text="服务器控制：">
+                                <Label text="启动控制：">
                                     <VBox.margin>
                                         <Insets bottom="8.0" />
                                     </VBox.margin>
@@ -47,9 +48,6 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" />
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" />
                                         <RowConstraints />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     </rowConstraints>
@@ -76,65 +74,27 @@
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
                                             <children>
-                                                <CheckBox fx:id="gameGateCheckBox1" mnemonicParsing="false" onAction="#onRunGate1Clicked" text="游戏网关一(RunGate)" />
+                                                <CheckBox fx:id="gameGateCheckBox1" mnemonicParsing="false" onAction="#onRunGate1Clicked" text="游戏网关(RunGate)" />
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                            <children>
-                                                <CheckBox fx:id="gameGateCheckBox2" mnemonicParsing="false" onAction="#onRunGate2Clicked" text="游戏网关二(RunGate)" />
-                                            </children>
+                                 <children>
+                                                <CheckBox fx:id="selGateCheckBox1" mnemonicParsing="false" onAction="#onSelGate1Clicked" text="角色网关(SelGate)" />
+                                 </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="3">
-                                            <children>
-                                                <CheckBox fx:id="gameGateCheckBox3" mnemonicParsing="false" onAction="#onRunGate3Clicked" text="游戏网关三(RunGate)" />
-                                            </children>
+                                 <children>
+                                              <CheckBox fx:id="loginGateCheckBox" mnemonicParsing="false" onAction="#onLoginGateClicked" text="登录网关(LoginGate)" />
+                                 </children>
                                         </HBox>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                            <children>
-                                                <CheckBox fx:id="gameGateCheckBox4" mnemonicParsing="false" onAction="#onRunGate4Clicked" text="游戏网关四(RunGate)" />
-                                            </children>
-                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="5">
-                                            <children>
-                                                <CheckBox fx:id="gameGateCheckBox5" mnemonicParsing="false" onAction="#onRunGate5Clicked" text="游戏网关五(RunGate)" />
-                                            </children>
+                                 <children>
+                                    <CheckBox fx:id="plugTopCheckBox" mnemonicParsing="false" onAction="#onPlugTopClicked" text="排行榜插件(PlugTop)" />
+                                 </children>
                                         </HBox>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                            <children>
-                                                <CheckBox fx:id="gameGateCheckBox6" mnemonicParsing="false" onAction="#onRunGate6Clicked" text="游戏网关六(RunGate)" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="6">
-                                            <children>
-                                                <CheckBox fx:id="gameGateCheckBox7" mnemonicParsing="false" onAction="#onRunGate7Clicked" text="游戏网关七(RunGate)" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
-                                            <children>
-                                                <CheckBox fx:id="gameGateCheckBox8" mnemonicParsing="false" onAction="#onRunGate8Clicked" text="游戏网关八(RunGate)" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="7">
-                                            <children>
-                                                <CheckBox fx:id="selGateCheckBox1" mnemonicParsing="false" onAction="#onSelGate1Clicked" text="角色网关一(SelGate)" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
-                                            <children>
-                                                <CheckBox fx:id="selGateCheckBox2" mnemonicParsing="false" onAction="#onSelGate2Clicked" text="角色网关二(SelGate)" />
-                                            </children>
-                                        </HBox>
-                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="8">
-                                            <children>
-                                              <CheckBox fx:id="loginGateCheckBox"
-                                                  mnemonicParsing="false"
-                                                  onAction="#onLoginGateClicked"
-                                                  text="登录网关一(LoginGate)"/>
-                                            </children>
-                                        </HBox>
-                                      <HBox alignment="CENTER_LEFT" prefHeight="100.0"
-                                          prefWidth="200.0" GridPane.columnIndex="1"
-                                          GridPane.rowIndex="9">
+                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
                                             <children>
                                                 <ComboBox fx:id="startModeComboBox" promptText="选择启动模式" />
                                                 <Label text="小时：" />
@@ -145,15 +105,16 @@
                                                 </Spinner>
                                             </children>
                                         </HBox>
-                              <CheckBox fx:id="plugTopCheckBox" mnemonicParsing="false" onAction="#onPlugTopClicked" text="排行榜插件(PlugTop)" GridPane.rowIndex="9" />
-                                      <CheckBox fx:id="loginGateCheckBox2" mnemonicParsing="false"
-                                          onAction="#onLoginGate2Clicked" text="登录网关二(LoginGate)"
-                                          GridPane.columnIndex="1" GridPane.rowIndex="8"/>
                                     </children>
                                     <VBox.margin>
                                         <Insets bottom="8.0" />
                                     </VBox.margin>
                                 </GridPane>
+                        <Label text="启动信息：">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
                                 <TextArea fx:id="gameInfoTextArea" prefHeight="174.0" prefWidth="608.0">
                                     <VBox.margin>
                                         <Insets bottom="8.0" top="8.0" />
@@ -161,8 +122,7 @@
                                 </TextArea>
                                 <HBox alignment="CENTER">
                                     <children>
-                                      <Button fx:id="startGameButton" mnemonicParsing="false"
-                                          onAction="#onStartGameClicked" text="启动游戏控制器"/>
+                                      <Button fx:id="startGameButton" mnemonicParsing="false" onAction="#onStartGameClicked" text="启动游戏控制器" />
                                     </children>
                                     <VBox.margin>
                                         <Insets top="8.0" />
@@ -199,16 +159,12 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onReloadAllConfigClicked"
-                                                   prefWidth="64.0" text="重加载">
+                                               <Button mnemonicParsing="false" onAction="#onReloadAllConfigClicked" prefWidth="64.0" text="重加载">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onNextBasicConfigClicked"
-                                                   prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false" onAction="#onNextBasicConfigClicked" prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
@@ -237,27 +193,9 @@
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                                    <children>
                                                       <TextField fx:id="primaryAddressTextField" />
-                                                      <CheckBox fx:id="doubleAddressCheckBox" mnemonicParsing="false" text="双IP一区设置">
-                                                         <HBox.margin>
-                                                            <Insets left="16.0" />
-                                                         </HBox.margin>
-                                                      </CheckBox>
                                                    </children>
                                                 </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                                   <children>
-                                                     <TextField fx:id="secondAddressTextField"
-                                                         disable="true"/>
-                                                     <CheckBox fx:id="dynamicAddressCheckBox"
-                                                         disable="true" mnemonicParsing="false"
-                                                         text="动态IP地址">
-                                                         <HBox.margin>
-                                                            <Insets left="16.0" />
-                                                         </HBox.margin>
-                                                      </CheckBox>
-                                                   </children>
-                                                </HBox>
-                                                <Label text="访问IP地址2：" GridPane.rowIndex="4" />
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                                 <Spinner fx:id="allPortPlusSpinner" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                                 </Spinner>
                                                 <TextField fx:id="gameNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -279,16 +217,12 @@
                                                 <CheckBox fx:id="closeWuxingCheckBox" mnemonicParsing="false" text="关闭服务器五行功能" />
                                              </children>
                                           </GridPane>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onDefaultBasicConfigClicked"
-                                             prefWidth="64.0" text="默认设置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onDefaultBasicConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                        </children>
                                     </GridPane>
                                  </children>
                                           <padding>
-                                            <Insets bottom="16.0" left="16.0" right="16.0"
-                                                top="16.0"/>
+                                            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                           </padding>
                                         </AnchorPane>
                                     </content>
@@ -310,26 +244,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onPreviousLoginGateConfigClicked"
-                                                   prefWidth="64.0" text="上一步">
+                                               <Button mnemonicParsing="false" onAction="#onPreviousLoginGateConfigClicked" prefWidth="64.0" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onNextLoginGateConfigClicked"
-                                                   prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false" onAction="#onNextLoginGateConfigClicked" prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onDefaultLoginGateConfigClicked"
-                                             prefWidth="64.0" text="默认设置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onDefaultLoginGateConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -342,14 +269,7 @@
                                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openLoginGateCheckBox"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenLoginGateClicked"
-                                                   text="启动登录网关一"/>
-                                               <CheckBox fx:id="openLoginGateCheckBox2"
-                                                   disable="true" mnemonicParsing="false"
-                                                   onAction="#onOpenLoginGate2Clicked"
-                                                   text="启动登录网关二" GridPane.rowIndex="1"/>
+                                               <CheckBox fx:id="openLoginGateCheckBox" mnemonicParsing="false" onAction="#onOpenLoginGateClicked" text="启动登录网关" />
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -392,7 +312,7 @@
                                     </GridPane>
                                  </children>
                                 <padding>
-                                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+                                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                 </padding>
                               </AnchorPane>
                            </content>
@@ -401,9 +321,7 @@
                                     <content>
                                       <AnchorPane>
                                  <children>
-                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -416,26 +334,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onPreviousSelGateConfigClicked"
-                                                   prefWidth="64.0" text="上一步">
+                                               <Button mnemonicParsing="false" onAction="#onPreviousSelGateConfigClicked" prefWidth="64.0" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onNextSelGateConfigClicked"
-                                                   prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false" onAction="#onNextSelGateConfigClicked" prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onDefaultSelGateConfigClicked"
-                                             prefWidth="64.0" text="默认设置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onDefaultSelGateConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -448,14 +359,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openSelGateCheckBox1"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenSelGate1Clicked"
-                                                   text="启动角色网关一"/>
-                                               <CheckBox fx:id="openSelGateCheckBox2"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenSelGate2Clicked" text="启动角色网关二"
-                                                   GridPane.rowIndex="1"/>
+                                               <CheckBox fx:id="openSelGateCheckBox1" mnemonicParsing="false" onAction="#onOpenSelGate1Clicked" text="启动角色网关" />
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -488,24 +392,18 @@
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <children>
-                                                      <Label text="端口1：" />
+                                                      <Label text="端口：" />
                                                       <TextField fx:id="selGatePortTextField1" prefColumnCount="6" />
                                                    </children>
                                                 </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                                   <children>
-                                                      <Label text="端口2：" />
-                                                      <TextField fx:id="selGatePortTextField2" prefColumnCount="6" />
-                                                   </children>
-                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                              </children>
                                           </GridPane>
                                        </children>
                                     </GridPane>
                                  </children>
                                         <padding>
-                                          <Insets bottom="16.0" left="16.0" right="16.0"
-                                              top="16.0"/>
+                                          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                         </padding>
                                       </AnchorPane>
                                     </content>
@@ -514,9 +412,7 @@
                                     <content>
                                       <AnchorPane>
                                  <children>
-                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -529,26 +425,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onPreviousRunGateConfigClicked"
-                                                   prefWidth="64.0" text="上一步">
+                                               <Button mnemonicParsing="false" onAction="#onPreviousRunGateConfigClicked" prefWidth="64.0" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onNextRunGateConfigClicked"
-                                                   prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false" onAction="#onNextRunGateConfigClicked" prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onDefaultRunGateConfigClicked"
-                                             prefWidth="64.0" text="默认设置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onDefaultRunGateConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -561,37 +450,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openRunGateCheckBox1"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenRunGate1Clicked" text="启动网关一"/>
-                                               <CheckBox fx:id="openRunGateCheckBox2"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenRunGate2Clicked" text="启动网关二"
-                                                   GridPane.rowIndex="1"/>
-                                               <CheckBox fx:id="openRunGateCheckBox3"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenRunGate3Clicked" text="启动网关三"
-                                                   GridPane.columnIndex="1"/>
-                                               <CheckBox fx:id="openRunGateCheckBox4"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenRunGate4Clicked" text="启动网关四"
-                                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                                               <CheckBox fx:id="openRunGateCheckBox5"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenRunGate5Clicked" text="启动网关五"
-                                                   GridPane.columnIndex="2"/>
-                                               <CheckBox fx:id="openRunGateCheckBox6"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenRunGate6Clicked" text="启动网关六"
-                                                   GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                                               <CheckBox fx:id="openRunGateCheckBox7"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenRunGate7Clicked" text="启动网关七"
-                                                   GridPane.columnIndex="3"/>
-                                               <CheckBox fx:id="openRunGateCheckBox8"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenRunGate8Clicked" text="启动网关八"
-                                                   GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                                               <CheckBox fx:id="openRunGateCheckBox1" mnemonicParsing="false" onAction="#onOpenRunGate1Clicked" text="启动游戏网关" />
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -624,60 +483,24 @@
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <children>
-                                                      <Label text="端口1：" />
+                                                      <Label text="端口：" />
                                                       <TextField fx:id="runGatePortTextField1" prefColumnCount="6" />
                                                    </children>
                                                 </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                                   <children>
-                                                      <Label text="端口2：" />
-                                                      <TextField fx:id="runGatePortTextField2" prefColumnCount="6" />
-                                                   </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                                   <children>
-                                                      <Label text="端口3：" />
-                                                      <TextField fx:id="runGatePortTextField3" prefColumnCount="6" />
-                                                   </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                                   <children>
-                                                      <Label text="端口4：" />
-                                                      <TextField fx:id="runGatePortTextField4" prefColumnCount="6" />
-                                                   </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                                   <children>
-                                                      <Label text="端口5：" />
-                                                      <TextField fx:id="runGatePortTextField5" prefColumnCount="6" />
-                                                   </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                                                   <children>
-                                                      <Label text="端口6：" />
-                                                      <TextField fx:id="runGatePortTextField6" prefColumnCount="6" />
-                                                   </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                                                   <children>
-                                                      <Label text="端口7：" />
-                                                      <TextField fx:id="runGatePortTextField7" prefColumnCount="6" />
-                                                   </children>
-                                                </HBox>
-                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="4">
-                                                   <children>
-                                                      <Label text="端口8：" />
-                                                      <TextField fx:id="runGatePortTextField8" prefColumnCount="6" />
-                                                   </children>
-                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                                              </children>
                                           </GridPane>
                                        </children>
                                     </GridPane>
                                  </children>
                                         <padding>
-                                          <Insets bottom="16.0" left="16.0" right="16.0"
-                                              top="16.0"/>
+                                          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                         </padding>
                                       </AnchorPane>
                                     </content>
@@ -686,9 +509,7 @@
                                     <content>
                                       <AnchorPane>
                                  <children>
-                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -701,26 +522,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onPreviousLoginSrvConfigClicked"
-                                                   prefWidth="64.0" text="上一步">
+                                               <Button mnemonicParsing="false" onAction="#onPreviousLoginSrvConfigClicked" prefWidth="64.0" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onNextLoginSrvConfigClicked"
-                                                   prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false" onAction="#onNextLoginSrvConfigClicked" prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onDefaultLoginSrvConfigClicked"
-                                             prefWidth="64.0" text="默认设置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onDefaultLoginSrvConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -733,10 +547,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openLoginSrvCheckBox"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenLoginSrvClicked"
-                                                   text="启动登录服务器"/>
+                                               <CheckBox fx:id="openLoginSrvCheckBox" mnemonicParsing="false" onAction="#onOpenLoginSrvClicked" text="启动登录服务器" />
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -791,8 +602,7 @@
                                     </GridPane>
                                  </children>
                                         <padding>
-                                          <Insets bottom="16.0" left="16.0" right="16.0"
-                                              top="16.0"/>
+                                          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                         </padding>
                                       </AnchorPane>
                                     </content>
@@ -801,9 +611,7 @@
                                     <content>
                                       <AnchorPane>
                                  <children>
-                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -816,26 +624,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onPreviousDbServerConfigClicked"
-                                                   prefWidth="64.0" text="上一步">
+                                               <Button mnemonicParsing="false" onAction="#onPreviousDbServerConfigClicked" prefWidth="64.0" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onNextDbServerConfigClicked"
-                                                   prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false" onAction="#onNextDbServerConfigClicked" prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onDefaultDbServerConfigClicked"
-                                             prefWidth="64.0" text="默认设置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onDefaultDbServerConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -848,10 +649,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openDbServerCheckBox"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenDBServerClicked"
-                                                   text="启动数据库服务"/>
+                                               <CheckBox fx:id="openDbServerCheckBox" mnemonicParsing="false" onAction="#onOpenDBServerClicked" text="启动数据库服务" />
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -900,8 +698,7 @@
                                     </GridPane>
                                  </children>
                                         <padding>
-                                          <Insets bottom="16.0" left="16.0" right="16.0"
-                                              top="16.0"/>
+                                          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                         </padding>
                                       </AnchorPane>
                                     </content>
@@ -910,9 +707,7 @@
                                     <content>
                                       <AnchorPane>
                                  <children>
-                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -925,25 +720,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button minWidth="64.0" mnemonicParsing="false"
-                                                   onAction="#onPreviousLogServerConfigClicked"
-                                                   text="上一步">
+                                               <Button minWidth="64.0" mnemonicParsing="false" onAction="#onPreviousLogServerConfigClicked" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button minWidth="64.0" mnemonicParsing="false"
-                                                   onAction="#onNextLogServerConfigClicked"
-                                                   text="下一步">
+                                               <Button minWidth="64.0" mnemonicParsing="false" onAction="#onNextLogServerConfigClicked" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button minWidth="64.0" mnemonicParsing="false"
-                                             onAction="#onDefaultLogServerConfigClicked" text="默认设置"
-                                             GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                         <Button minWidth="64.0" mnemonicParsing="false" onAction="#onDefaultLogServerConfigClicked" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -956,10 +745,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openLogServerCheckBox"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenLogServerClicked"
-                                                   text="启动日志服务器"/>
+                                               <CheckBox fx:id="openLogServerCheckBox" mnemonicParsing="false" onAction="#onOpenLogServerClicked" text="启动日志服务器" />
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -1002,8 +788,7 @@
                                     </GridPane>
                                  </children>
                                         <padding>
-                                          <Insets bottom="16.0" left="16.0" right="16.0"
-                                              top="16.0"/>
+                                          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                         </padding>
                                       </AnchorPane>
                                     </content>
@@ -1012,9 +797,7 @@
                                     <content>
                                       <AnchorPane>
                                  <children>
-                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -1027,26 +810,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onPreviousM2ServerConfigClicked"
-                                                   prefWidth="64.0" text="上一步">
+                                               <Button mnemonicParsing="false" onAction="#onPreviousM2ServerConfigClicked" prefWidth="64.0" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onNextM2ServerConfigClicked"
-                                                   prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false" onAction="#onNextM2ServerConfigClicked" prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onDefaultM2ServerConfigClicked"
-                                             prefWidth="64.0" text="默认设置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onDefaultM2ServerConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -1059,10 +835,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openM2ServerCheckBox"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenM2ServerClicked"
-                                                   text="启动游戏服务器"/>
+                                               <CheckBox fx:id="openM2ServerCheckBox" mnemonicParsing="false" onAction="#onOpenM2ServerClicked" text="启动游戏服务器" />
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -1111,8 +884,7 @@
                                     </GridPane>
                                  </children>
                                         <padding>
-                                          <Insets bottom="16.0" left="16.0" right="16.0"
-                                              top="16.0"/>
+                                          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                         </padding>
                                       </AnchorPane>
                                     </content>
@@ -1121,9 +893,7 @@
                                     <content>
                                       <AnchorPane>
                                  <children>
-                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -1136,26 +906,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onPreviousPlugTopConfigClicked"
-                                                   prefWidth="64.0" text="上一步">
+                                               <Button mnemonicParsing="false" onAction="#onPreviousPlugTopConfigClicked" prefWidth="64.0" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onNextPlugTopConfigClicked"
-                                                   prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false" onAction="#onNextPlugTopConfigClicked" prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onDefaultPlugTopConfigClicked"
-                                             prefWidth="64.0" text="默认设置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onDefaultPlugTopConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -1168,9 +931,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openPlugTopCheckBox"
-                                                   mnemonicParsing="false"
-                                                   onAction="#onOpenPlugTopClicked" text="启动排行榜插件"/>
+                                               <CheckBox fx:id="openPlugTopCheckBox" mnemonicParsing="false" onAction="#onOpenPlugTopClicked" text="启动排行榜插件" />
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -1206,8 +967,7 @@
                                     </GridPane>
                                  </children>
                                         <padding>
-                                          <Insets bottom="16.0" left="16.0" right="16.0"
-                                              top="16.0"/>
+                                          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                         </padding>
                                       </AnchorPane>
                                     </content>
@@ -1216,9 +976,7 @@
                                     <content>
                                       <AnchorPane>
                                  <children>
-                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                   <GridPane alignment="CENTER" prefHeight="422.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columnConstraints>
                                           <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="96.0" prefWidth="478.0" />
                                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="304.0" minWidth="96.0" prefWidth="162.0" />
@@ -1231,26 +989,19 @@
                                        <children>
                                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <children>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onPreviousSaveConfigClicked"
-                                                   prefWidth="64.0" text="上一步">
+                                               <Button mnemonicParsing="false" onAction="#onPreviousSaveConfigClicked" prefWidth="64.0" text="上一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false"
-                                                   onAction="#onSaveConfigClicked" prefWidth="64.0"
-                                                   text="保存">
+                                               <Button mnemonicParsing="false" onAction="#onSaveConfigClicked" prefWidth="64.0" text="保存">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
                                              </children>
                                           </VBox>
-                                         <Button mnemonicParsing="false"
-                                             onAction="#onGenerateConfigClicked" prefWidth="64.0"
-                                             text="生成配置" GridPane.columnIndex="1"
-                                             GridPane.rowIndex="1"/>
+                                         <Button mnemonicParsing="false" onAction="#onGenerateConfigClicked" prefWidth="64.0" text="生成配置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <GridPane GridPane.rowIndex="1">
                                              <columnConstraints>
                                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -1281,8 +1032,7 @@
                                     </GridPane>
                                  </children>
                                         <padding>
-                                          <Insets bottom="16.0" left="16.0" right="16.0"
-                                              top="16.0"/>
+                                          <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                                         </padding>
                                       </AnchorPane>
                                     </content>
@@ -1296,184 +1046,149 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                 <children>
-                  <GridPane layoutX="98.0" layoutY="117.0" prefHeight="451.0" prefWidth="640.0"
-                      AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <GridPane layoutX="98.0" layoutY="117.0" prefHeight="451.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                     </columnConstraints>
                     <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                     <children>
                       <VBox prefHeight="200.0" prefWidth="100.0">
                         <children>
                           <Label text="备份列表">
                             <VBox.margin>
-                              <Insets bottom="8.0"/>
+                              <Insets bottom="8.0" />
                             </VBox.margin>
                           </Label>
-                          <TableView fx:id="dataBackupTableView" prefHeight="200.0"
-                              prefWidth="200.0">
+                          <TableView fx:id="dataBackupTableView" prefHeight="200.0" prefWidth="200.0">
                             <columns>
-                              <TableColumn fx:id="dataDirectoryTableColumn" prefWidth="280.0"
-                                  text="数据目录"/>
-                              <TableColumn fx:id="backupDirectoryTableColumn" minWidth="0.0"
-                                  prefWidth="280.0" text="备份目录"/>
+                              <TableColumn fx:id="dataDirectoryTableColumn" prefWidth="280.0" text="数据目录" />
+                              <TableColumn fx:id="backupDirectoryTableColumn" minWidth="0.0" prefWidth="280.0" text="备份目录" />
                             </columns>
                             <VBox.margin>
-                              <Insets/>
+                              <Insets />
                             </VBox.margin>
                           </TableView>
                         </children>
                       </VBox>
                       <GridPane GridPane.rowIndex="1">
                         <columnConstraints>
-                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                         </columnConstraints>
                         <rowConstraints>
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
                         <children>
-                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0"
-                              GridPane.rowIndex="2">
+                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
                             <children>
-                              <Button fx:id="modifyBackupButton" mnemonicParsing="false"
-                                  onAction="#onModifyBackupClicked" prefWidth="64.0" text="修改">
+                              <Button fx:id="modifyBackupButton" mnemonicParsing="false" onAction="#onModifyBackupClicked" prefWidth="64.0" text="修改">
                                 <HBox.margin>
-                                  <Insets right="8.0"/>
+                                  <Insets right="8.0" />
                                 </HBox.margin>
                               </Button>
-                              <Button fx:id="deleteBackupButton" mnemonicParsing="false"
-                                  onAction="#onDeleteBackupClicked" prefWidth="64.0" text="删除">
+                              <Button fx:id="deleteBackupButton" mnemonicParsing="false" onAction="#onDeleteBackupClicked" prefWidth="64.0" text="删除">
                                 <HBox.margin>
-                                  <Insets right="8.0"/>
+                                  <Insets right="8.0" />
                                 </HBox.margin>
                               </Button>
-                              <Button fx:id="addBackupButton" mnemonicParsing="false"
-                                  onAction="#onAddBackupClicked" prefWidth="64.0" text="增加">
+                              <Button fx:id="addBackupButton" mnemonicParsing="false" onAction="#onAddBackupClicked" prefWidth="64.0" text="增加">
                                 <HBox.margin>
-                                  <Insets right="8.0"/>
+                                  <Insets right="8.0" />
                                 </HBox.margin>
                               </Button>
-                              <Button fx:id="saveBackupButton" mnemonicParsing="false"
-                                  onAction="#onSaveBackupClicked" prefWidth="64.0" text="保存">
+                              <Button fx:id="saveBackupButton" mnemonicParsing="false" onAction="#onSaveBackupClicked" prefWidth="64.0" text="保存">
                                 <HBox.margin>
-                                  <Insets right="8.0"/>
+                                  <Insets right="8.0" />
                                 </HBox.margin>
                               </Button>
-                              <Button fx:id="startBackupButton" mnemonicParsing="false"
-                                  onAction="#onStartBackupClicked" prefWidth="64.0" text="启动">
+                              <Button fx:id="startBackupButton" mnemonicParsing="false" onAction="#onStartBackupClicked" prefWidth="64.0" text="启动">
                                 <HBox.margin>
-                                  <Insets right="8.0"/>
+                                  <Insets right="8.0" />
                                 </HBox.margin>
                               </Button>
-                              <Label fx:id="backupMessageLabel"/>
+                              <Label fx:id="backupMessageLabel" />
                             </children>
                           </HBox>
                           <GridPane GridPane.rowIndex="1">
                             <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-                                  prefWidth="100.0"/>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-                                  prefWidth="100.0"/>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             </columnConstraints>
                             <rowConstraints>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
                               <GridPane>
                                 <columnConstraints>
-                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-                                      prefWidth="100.0"/>
-                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-                                      prefWidth="100.0"/>
-                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"
-                                      minWidth="10.0" prefWidth="100.0"/>
-                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-                                      prefWidth="100.0"/>
-                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"
-                                      minWidth="10.0" prefWidth="100.0"/>
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                                 </columnConstraints>
                                 <rowConstraints>
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                      vgrow="SOMETIMES"/>
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0"
-                                      vgrow="SOMETIMES"/>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                 <children>
-                                  <Spinner fx:id="dayModeHoursSpinner" GridPane.columnIndex="1"/>
-                                  <Spinner fx:id="intervalModeHoursSpinner" GridPane.columnIndex="1"
-                                      GridPane.rowIndex="1"/>
-                                  <Spinner fx:id="dayModeMinutesSpinner" GridPane.columnIndex="3"/>
-                                  <Spinner fx:id="intervalModeMinutesSpinner"
-                                      GridPane.columnIndex="3" GridPane.rowIndex="1"/>
-                                  <Label text="点" GridPane.columnIndex="2"/>
-                                  <Label text="小时" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                                  <Label text="分" GridPane.columnIndex="4"/>
-                                  <Label text="分钟" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
-                                  <RadioButton fx:id="dayBackupModeRadioButton"
-                                      mnemonicParsing="false" text="每天">
+                                  <Spinner fx:id="dayModeHoursSpinner" GridPane.columnIndex="1" />
+                                  <Spinner fx:id="intervalModeHoursSpinner" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                  <Spinner fx:id="dayModeMinutesSpinner" GridPane.columnIndex="3" />
+                                  <Spinner fx:id="intervalModeMinutesSpinner" disable="true" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                  <Label text="点" GridPane.columnIndex="2" />
+                                  <Label text="小时" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                  <Label text="分" GridPane.columnIndex="4" />
+                                  <Label text="分钟" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                  <RadioButton fx:id="dayBackupModeRadioButton" mnemonicParsing="false" selected="true" text="每天">
                                     <toggleGroup>
-                                      <ToggleGroup fx:id="backupModeToggleGroup"/>
+                                      <ToggleGroup fx:id="backupModeToggleGroup" />
                                     </toggleGroup>
                                   </RadioButton>
-                                  <RadioButton fx:id="intervalBackupModeRadioButton"
-                                      mnemonicParsing="false" text="每隔"
-                                      toggleGroup="$backupModeToggleGroup" GridPane.rowIndex="1"/>
+                                  <RadioButton fx:id="intervalBackupModeRadioButton" mnemonicParsing="false" text="每隔" toggleGroup="$backupModeToggleGroup" GridPane.rowIndex="1" />
                                 </children>
                               </GridPane>
-                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0"
-                                  GridPane.columnIndex="1">
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
                                 <children>
-                                  <CheckBox fx:id="backupFunctionCheckBox" mnemonicParsing="false"
-                                      text="备份">
+                                  <CheckBox fx:id="backupFunctionCheckBox" mnemonicParsing="false" text="备份">
                                     <HBox.margin>
-                                      <Insets right="16.0"/>
+                                      <Insets right="16.0" />
                                     </HBox.margin>
                                   </CheckBox>
-                                  <CheckBox fx:id="compressFunctionCheckBox" mnemonicParsing="false"
-                                      text="压缩">
+                                  <CheckBox fx:id="compressFunctionCheckBox" mnemonicParsing="false" text="压缩">
                                     <HBox.margin>
-                                      <Insets right="16.0"/>
+                                      <Insets right="16.0" />
                                     </HBox.margin>
                                   </CheckBox>
-                                  <CheckBox fx:id="autoRunBackupCheckBox" mnemonicParsing="false"
-                                      onAction="#onAutoRunBackupClicked" text="自动运行备份系统"/>
+                                  <CheckBox fx:id="autoRunBackupCheckBox" mnemonicParsing="false" onAction="#onAutoRunBackupClicked" text="自动运行备份系统" />
                                 </children>
                               </HBox>
                             </children>
                           </GridPane>
                           <GridPane>
                             <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-                                  prefWidth="100.0"/>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             </columnConstraints>
                             <rowConstraints>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                                 <children>
-                                  <Label text="数据目录："/>
-                                  <TextField fx:id="dataDirectoryTextField" prefHeight="23.0"
-                                      prefWidth="520.0"/>
-                                  <Button mnemonicParsing="false"
-                                      onAction="#onChooseDataDirectoryClicked" text="..."/>
+                                  <Label text="数据目录：" />
+                                  <TextField fx:id="dataDirectoryTextField" prefHeight="23.0" prefWidth="520.0" />
+                                  <Button mnemonicParsing="false" onAction="#onChooseDataDirectoryClicked" text="..." />
                                 </children>
                               </HBox>
-                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0"
-                                  GridPane.rowIndex="1">
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
                                 <children>
-                                  <Label text="备份目录："/>
-                                  <TextField fx:id="backupDirectoryTextField" prefHeight="23.0"
-                                      prefWidth="520.0"/>
-                                  <Button mnemonicParsing="false"
-                                      onAction="#onChooseBackupDirectoryClicked" text="..."/>
+                                  <Label text="备份目录：" />
+                                  <TextField fx:id="backupDirectoryTextField" prefHeight="23.0" prefWidth="520.0" />
+                                  <Button mnemonicParsing="false" onAction="#onChooseBackupDirectoryClicked" text="..." />
                                 </children>
                               </HBox>
                             </children>
@@ -1484,89 +1199,64 @@
                   </GridPane>
                 </children>
                 <padding>
-                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                 </padding>
               </AnchorPane>
             </content>
         </Tab>
-        <Tab text="开区数据清理">
+        <Tab text="数据清理">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                 <padding>
-                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0"/>
+                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
                 </padding>
                 <children>
-                  <GridPane prefHeight="451.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0"
-                      AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                      AnchorPane.topAnchor="0.0">
+                  <GridPane prefHeight="451.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                     </columnConstraints>
                     <rowConstraints>
-                      <RowConstraints maxHeight="361.0" minHeight="10.0" prefHeight="314.0"
-                          vgrow="SOMETIMES"/>
-                      <RowConstraints maxHeight="79.0" minHeight="0.0" prefHeight="71.0"
-                          vgrow="SOMETIMES"/>
+                      <RowConstraints maxHeight="361.0" minHeight="10.0" prefHeight="314.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="79.0" minHeight="0.0" prefHeight="71.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                     <children>
                       <VBox prefHeight="299.0" prefWidth="608.0">
                         <children>
-                          <Label text="清理选项"/>
+                          <Label text="清理选项" />
                           <GridPane>
                             <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-                                  prefWidth="100.0"/>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"
-                                  prefWidth="100.0"/>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             </columnConstraints>
                             <rowConstraints>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                              <CheckBox fx:id="deleteRoleDataCheckBox" mnemonicParsing="false"
-                                  selected="true" text="删除人物数据"/>
-                              <CheckBox fx:id="deleteNPCMakeDataCheckBox" mnemonicParsing="false"
-                                  selected="true" text="删除NPC打造数据" GridPane.columnIndex="1"/>
-                              <CheckBox fx:id="deleteAccountDataCheckBox" mnemonicParsing="false"
-                                  selected="true" text="删除账号数据" GridPane.rowIndex="1"/>
-                              <CheckBox fx:id="deleteEMailDataCheckBox" mnemonicParsing="false"
-                                  selected="true" text="删除邮件数据" GridPane.columnIndex="1"
-                                  GridPane.rowIndex="1"/>
-                              <CheckBox fx:id="deleteGuildDataCheckBox" mnemonicParsing="false"
-                                  selected="true" text="删除行会数据" GridPane.rowIndex="2"/>
-                              <CheckBox fx:id="deleteAccountLoggerCheckBox" mnemonicParsing="false"
-                                  selected="true" text="删除账号日志记录" GridPane.columnIndex="1"
-                                  GridPane.rowIndex="2"/>
-                              <CheckBox fx:id="clearSabacDataCheckBox" mnemonicParsing="false"
-                                  selected="true" text="清空沙巴克数据" GridPane.rowIndex="3"/>
-                              <CheckBox fx:id="deleteM2ServerLoggerCheckBox" mnemonicParsing="false"
-                                  selected="true" text="删除引擎日志记录" GridPane.columnIndex="1"
-                                  GridPane.rowIndex="3"/>
-                              <CheckBox fx:id="clearGlobalVariateCheckBox" mnemonicParsing="false"
-                                  text="清空全局变量" GridPane.rowIndex="4"/>
-                              <CheckBox fx:id="deleteGameLoggerCheckBox" mnemonicParsing="false"
-                                  selected="true" text="删除游戏日志记录" GridPane.columnIndex="1"
-                                  GridPane.rowIndex="4"/>
-                              <CheckBox fx:id="resetItemIDCountCheckBox" mnemonicParsing="false"
-                                  selected="true" text="复位物品ID计数" GridPane.rowIndex="5"/>
-                              <CheckBox fx:id="clearRoleRelationDataCheckBox"
-                                  mnemonicParsing="false" selected="true" text="清空出师、离婚、断交数据"
-                                  GridPane.rowIndex="6"/>
+                              <CheckBox fx:id="deleteRoleDataCheckBox" mnemonicParsing="false" selected="true" text="删除人物数据" />
+                              <CheckBox fx:id="deleteNPCMakeDataCheckBox" mnemonicParsing="false" selected="true" text="删除NPC打造数据" GridPane.columnIndex="1" />
+                              <CheckBox fx:id="deleteAccountDataCheckBox" mnemonicParsing="false" selected="true" text="删除账号数据" GridPane.rowIndex="1" />
+                              <CheckBox fx:id="deleteEMailDataCheckBox" mnemonicParsing="false" selected="true" text="删除邮件数据" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <CheckBox fx:id="deleteGuildDataCheckBox" mnemonicParsing="false" selected="true" text="删除行会数据" GridPane.rowIndex="2" />
+                              <CheckBox fx:id="deleteAccountLoggerCheckBox" mnemonicParsing="false" selected="true" text="删除账号日志记录" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <CheckBox fx:id="clearSabacDataCheckBox" mnemonicParsing="false" selected="true" text="清空沙巴克数据" GridPane.rowIndex="3" />
+                              <CheckBox fx:id="deleteM2ServerLoggerCheckBox" mnemonicParsing="false" selected="true" text="删除引擎日志记录" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <CheckBox fx:id="clearGlobalVariateCheckBox" mnemonicParsing="false" text="清空全局变量" GridPane.rowIndex="4" />
+                              <CheckBox fx:id="deleteGameLoggerCheckBox" mnemonicParsing="false" selected="true" text="删除游戏日志记录" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <CheckBox fx:id="resetItemIDCountCheckBox" mnemonicParsing="false" selected="true" text="复位物品ID计数" GridPane.rowIndex="5" />
+                              <CheckBox fx:id="clearRoleRelationDataCheckBox" mnemonicParsing="false" selected="true" text="清空出师、离婚、断交数据" GridPane.rowIndex="6" />
                             </children>
                           </GridPane>
                         </children>
                       </VBox>
-                      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0"
-                          GridPane.rowIndex="1">
+                      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
                         <children>
-                          <Button fx:id="startClearDataButton" mnemonicParsing="false"
-                              onAction="#onStartClearDataClicked" prefWidth="64.0" text="开始清理"/>
+                          <Button fx:id="startClearDataButton" mnemonicParsing="false" onAction="#onStartClearDataClicked" prefWidth="64.0" text="开始清理" />
                         </children>
                       </HBox>
                     </children>

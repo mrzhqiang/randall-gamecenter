@@ -1,4 +1,4 @@
-package randall.gamecenter;
+package randall.gamecenter.model;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -22,8 +22,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import randall.gamecenter.util.Compressor;
-import randall.gamecenter.util.Files;
+import randall.common.util.Compressor;
+import randall.common.util.IOHelper;
 
 /**
  * 备份管理器。
@@ -190,7 +190,7 @@ public final class BackupManager {
                   if (compressEnabled) {
                     if (errorCount < 2) {
                       String destination = destinationDir.get();
-                      Files.mkdir(new File(destination));
+                      IOHelper.mkdir(Paths.get(destination));
                       destination = destination + lastDirName() + "-" + formatDate() + ".zip";
                       try {
                         Compressor.zipCompress(sourceDir.get(), destination);
@@ -246,7 +246,7 @@ public final class BackupManager {
                   if (compressEnabled) {
                     if (errorCount < 2) {
                       String destination = destinationDir.get();
-                      Files.mkdir(new File(destination));
+                      IOHelper.mkdir(Paths.get(destination));
                       destination = destination + lastDirName() + "-" + formatDate() + ".zip";
                       try {
                         Compressor.zipCompress(sourceDir.get(), destination);
