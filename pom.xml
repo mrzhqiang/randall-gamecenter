@@ -117,7 +117,7 @@
           <version>8.8.3</version>
           <configuration>
             <vendor>Randall</vendor>
-            <mainClass>randall.gamecenter.GameCenterApplication</mainClass>
+            <mainClass>randall.gamecenter.Application</mainClass>
           </configuration>
         </plugin>
       </plugins>

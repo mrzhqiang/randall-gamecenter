@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.ini4j.Ini;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import randall.gamecenter.model.config.Config;
+import randall.gamecenter.model.profile.Profile;
 
 @Slf4j(topic = "randall")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -18,9 +20,9 @@ import org.springframework.stereotype.Component;
 public class ConfigModel {
   private static final String FILENAME = "Config.ini";
 
-  private final IniModel iniModel;
+  private final Config config;
   private final Profile profile;
-  private final Config config = new Config();
+  private final IniModel iniModel;
 
   public Observable<Config> load() {
     Path path = Paths.get(config.getHome().getPath(), FILENAME);

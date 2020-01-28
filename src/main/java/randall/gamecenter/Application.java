@@ -13,12 +13,12 @@ import randall.gamecenter.view.GameCenterView;
 @Slf4j(topic = "randall")
 @EnableScheduling
 @SpringBootApplication
-public class GameCenterApplication extends AbstractJavaFxApplicationSupport {
+public class Application extends AbstractJavaFxApplicationSupport {
   private static final String TITLE = "游戏控制器";
 
   public static void main(String[] args) {
     log.info("准备启动程序.");
-    launch(GameCenterApplication.class, GameCenterView.class, args);
+    launch(Application.class, GameCenterView.class, args);
   }
 
   @Override public void beforeShowingSplash(Stage splashStage) {

@@ -1,4 +1,4 @@
-package randall.gamecenter.controller;
+package randall.gamecenter;
 
 import com.google.common.base.Strings;
 import de.felixroske.jfxsupport.FXMLController;
@@ -9,11 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +17,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -51,19 +46,14 @@ import randall.common.util.IOHelper;
 import randall.common.util.Networks;
 import randall.gamecenter.model.BackupManager;
 import randall.gamecenter.model.Share;
+import randall.gamecenter.model.StartMode;
+import randall.gamecenter.viewmodel.ConfigViewModel;
 import randall.gamecenter.viewmodel.ControlViewModel;
 
 import static randall.gamecenter.model.Share.ALL_IP_ADDRESS;
 import static randall.gamecenter.model.Share.BASIC_SECTION_NAME;
 import static randall.gamecenter.model.Share.DB_SERVER_PROCESS_CODE;
 import static randall.gamecenter.model.Share.DB_SERVER_SECTION_NAME_2;
-import static randall.gamecenter.model.Share.DEFAULT_AUTO_RUN_BACKUP;
-import static randall.gamecenter.model.Share.DEFAULT_CLOSE_WUXING_ENABLED;
-import static randall.gamecenter.model.Share.DEFAULT_DB_NAME;
-import static randall.gamecenter.model.Share.DEFAULT_GAME_DIRECTORY;
-import static randall.gamecenter.model.Share.DEFAULT_GAME_NAME;
-import static randall.gamecenter.model.Share.DEFAULT_IP_2_ENABLED;
-import static randall.gamecenter.model.Share.ERROR_STATE;
 import static randall.gamecenter.model.Share.LOGIN_GATE_PROCESS_CODE;
 import static randall.gamecenter.model.Share.LOGIN_GATE_SECTION_NAME_2;
 import static randall.gamecenter.model.Share.LOGIN_SERVER_PROCESS_CODE;
@@ -86,9 +76,7 @@ import static randall.gamecenter.model.Share.SECOND_IP_ADDRESS;
 import static randall.gamecenter.model.Share.SEL_GATE_PROCESS_CODE;
 import static randall.gamecenter.model.Share.SEL_GATE_SECTION_NAME_2;
 import static randall.gamecenter.model.Share.SERVER_CONFIG_FILE;
-import static randall.gamecenter.model.Share.STARTING_STATE;
 import static randall.gamecenter.model.Share.STOPPED_STATE;
-import static randall.gamecenter.model.Share.STOPPING_STATE;
 
 /**
  * 控制器。
@@ -98,17 +86,17 @@ import static randall.gamecenter.model.Share.STOPPING_STATE;
 @Slf4j(topic = "randall")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @FXMLController
-public final class GameCenterController {
+public final class Controller {
   /* 控制面板 */
   @FXML TabPane mainTabPane;
-  @FXML CheckBox dbServerCheckBox;
-  @FXML CheckBox loginSrvCheckBox;
-  @FXML CheckBox m2ServerCheckBox;
-  @FXML CheckBox logServerCheckBox;
-  @FXML CheckBox gameGateCheckBox1;
-  @FXML CheckBox selGateCheckBox1;
-  @FXML CheckBox loginGateCheckBox;
-  @FXML CheckBox plugTopCheckBox;
+  @FXML CheckBox databaseCheckBox;
+  @FXML CheckBox accountCheckBox;
+  @FXML CheckBox coreCheckBox;
+  @FXML CheckBox loggerCheckBox;
+  @FXML CheckBox runCheckBox;
+  @FXML CheckBox roleCheckBox;
+  @FXML CheckBox loginCheckBox;
+  @FXML CheckBox topCheckBox;
   @FXML ComboBox<StartMode> startModeComboBox;
   @FXML Spinner<Integer> hoursSpinner;
   @FXML Spinner<Integer> minutesSpinner;
@@ -116,35 +104,35 @@ public final class GameCenterController {
   @FXML Button startGameButton;
   /* 配置向导 */
   @FXML TabPane configTabPane;
-  @FXML TextField primaryAddressTextField;
-  @FXML TextField gameNameTextField;
-  @FXML TextField dbNameTextField;
-  @FXML TextField gameDirTextField;
-  @FXML Spinner<Integer> allPortPlusSpinner;
+  @FXML TextField homeHostTextField;
+  @FXML TextField homeNameTextField;
+  @FXML TextField homeDatabaseTextField;
+  @FXML TextField homePathTextField;
+  @FXML Spinner<Integer> portOffsetSpinner;
   @FXML CheckBox closeWuxingCheckBox;
-  @FXML CheckBox openLoginGateCheckBox;
-  @FXML TextField loginGateFormXTextField;
-  @FXML TextField loginGateFormYTextField;
-  @FXML TextField loginGatePortTextField;
-  @FXML CheckBox openSelGateCheckBox1;
-  @FXML TextField selGateFormXTextField;
-  @FXML TextField selGateFormYTextField;
-  @FXML TextField selGatePortTextField1;
-  @FXML CheckBox openRunGateCheckBox1;
-  @FXML TextField runGateFormXTextField;
-  @FXML TextField runGateFormYTextField;
-  @FXML TextField runGatePortTextField1;
-  @FXML CheckBox openLoginSrvCheckBox;
-  @FXML TextField loginSrvFormXTextField;
-  @FXML TextField loginSrvFormYTextField;
-  @FXML TextField loginSrvGatePortTextField;
-  @FXML TextField loginSrvMonPortTextField;
-  @FXML TextField loginSrvServerPortTextField;
-  @FXML CheckBox openDbServerCheckBox;
-  @FXML TextField dbServerFormXTextField;
-  @FXML TextField dbServerFormYTextField;
-  @FXML TextField dbServerGatePortTextField;
-  @FXML TextField dbServerServerPortTextField;
+  @FXML CheckBox loginEnabledCheckBox;
+  @FXML TextField loginXTextField;
+  @FXML TextField loginYTextField;
+  @FXML TextField loginPortTextField;
+  @FXML CheckBox roleEnabledCheckBox;
+  @FXML TextField roleXTextField;
+  @FXML TextField roleYTextField;
+  @FXML TextField rolePortTextField;
+  @FXML CheckBox runEnabledCheckBox;
+  @FXML TextField runXTextField;
+  @FXML TextField runYTextField;
+  @FXML TextField runPortTextField;
+  @FXML CheckBox accountEnabledCheckBox;
+  @FXML TextField accountXTextField;
+  @FXML TextField accountYTextField;
+  @FXML TextField accountPortTextField;
+  @FXML TextField accountMonitorPortTextField;
+  @FXML TextField accountServerPortTextField;
+  @FXML CheckBox databaseEnabledCheckBox;
+  @FXML TextField databaseXTextField;
+  @FXML TextField databaseYTextField;
+  @FXML TextField databasePortTextField;
+  @FXML TextField databaseServerPortTextField;
   @FXML CheckBox openLogServerCheckBox;
   @FXML TextField logServerFormXTextField;
   @FXML TextField logServerFormYTextField;
@@ -207,44 +195,73 @@ public final class GameCenterController {
   private Timer checkRunTimer = new Timer();
 
   private final ControlViewModel controlVM;
+  private final ConfigViewModel configVM;
   private final Share share;
 
   @FXML void initialize() {
+    controlVM.bindDatabase(databaseCheckBox);
+    controlVM.bindAccount(accountCheckBox);
+    controlVM.bindLogger(loggerCheckBox);
+    controlVM.bindCore(coreCheckBox);
+    controlVM.bindRun(runCheckBox);
+    controlVM.bindRole(roleCheckBox);
+    controlVM.bindLogin(loginCheckBox);
+    controlVM.bindTop(topCheckBox);
+    controlVM.bindStartMode(startModeComboBox);
+    controlVM.bindHours(hoursSpinner);
+    controlVM.bindMinutes(minutesSpinner);
+    controlVM.bindStartGame(startGameButton);
 
+    configVM.bindHomePath(homePathTextField);
+    configVM.bindHomeDatabase(homeDatabaseTextField);
+    configVM.bindHomeName(homeNameTextField);
+    configVM.bindHomeHost(homeHostTextField);
+    configVM.bindPortOffset(portOffsetSpinner);
+    configVM.bindWuxing(closeWuxingCheckBox);
 
-    initView();
-    mainTabPane.getSelectionModel().select(0);
-    configTabPane.getSelectionModel().select(0);
-    startState = 0;
-    gameInfoTextArea.clear();
-    share.profile.load();
-    loadBackupList();
-    refBackupListToView();
-    if (!startService()) {
-      return;
-    }
-    refGameConsole();
-    autoRunBackupCheckBox.setSelected(share.autoRunBakEnabled);
-    if (share.autoRunBakEnabled) {
-      onStartBackupClicked();
-    }
-  }
+    configVM.bindLoginX(loginXTextField);
+    configVM.bindLoginY(loginYTextField);
+    configVM.bindLoginPort(loginPortTextField);
+    configVM.bindLoginEnabled(loginEnabledCheckBox);
 
-  private void initView() {
-    startModeComboBox.setItems(FXCollections.observableArrayList(StartMode.values()));
-    startModeComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-      hoursSpinner.setDisable(newValue.equals(StartMode.NORMAL));
-      minutesSpinner.setDisable(newValue.equals(StartMode.NORMAL));
-    });
-    startModeComboBox.getSelectionModel().select(StartMode.NORMAL);
-    hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
-    minutesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
-    allPortPlusSpinner.setValueFactory(
-        new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99, 0));
-    startModeComboBox.valueProperty().addListener(
-        (observable, oldValue, newValue) -> computeRuntime(newValue));
-    allPortPlusSpinner.valueProperty().addListener(
-        (observable, oldValue, newValue) -> changeAllPort(newValue));
+    configVM.bindRoleX(roleXTextField);
+    configVM.bindRoleY(roleYTextField);
+    configVM.bindRolePort(rolePortTextField);
+    configVM.bindRoleEnabled(roleEnabledCheckBox);
+
+    configVM.bindRunX(runXTextField);
+    configVM.bindRunY(runYTextField);
+    configVM.bindRunPort(runPortTextField);
+    configVM.bindRunEnabled(runEnabledCheckBox);
+
+    configVM.bindAccountX(accountXTextField);
+    configVM.bindAccountY(accountYTextField);
+    configVM.bindAccountPort(accountPortTextField);
+    configVM.bindAccountServerPort(accountServerPortTextField);
+    configVM.bindAccountMonitorPort(accountMonitorPortTextField);
+    configVM.bindAccountEnabled(accountEnabledCheckBox);
+
+    configVM.bindDatabaseX(databaseXTextField);
+    configVM.bindDatabaseY(databaseYTextField);
+    configVM.bindDatabasePort(databasePortTextField);
+    configVM.bindDatabaseServerPort(databaseServerPortTextField);
+    configVM.bindDatabaseEnabled(databaseEnabledCheckBox);
+
+    configVM.bindLoggerX(loginXTextField);
+    configVM.bindLoggerY(loginYTextField);
+    configVM.bindLoggerPort(loginPortTextField);
+    configVM.bindLoggerEnabled(loginEnabledCheckBox);
+
+    configVM.bindCoreX(loginXTextField);
+    configVM.bindCoreY(loginYTextField);
+    configVM.bindCorePort(loginPortTextField);
+    configVM.bindCoreServerPort(loginPortTextField);
+    configVM.bindCoreEnabled(loginEnabledCheckBox);
+
+    configVM.bindTopX(loginXTextField);
+    configVM.bindTopY(loginYTextField);
+    configVM.bindTopEnabled(loginEnabledCheckBox);
+
     dataDirectoryTableColumn.setCellValueFactory(param -> param.getValue().sourceDir);
     backupDirectoryTableColumn.setCellValueFactory(param -> param.getValue().destinationDir);
     dataBackupTableView.setItems(share.backupManager.backupList);
@@ -271,6 +288,29 @@ public final class GameCenterController {
           intervalModeHoursSpinner.setDisable(!newValue);
           intervalModeMinutesSpinner.setDisable(!newValue);
         });
+    mainTabPane.selectionModelProperty().addListener((observable, oldValue, newValue) -> {
+      // todo 程序运行时，不可以切换标签，只有默认状态下才可以
+    });
+
+    mainTabPane.getSelectionModel().select(0);
+    configTabPane.getSelectionModel().select(0);
+    startState = 0;
+    gameInfoTextArea.clear();
+    //share.profile.load();
+    loadBackupList();
+    refBackupListToView();
+    if (!startService()) {
+      return;
+    }
+    refGameConsole();
+    autoRunBackupCheckBox.setSelected(share.autoRunBakEnabled);
+    if (share.autoRunBakEnabled) {
+      onStartBackupClicked();
+    }
+  }
+
+  private void initView() {
+
     //backupModeToggleGroup.selectToggle(dayBackupModeRadioButton);
   }
 
@@ -292,96 +332,68 @@ public final class GameCenterController {
     modifyBackupButton.setDisable(false);
   }
 
-  private void changeAllPort(Integer newValue) {
-    loginGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getPort() + newValue));
-    selGatePortTextField1.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getPort() + newValue));
-    runGatePortTextField1.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getPort() + newValue));
-    loginSrvGatePortTextField.setText(
-        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getPort() + newValue));
-    loginSrvServerPortTextField.setText(
-        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getServerPort() + newValue));
-    loginSrvMonPortTextField.setText(
-        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getMonitorPort() + newValue));
-    dbServerGatePortTextField.setText(
-        String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getPort() + newValue));
-    dbServerServerPortTextField.setText(
-        String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getServerPort() + newValue));
-    logServerGatePortTextField.setText(
-        String.valueOf(controlVM.getConfigModel().getConfig().getLogger().getPort() + newValue));
-    m2ServerGatePortTextField.setText(
-        String.valueOf(controlVM.getConfigModel().getConfig().getCore().getPort() + newValue));
-    m2ServerServerPortTextField.setText(
-        String.valueOf(controlVM.getConfigModel().getConfig().getCore().getServerPort() + newValue));
-  }
-
-  private void computeRuntime(StartMode mode) {
-    if (StartMode.NORMAL.equals(mode)) {
-      runTime = 0;
-    } else if (StartMode.DELAY.equals(mode)) {
-      Integer hours = hoursSpinner.getValue();
-      Integer minutes = minutesSpinner.getValue();
-      runTime = Duration.ofHours(hours)
-          .plus(Duration.ofMinutes(minutes))
-          .toMillis();
-    } else if (StartMode.TIMING.equals(mode)) {
-      Integer hours = hoursSpinner.getValue();
-      Integer minutes = minutesSpinner.getValue();
-      LocalDateTime now = LocalDateTime.now();
-      LocalDateTime dateTime = LocalDateTime.of(now.toLocalDate(), LocalTime.of(hours, minutes));
-      // 如果指定时间在现在之前，那么就认为是第二天的时刻，所以时间要加一天
-      if (dateTime.isBefore(now)) {
-        dateTime = dateTime.plusDays(1);
-      }
-      // System.currentTimeMillis() 方法获取的本来就是 UTC 时间戳
-      runTime = dateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
-    }
-  }
-
   private void refGameConsole() {
     // 刷新控制台按钮的选中状态
-    m2ServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getCore().getEnabled());
-    dbServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getDatabase().getEnabled());
-    loginSrvCheckBox.setSelected(controlVM.getConfigModel().getConfig().getAccount().getEnabled());
-    logServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogger().getEnabled());
-    loginGateCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogin().getEnabled());
-    selGateCheckBox1.setSelected(controlVM.getConfigModel().getConfig().getRole().getEnabled());
-    gameGateCheckBox1.setSelected(controlVM.getConfigModel().getConfig().getRun().getEnabled());
-    plugTopCheckBox.setSelected(controlVM.getConfigModel().getConfig().getTop().getEnabled());
+    coreCheckBox.setSelected(controlVM.getConfigModel().getConfig().getCore().getEnabled());
+    databaseCheckBox.setSelected(controlVM.getConfigModel().getConfig().getDatabase().getEnabled());
+    accountCheckBox.setSelected(controlVM.getConfigModel().getConfig().getAccount().getEnabled());
+    loggerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogger().getEnabled());
+    loginCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogin().getEnabled());
+    roleCheckBox.setSelected(controlVM.getConfigModel().getConfig().getRole().getEnabled());
+    runCheckBox.setSelected(controlVM.getConfigModel().getConfig().getRun().getEnabled());
+    topCheckBox.setSelected(controlVM.getConfigModel().getConfig().getTop().getEnabled());
 
     // 第一步 基本设置
-    gameDirTextField.setText(controlVM.getConfigModel().getConfig().getHome().getPath());
-    dbNameTextField.setText(controlVM.getConfigModel().getConfig().getHome().getDatabase());
-    gameNameTextField.setText(controlVM.getConfigModel().getConfig().getHome().getFullName());
-    primaryAddressTextField.setText(controlVM.getConfigModel().getConfig().getHome().getHost());
+    homePathTextField.setText(controlVM.getConfigModel().getConfig().getHome().getPath());
+    homeDatabaseTextField.setText(controlVM.getConfigModel().getConfig().getHome().getDatabase());
+    homeNameTextField.setText(controlVM.getConfigModel().getConfig().getHome().getFullName());
+    homeHostTextField.setText(controlVM.getConfigModel().getConfig().getHome().getHost());
     closeWuxingCheckBox.setSelected(controlVM.getConfigModel().getConfig().getHome().getWuxing());
     // 第二步 登录网关
-    loginGateFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getX()));
-    loginGateFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getY()));
-    openLoginGateCheckBox.setSelected(controlVM.getConfigModel().getConfig().getLogin().getEnabled());
-    loginGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getPort()));
+    loginXTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getX()));
+    loginYTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getY()));
+    loginEnabledCheckBox.setSelected(
+        controlVM.getConfigModel().getConfig().getLogin().getEnabled());
+    loginPortTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getLogin().getPort()));
     // 第三步 角色网关
-    selGateFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getX()));
-    selGateFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getY()));
-    openSelGateCheckBox1.setSelected(controlVM.getConfigModel().getConfig().getRole().getEnabled());
-    selGatePortTextField1.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getPort()));
+    roleXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getX()));
+    roleYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRole().getY()));
+    roleEnabledCheckBox.setSelected(controlVM.getConfigModel().getConfig().getRole().getEnabled());
+    rolePortTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getRole().getPort()));
     // 第四步 游戏网关
-    runGateFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getX()));
-    runGateFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getY()));
-    openRunGateCheckBox1.setSelected(controlVM.getConfigModel().getConfig().getRun().getEnabled());
-    runGatePortTextField1.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getPort()));
+    runXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getX()));
+    runYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getRun().getY()));
+    runEnabledCheckBox.setSelected(controlVM.getConfigModel().getConfig().getRun().getEnabled());
+    runPortTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getRun().getPort()));
     // 第五步 登录服务器
-    loginSrvFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getX()));
-    loginSrvFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getY()));
-    openLoginSrvCheckBox.setSelected(controlVM.getConfigModel().getConfig().getAccount().getEnabled());
-    loginSrvGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getPort()));
-    loginSrvServerPortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getServerPort()));
-    loginSrvMonPortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getMonitorPort()));
+    accountXTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getX()));
+    accountYTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getY()));
+    accountEnabledCheckBox.setSelected(
+        controlVM.getConfigModel().getConfig().getAccount().getEnabled());
+    accountPortTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getPort()));
+    accountServerPortTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getServerPort()));
+    accountMonitorPortTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getAccount().getMonitorPort()));
     // 第六步 数据库服务器
-    dbServerFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getX()));
-    dbServerFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getY()));
-    openDbServerCheckBox.setSelected(controlVM.getConfigModel().getConfig().getDatabase().getEnabled());
-    dbServerGatePortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getPort()));
-    dbServerServerPortTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getServerPort()));
+    databaseXTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getX()));
+    databaseYTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getY()));
+    databaseEnabledCheckBox.setSelected(
+        controlVM.getConfigModel().getConfig().getDatabase().getEnabled());
+    databasePortTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getPort()));
+    databaseServerPortTextField.setText(
+        String.valueOf(controlVM.getConfigModel().getConfig().getDatabase().getServerPort()));
     // 第七步 游戏日志服务器
     logServerFormXTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogger().getX()));
     logServerFormYTextField.setText(String.valueOf(controlVM.getConfigModel().getConfig().getLogger().getY()));
@@ -412,93 +424,8 @@ public final class GameCenterController {
         message));
   }
 
-  public void onDBServerClicked() {
-    controlVM.getConfigModel().getConfig().getDatabase().setEnabled(dbServerCheckBox.isSelected());
-  }
-
-  public void onLoginSrvClicked() {
-    controlVM.getConfigModel().getConfig().getAccount().setEnabled(loginSrvCheckBox.isSelected());
-  }
-
-  public void onM2ServerClicked() {
-    controlVM.getConfigModel().getConfig().getCore().setEnabled(m2ServerCheckBox.isSelected());
-  }
-
-  public void onLogServerClicked() {
-    controlVM.getConfigModel().getConfig().getLogger().setEnabled(logServerCheckBox.isSelected());
-  }
-
-  public void onRunGate1Clicked() {
-    controlVM.getConfigModel().getConfig().getRun().setEnabled(gameGateCheckBox1.isSelected());
-  }
-
-  public void onSelGate1Clicked() {
-    controlVM.getConfigModel().getConfig().getRole().setEnabled(selGateCheckBox1.isSelected());
-  }
-
-  public void onLoginGateClicked() {
-    controlVM.getConfigModel().getConfig().getLogin().setEnabled(loginGateCheckBox.isSelected());
-  }
-
-  public void onPlugTopClicked() {
-    controlVM.getConfigModel().getConfig().getTop().setEnabled(plugTopCheckBox.isSelected());
-  }
-
-  public void onStartGameClicked() {
-    switch (startState) {
-      case STOPPED_STATE:
-        Dialogs.confirm("是否确认启动游戏服务器？")
-            .ifPresent(buttonType -> startGame());
-        break;
-      case STARTING_STATE:
-        Dialogs.confirm("是否确认中止启动游戏服务器？")
-            .ifPresent(buttonType -> cancelStartGame());
-        break;
-      case RUNNING_STATE:
-        Dialogs.confirm("是否确认停止游戏服务器？")
-            .ifPresent(buttonType -> stopGame());
-        break;
-      case STOPPING_STATE:
-        Dialogs.confirm("是否确认中止停止游戏服务器？")
-            .ifPresent(buttonType -> cancelStopGame());
-        break;
-      case ERROR_STATE:
-        break;
-    }
-  }
-
-  private void cancelStopGame() {
-    stopGameTimer.cancel();
-    stopGameTimer = new Timer();
-    startState = RUNNING_STATE;
-    startGameButton.setText(share.textStopGame);
-  }
-
-  private void stopGame() {
-    startGameButton.setText(share.textCancelStopGame);
-    mainOutMessage("正在开始停止服务器...");
-    // todo cancel task and do not new Timer
-    checkRunTimer.cancel();
-    checkRunTimer = new Timer();
-    stopGameTimer.schedule(new StopGameTask(), 1000, 1000);
-    gateStopped = false;
-    startState = STOPPING_STATE;
-  }
-
-  private void cancelStartGame() {
-    startGameTimer.cancel();
-    startGameTimer = new Timer();
-    startState = RUNNING_STATE;
-    startGameButton.setText(share.textStopGame);
-  }
-
-  private void startGame() {
-    runTick = System.currentTimeMillis();
-
-    startGameButton.setText(share.textCancelStartGame);
-    startState = STARTING_STATE;
-
-    startGameTimer.schedule(new StartGameTask(), 1000, 1000);
+  @FXML void onStartGameClicked() {
+    controlVM.onStartGame();
   }
 
   private void loadBackupList() {
@@ -550,23 +477,29 @@ public final class GameCenterController {
   }
 
   public void onOpenLoginGateClicked() {
-    controlVM.getConfigModel().getConfig().getLogin().setEnabled(openLoginGateCheckBox.isSelected());
+    controlVM.getConfigModel().getConfig().getLogin().setEnabled(loginEnabledCheckBox.isSelected());
   }
 
   public void onOpenSelGate1Clicked() {
-    controlVM.getConfigModel().getConfig().getRole().setEnabled(openSelGateCheckBox1.isSelected());
+    controlVM.getConfigModel().getConfig().getRole().setEnabled(roleEnabledCheckBox.isSelected());
   }
 
   public void onOpenRunGate1Clicked() {
-    controlVM.getConfigModel().getConfig().getRun().setEnabled(openRunGateCheckBox1.isSelected());
+    controlVM.getConfigModel().getConfig().getRun().setEnabled(runEnabledCheckBox.isSelected());
   }
 
   public void onOpenLoginSrvClicked() {
-    controlVM.getConfigModel().getConfig().getAccount().setEnabled(openLoginSrvCheckBox.isSelected());
+    controlVM.getConfigModel()
+        .getConfig()
+        .getAccount()
+        .setEnabled(accountEnabledCheckBox.isSelected());
   }
 
   public void onOpenDBServerClicked() {
-    controlVM.getConfigModel().getConfig().getDatabase().setEnabled(openDbServerCheckBox.isSelected());
+    controlVM.getConfigModel()
+        .getConfig()
+        .getDatabase()
+        .setEnabled(databaseEnabledCheckBox.isSelected());
   }
 
   public void onOpenLogServerClicked() {
@@ -582,61 +515,15 @@ public final class GameCenterController {
   }
 
   public void onReloadAllConfigClicked() {
-    controlVM.getConfigModel().getConfig().load();
-    refGameConsole();
-    Dialogs.alert("配置重加载完成...").show();
+    configVM.onReloadAll();
   }
 
-  public void onNextBasicConfigClicked() {
-    String gameDir = gameDirTextField.getText().trim();
-    if (Strings.isNullOrEmpty(gameDir)) {
-      Dialogs.warn("游戏目录输入不正确！！").show();
-      gameDirTextField.requestFocus();
-      return;
-    }
-    if (!gameDir.endsWith("\\")) {
-      Dialogs.warn("游戏目录必须以“\\”结尾！！").show();
-      gameDirTextField.requestFocus();
-      return;
-    }
-    String gameName = gameNameTextField.getText().trim();
-    if (Strings.isNullOrEmpty(gameName)) {
-      Dialogs.warn("游戏名称输入不正确！！").show();
-      gameNameTextField.requestFocus();
-      return;
-    }
-    String dbName = dbNameTextField.getText().trim();
-    if (Strings.isNullOrEmpty(dbName)) {
-      Dialogs.warn("数据库名称输入不正确！！").show();
-      dbNameTextField.requestFocus();
-      return;
-    }
-    String ipAddress1 = primaryAddressTextField.getText().trim();
-    if (Strings.isNullOrEmpty(ipAddress1) || !Networks.isAddressV4(ipAddress1)) {
-      Dialogs.warn("游戏 IP 地址输入不正确！！").show();
-      primaryAddressTextField.requestFocus();
-      return;
-    }
-
-    share.gameDirectory = gameDir;
-    share.gameName = gameName;
-    share.heroDBName = dbName;
-    share.extIPAddr = ipAddress1;
-    share.closeWuXinEnabled = closeWuxingCheckBox.isSelected();
-
-    configTabPane.getSelectionModel().selectNext();
+  public void onNextHomeConfigClicked() {
+    configVM.onHomeNext(configTabPane.getSelectionModel());
   }
 
-  public void onDefaultBasicConfigClicked() {
-    share.gameDirectory = DEFAULT_GAME_DIRECTORY;
-    share.heroDBName = DEFAULT_DB_NAME;
-    share.gameName = DEFAULT_GAME_NAME;
-    share.extIPAddr = PRIMARY_IP_ADDRESS;
-    share.extIPAddr2 = SECOND_IP_ADDRESS;
-    share.autoRunBakEnabled = DEFAULT_AUTO_RUN_BACKUP;
-    share.ip2Enabled = DEFAULT_IP_2_ENABLED;
-    share.closeWuXinEnabled = DEFAULT_CLOSE_WUXING_ENABLED;
-    refGameConsole();
+  @FXML void onDefaultHomeConfigClicked() {
+    configVM.onHomeDefault();
   }
 
   public void onPreviousLoginGateConfigClicked() {
@@ -644,10 +531,10 @@ public final class GameCenterController {
   }
 
   public void onNextLoginGateConfigClicked() {
-    int port = Integer.parseInt(loginGatePortTextField.getText().trim());
+    int port = Integer.parseInt(loginPortTextField.getText().trim());
     if (!Networks.isPort(port)) {
       Dialogs.warn("网关端口设置错误！！").show();
-      loginGatePortTextField.requestFocus();
+      loginPortTextField.requestFocus();
       return;
     }
     controlVM.getConfigModel().getConfig().getLogin().setPort(port);
@@ -664,10 +551,10 @@ public final class GameCenterController {
   }
 
   public void onNextSelGateConfigClicked() {
-    int port1 = Integer.parseInt(selGatePortTextField1.getText().trim());
+    int port1 = Integer.parseInt(rolePortTextField.getText().trim());
     if (!Networks.isPort(port1)) {
       Dialogs.warn("网关端口设置错误！！").show();
-      selGatePortTextField1.requestFocus();
+      rolePortTextField.requestFocus();
       return;
     }
     controlVM.getConfigModel().getConfig().getRole().setPort(port1);
@@ -685,10 +572,10 @@ public final class GameCenterController {
   }
 
   public void onNextRunGateConfigClicked() {
-    int port1 = Integer.parseInt(runGatePortTextField1.getText().trim());
+    int port1 = Integer.parseInt(runPortTextField.getText().trim());
     if (!Networks.isPort(port1)) {
       Dialogs.warn("网关一端口设置错误！！").show();
-      runGatePortTextField1.requestFocus();
+      runPortTextField.requestFocus();
       return;
     }
     controlVM.getConfigModel().getConfig().getRun().setPort(port1);
@@ -706,22 +593,22 @@ public final class GameCenterController {
   }
 
   public void onNextLoginSrvConfigClicked() {
-    int gatePort = Integer.parseInt(loginSrvGatePortTextField.getText().trim());
+    int gatePort = Integer.parseInt(accountPortTextField.getText().trim());
     if (!Networks.isPort(gatePort)) {
       Dialogs.warn("网关端口设置错误！！").show();
-      loginGatePortTextField.requestFocus();
+      loginPortTextField.requestFocus();
       return;
     }
-    int serverPort = Integer.parseInt(loginSrvServerPortTextField.getText().trim());
+    int serverPort = Integer.parseInt(accountServerPortTextField.getText().trim());
     if (!Networks.isPort(serverPort)) {
       Dialogs.warn("通讯端口设置错误！！").show();
-      loginSrvServerPortTextField.requestFocus();
+      accountServerPortTextField.requestFocus();
       return;
     }
-    int monPort = Integer.parseInt(loginSrvMonPortTextField.getText().trim());
+    int monPort = Integer.parseInt(accountMonitorPortTextField.getText().trim());
     if (!Networks.isPort(monPort)) {
       Dialogs.warn("监控端口设置错误！！").show();
-      loginSrvMonPortTextField.requestFocus();
+      accountMonitorPortTextField.requestFocus();
       return;
     }
 
@@ -742,16 +629,16 @@ public final class GameCenterController {
   }
 
   public void onNextDbServerConfigClicked() {
-    int gatePort = Integer.parseInt(dbServerGatePortTextField.getText().trim());
+    int gatePort = Integer.parseInt(databasePortTextField.getText().trim());
     if (!Networks.isPort(gatePort)) {
       Dialogs.warn("网关端口设置错误！！").show();
-      dbServerGatePortTextField.requestFocus();
+      databasePortTextField.requestFocus();
       return;
     }
-    int serverPort = Integer.parseInt(dbServerServerPortTextField.getText().trim());
+    int serverPort = Integer.parseInt(databaseServerPortTextField.getText().trim());
     if (!Networks.isPort(serverPort)) {
       Dialogs.warn("通讯端口设置错误！！").show();
-      dbServerServerPortTextField.requestFocus();
+      databaseServerPortTextField.requestFocus();
       return;
     }
 
@@ -1423,24 +1310,6 @@ public final class GameCenterController {
     }
   }
 
-  public enum StartMode {
-    NORMAL("正常启动"),
-    DELAY("延时启动"),
-    TIMING("定时启动"),
-    ;
-
-    public final String name;
-
-    StartMode(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
   public class StartGameTask extends TimerTask {
     @Override
     public void run() {
@@ -1449,7 +1318,7 @@ public final class GameCenterController {
           case 0:
             share.dbServer.disposable = share.dbServer.start()
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.dbServer.startStatus = 1;
             return;
           case 1:
@@ -1467,7 +1336,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   share.loginServer.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.loginServer.startStatus = 1;
             return;
           case 1:
@@ -1484,7 +1353,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   share.logServer.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.logServer.startStatus = 1;
             return;
           case 1:
@@ -1501,7 +1370,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   share.m2Server.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.m2Server.startStatus = 1;
             return;
           case 1:
@@ -1524,7 +1393,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   runGateProgram.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             runGateProgram.startStatus = 1;
             startRunGateOK = false;
           }
@@ -1544,7 +1413,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   share.selGate.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.selGate.startStatus = 1;
             return;
           case 1:
@@ -1562,7 +1431,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   share.selGate1.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.selGate1.startStatus = 1;
             return;
           case 1:
@@ -1594,7 +1463,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   share.loginGate.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.loginGate.startStatus = 1;
             return;
           case 1:
@@ -1612,7 +1481,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   share.loginGate2.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.loginGate2.startStatus = 1;
             return;
           case 1:
@@ -1630,7 +1499,7 @@ public final class GameCenterController {
                   Dialogs.error(throwable).show();
                   share.plugTop.startStatus = 9;
                 })
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             share.plugTop.startStatus = 1;
             return;
           case 1:
@@ -1785,7 +1654,7 @@ public final class GameCenterController {
         if (share.dbServer.process == null || !share.dbServer.process.isAlive()) {
           share.dbServer.disposable = share.dbServer.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("数据库异常关闭，已被重新启动...");
         }
       }
@@ -1793,7 +1662,7 @@ public final class GameCenterController {
         if (share.loginServer.process == null || !share.loginServer.process.isAlive()) {
           share.loginServer.disposable = share.loginServer.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("登录服务器异常关闭，已被重新启动...");
         }
       }
@@ -1801,7 +1670,7 @@ public final class GameCenterController {
         if (share.logServer.process == null || !share.logServer.process.isAlive()) {
           share.logServer.disposable = share.logServer.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("日志服务器异常关闭，已被重新启动...");
         }
       }
@@ -1809,7 +1678,7 @@ public final class GameCenterController {
         if (share.m2Server.process == null || !share.m2Server.process.isAlive()) {
           share.m2Server.disposable = share.m2Server.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("游戏引擎服务器异常关闭，已被重新启动...");
         }
       }
@@ -1821,7 +1690,7 @@ public final class GameCenterController {
             program.processCode = null;
             program.disposable = program.start()
                 .observeOn(JavaFxScheduler.platform())
-                .subscribe(GameCenterController.this::handleProcessMessage);
+                .subscribe(Controller.this::handleProcessMessage);
             mainOutMessage("游戏网关[" + (i + 1) + "]异常关闭，已被重新启动...");
           }
         }
@@ -1832,7 +1701,7 @@ public final class GameCenterController {
           share.selGate.processCode = null;
           share.selGate.disposable = share.selGate.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("角色网关一异常关闭，已被重新启动...");
         }
       }
@@ -1842,7 +1711,7 @@ public final class GameCenterController {
           share.selGate1.processCode = null;
           share.selGate1.disposable = share.selGate1.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("角色网关二异常关闭，已被重新启动...");
         }
       }
@@ -1852,7 +1721,7 @@ public final class GameCenterController {
           share.loginGate.processCode = null;
           share.loginGate.disposable = share.loginGate.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("登录网关一异常关闭，已被重新启动...");
         }
       }
@@ -1862,7 +1731,7 @@ public final class GameCenterController {
           share.loginGate2.processCode = null;
           share.loginGate2.disposable = share.loginGate2.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("登录网关二异常关闭，已被重新启动...");
         }
       }
@@ -1871,7 +1740,7 @@ public final class GameCenterController {
           share.plugTop.processCode = null;
           share.plugTop.disposable = share.plugTop.start()
               .observeOn(JavaFxScheduler.platform())
-              .subscribe(GameCenterController.this::handleProcessMessage);
+              .subscribe(Controller.this::handleProcessMessage);
           mainOutMessage("排行榜插件异常关闭，已被重新启动...");
         }
       }

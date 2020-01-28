@@ -8,9 +8,9 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
@@ -21,8 +21,9 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
-<TabPane fx:id="mainTabPane" prefHeight="480.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="randall.gamecenter.controller.GameCenterController">
+<TabPane fx:id="mainTabPane" prefHeight="480.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE"
+    xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="randall.gamecenter.Controller">
     <tabs>
         <Tab text="服务控制">
             <content>
@@ -54,43 +55,54 @@
                                     <children>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                                             <children>
-                                                <CheckBox fx:id="dbServerCheckBox" mnemonicParsing="false" onAction="#onDBServerClicked" text="游戏数据库(DBServer)" />
+                                              <CheckBox fx:id="databaseCheckBox"
+                                                  mnemonicParsing="false"
+                                                  text="数据服务器(DatabaseServer)"/>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
                                             <children>
-                                                <CheckBox fx:id="loginSrvCheckBox" mnemonicParsing="false" onAction="#onLoginSrvClicked" text="游戏登陆服务器(LoginSrv)" />
+                                              <CheckBox fx:id="accountCheckBox"
+                                                  mnemonicParsing="false"
+                                                  text="账号服务器(AccountServer)"/>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
                                             <children>
-                                                <CheckBox fx:id="m2ServerCheckBox" mnemonicParsing="false" onAction="#onM2ServerClicked" text="游戏主程序(M2Server)" />
+                                              <CheckBox fx:id="coreCheckBox" mnemonicParsing="false"
+                                                  text="核心服务器(CoreServer)"/>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <children>
-                                                <CheckBox fx:id="logServerCheckBox" mnemonicParsing="false" onAction="#onLogServerClicked" text="游戏日志服务器(LogServer)" />
+                                              <CheckBox fx:id="loggerCheckBox"
+                                                  mnemonicParsing="false"
+                                                  text="日志服务器(LoggerServer)"/>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
                                             <children>
-                                                <CheckBox fx:id="gameGateCheckBox1" mnemonicParsing="false" onAction="#onRunGate1Clicked" text="游戏网关(RunGate)" />
+                                              <CheckBox fx:id="runCheckBox" mnemonicParsing="false"
+                                                  text="游戏网关(RunGate)"/>
                                             </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                  <children>
-                                                <CheckBox fx:id="selGateCheckBox1" mnemonicParsing="false" onAction="#onSelGate1Clicked" text="角色网关(SelGate)" />
+                                   <CheckBox fx:id="roleCheckBox" mnemonicParsing="false"
+                                       text="角色网关(RoleGate)"/>
                                  </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="3">
                                  <children>
-                                              <CheckBox fx:id="loginGateCheckBox" mnemonicParsing="false" onAction="#onLoginGateClicked" text="登录网关(LoginGate)" />
+                                   <CheckBox fx:id="loginCheckBox" mnemonicParsing="false"
+                                       text="登录网关(LoginGate)"/>
                                  </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="5">
                                  <children>
-                                    <CheckBox fx:id="plugTopCheckBox" mnemonicParsing="false" onAction="#onPlugTopClicked" text="排行榜插件(PlugTop)" />
+                                   <CheckBox fx:id="topCheckBox" mnemonicParsing="false"
+                                       text="排行榜插件(TopPlug)"/>
                                  </children>
                                         </HBox>
                                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
@@ -164,7 +176,9 @@
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
                                                 </Button>
-                                               <Button mnemonicParsing="false" onAction="#onNextBasicConfigClicked" prefWidth="64.0" text="下一步">
+                                               <Button mnemonicParsing="false"
+                                                   onAction="#onNextHomeConfigClicked"
+                                                   prefWidth="64.0" text="下一步">
                                                    <VBox.margin>
                                                       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                                    </VBox.margin>
@@ -192,15 +206,19 @@
                                                 <Label text="所有端口增加：" GridPane.rowIndex="5" />
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                                    <children>
-                                                      <TextField fx:id="primaryAddressTextField" />
+                                                     <TextField fx:id="homeHostTextField"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                                <Spinner fx:id="allPortPlusSpinner" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                               <Spinner fx:id="portOffsetSpinner"
+                                                   GridPane.columnIndex="1" GridPane.rowIndex="5">
                                                 </Spinner>
-                                                <TextField fx:id="gameNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                <TextField fx:id="dbNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                <TextField fx:id="gameDirTextField" GridPane.columnIndex="1" />
+                                               <TextField fx:id="homeNameTextField"
+                                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                               <TextField fx:id="homeDatabaseTextField"
+                                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                               <TextField fx:id="homePathTextField"
+                                                   GridPane.columnIndex="1"/>
                                              </children>
                                           </GridPane>
                                           <GridPane GridPane.rowIndex="2">
@@ -217,7 +235,10 @@
                                                 <CheckBox fx:id="closeWuxingCheckBox" mnemonicParsing="false" text="关闭服务器五行功能" />
                                              </children>
                                           </GridPane>
-                                         <Button mnemonicParsing="false" onAction="#onDefaultBasicConfigClicked" prefWidth="64.0" text="默认设置" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                         <Button mnemonicParsing="false"
+                                             onAction="#onDefaultHomeConfigClicked" prefWidth="64.0"
+                                             text="默认设置" GridPane.columnIndex="1"
+                                             GridPane.rowIndex="1"/>
                                        </children>
                                     </GridPane>
                                  </children>
@@ -269,7 +290,10 @@
                                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openLoginGateCheckBox" mnemonicParsing="false" onAction="#onOpenLoginGateClicked" text="启动登录网关" />
+                                               <CheckBox fx:id="loginEnabledCheckBox"
+                                                   mnemonicParsing="false"
+                                                   onAction="#onOpenLoginGateClicked"
+                                                   text="启动登录网关"/>
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -291,19 +315,22 @@
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="坐标X：" />
-                                                      <TextField fx:id="loginGateFormXTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="loginXTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
                                                    <children>
                                                       <Label text="坐标Y：" />
-                                                      <TextField fx:id="loginGateFormYTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="loginYTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="端口：" />
-                                                      <TextField fx:id="loginGatePortTextField" prefColumnCount="6" />
+                                                     <TextField fx:id="loginPortTextField"
+                                                         prefColumnCount="6"/>
                                                    </children>
                                                 </HBox>
                                              </children>
@@ -359,7 +386,9 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openSelGateCheckBox1" mnemonicParsing="false" onAction="#onOpenSelGate1Clicked" text="启动角色网关" />
+                                               <CheckBox fx:id="roleEnabledCheckBox"
+                                                   mnemonicParsing="false"
+                                                   onAction="#onOpenSelGate1Clicked" text="启动角色网关"/>
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -381,19 +410,22 @@
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="坐标X：" />
-                                                      <TextField fx:id="selGateFormXTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="roleXTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
                                                    <children>
                                                       <Label text="坐标Y：" />
-                                                      <TextField fx:id="selGateFormYTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="roleYTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="端口：" />
-                                                      <TextField fx:id="selGatePortTextField1" prefColumnCount="6" />
+                                                     <TextField fx:id="rolePortTextField"
+                                                         prefColumnCount="6"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -450,7 +482,9 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openRunGateCheckBox1" mnemonicParsing="false" onAction="#onOpenRunGate1Clicked" text="启动游戏网关" />
+                                               <CheckBox fx:id="runEnabledCheckBox"
+                                                   mnemonicParsing="false"
+                                                   onAction="#onOpenRunGate1Clicked" text="启动游戏网关"/>
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -472,19 +506,22 @@
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="坐标X：" />
-                                                      <TextField fx:id="runGateFormXTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="runXTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
                                                    <children>
                                                       <Label text="坐标Y：" />
-                                                      <TextField fx:id="runGateFormYTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="runYTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="端口：" />
-                                                      <TextField fx:id="runGatePortTextField1" prefColumnCount="6" />
+                                                     <TextField fx:id="runPortTextField"
+                                                         prefColumnCount="6"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -505,7 +542,7 @@
                                       </AnchorPane>
                                     </content>
                                 </Tab>
-                                <Tab text="第五步：登录服务器">
+                              <Tab text="第五步：账号服务器">
                                     <content>
                                       <AnchorPane>
                                  <children>
@@ -547,7 +584,10 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openLoginSrvCheckBox" mnemonicParsing="false" onAction="#onOpenLoginSrvClicked" text="启动登录服务器" />
+                                               <CheckBox fx:id="accountEnabledCheckBox"
+                                                   mnemonicParsing="false"
+                                                   onAction="#onOpenLoginSrvClicked"
+                                                   text="启动账号服务器"/>
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -569,31 +609,36 @@
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="坐标X：" />
-                                                      <TextField fx:id="loginSrvFormXTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="accountXTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
                                                    <children>
                                                       <Label text="坐标Y：" />
-                                                      <TextField fx:id="loginSrvFormYTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="accountYTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="连接端口：" />
-                                                      <TextField fx:id="loginSrvGatePortTextField" prefColumnCount="6" />
+                                                     <TextField fx:id="accountPortTextField"
+                                                         prefColumnCount="6"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="监控端口：" />
-                                                      <TextField fx:id="loginSrvMonPortTextField" prefColumnCount="6" />
+                                                     <TextField fx:id="accountMonitorPortTextField"
+                                                         prefColumnCount="6"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                                    <children>
                                                       <Label text="通讯端口：" />
-                                                      <TextField fx:id="loginSrvServerPortTextField" prefColumnCount="6" />
+                                                     <TextField fx:id="accountServerPortTextField"
+                                                         prefColumnCount="6"/>
                                                    </children>
                                                 </HBox>
                                              </children>
@@ -607,7 +652,7 @@
                                       </AnchorPane>
                                     </content>
                                 </Tab>
-                                <Tab text="第六步：数据库服务器">
+                              <Tab text="第六步：数据服务器">
                                     <content>
                                       <AnchorPane>
                                  <children>
@@ -649,7 +694,9 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openDbServerCheckBox" mnemonicParsing="false" onAction="#onOpenDBServerClicked" text="启动数据库服务" />
+                                               <CheckBox fx:id="databaseEnabledCheckBox"
+                                                   mnemonicParsing="false"
+                                                   onAction="#onOpenDBServerClicked" text="启动数据服务"/>
                                              </children>
                                           </GridPane>
                                           <GridPane>
@@ -671,25 +718,29 @@
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="坐标X：" />
-                                                      <TextField fx:id="dbServerFormXTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="databaseXTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="2">
                                                    <children>
                                                       <Label text="坐标Y：" />
-                                                      <TextField fx:id="dbServerFormYTextField" prefColumnCount="4" />
+                                                     <TextField fx:id="databaseYTextField"
+                                                         prefColumnCount="4"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <children>
                                                       <Label text="连接端口：" />
-                                                      <TextField fx:id="dbServerGatePortTextField" prefColumnCount="6" />
+                                                     <TextField fx:id="databasePortTextField"
+                                                         prefColumnCount="6"/>
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                                    <children>
                                                       <Label text="通讯端口：" />
-                                                      <TextField fx:id="dbServerServerPortTextField" prefColumnCount="6" />
+                                                     <TextField fx:id="databaseServerPortTextField"
+                                                         prefColumnCount="6"/>
                                                    </children>
                                                 </HBox>
                                              </children>
@@ -703,7 +754,7 @@
                                       </AnchorPane>
                                     </content>
                                 </Tab>
-                                <Tab text="第七步：游戏日志服务器">
+                              <Tab text="第七步：日志服务器">
                                     <content>
                                       <AnchorPane>
                                  <children>
@@ -793,7 +844,7 @@
                                       </AnchorPane>
                                     </content>
                                 </Tab>
-                                <Tab text="第八步：游戏引擎主服务器">
+                              <Tab text="第八步：核心服务器">
                                     <content>
                                       <AnchorPane>
                                  <children>
@@ -835,7 +886,10 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                               <CheckBox fx:id="openM2ServerCheckBox" mnemonicParsing="false" onAction="#onOpenM2ServerClicked" text="启动游戏服务器" />
+                                               <CheckBox fx:id="openM2ServerCheckBox"
+                                                   mnemonicParsing="false"
+                                                   onAction="#onOpenM2ServerClicked"
+                                                   text="启动核心服务器"/>
                                              </children>
                                           </GridPane>
                                           <GridPane>

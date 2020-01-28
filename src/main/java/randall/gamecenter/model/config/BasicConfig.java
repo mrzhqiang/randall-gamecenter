@@ -5,11 +5,9 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import lombok.RequiredArgsConstructor;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 
-@RequiredArgsConstructor
 public class BasicConfig implements IniReader, IniWriter {
   private static final String SECTION_NAME = "GameConfig";
 

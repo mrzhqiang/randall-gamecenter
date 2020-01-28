@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import randall.gamecenter.model.profile.Profile;
 
 /**
  * 共享逻辑。
@@ -35,12 +36,6 @@ public final class Share {
   public static final int SEL_GATE_PROCESS_CODE = 1006;
   public static final int RUN_GATE_PROCESS_CODE = 1007;
   public static final int PLUG_TOP_PROCESS_CODE = 1008;
-
-  public static final int STOPPED_STATE = 0;
-  public static final int STARTING_STATE = 1;
-  public static final int RUNNING_STATE = 2;
-  public static final int STOPPING_STATE = 3;
-  public static final int ERROR_STATE = 9;
 
   public static final String QUIT_CODE = ":QUIT";
 
