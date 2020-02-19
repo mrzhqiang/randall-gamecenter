@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import randall.gamecenter.model.config.Config;
 import randall.gamecenter.model.profile.Profile;
 
-@Slf4j(topic = "randall")
+@Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Getter
 @Component

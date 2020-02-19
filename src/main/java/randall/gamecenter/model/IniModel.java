@@ -1,5 +1,6 @@
 package randall.gamecenter.model;
 
+import helper.Explorer;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import java.nio.file.Files;
@@ -8,9 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.ini4j.Ini;
 import org.ini4j.Wini;
 import org.springframework.stereotype.Component;
-import randall.common.util.IOHelper;
 
-@Slf4j(topic = "randall")
+@Slf4j
 @Component
 public class IniModel {
 
@@ -24,8 +24,8 @@ public class IniModel {
 
   private void notExistsAndCreate(Path path) {
     if (Files.notExists(path)) {
-      IOHelper.mkdir(path.getParent());
-      IOHelper.create(path);
+      Explorer.mkdir(path.getParent());
+      Explorer.create(path);
     }
   }
 }

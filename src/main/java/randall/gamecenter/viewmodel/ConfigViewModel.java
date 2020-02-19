@@ -19,9 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import randall.common.ui.Dialogs;
-import randall.gamecenter.viewmodel.config.ProgramViewModel;
 
-@Slf4j(topic = "randall")
+@Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Service
 public class ConfigViewModel {
@@ -31,15 +30,6 @@ public class ConfigViewModel {
   private final StringProperty homeHost = new SimpleStringProperty("");
   private final ObjectProperty<Integer> portOffset = new SimpleObjectProperty<>(0);
   private final BooleanProperty wuxingEnabled = new SimpleBooleanProperty(true);
-
-  private final ProgramViewModel loginGateVM;
-  private final ProgramViewModel roleGateVM;
-  private final ProgramViewModel runGateVM;
-  private final ProgramViewModel accountServerVM;
-  private final ProgramViewModel databaseServerVM;
-  private final ProgramViewModel loggerServerVM;
-  private final ProgramViewModel coreServerVM;
-  private final ProgramViewModel topPlugVM;
 
   private final CompositeDisposable disposable = new CompositeDisposable();
 

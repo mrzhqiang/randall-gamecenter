@@ -1,5 +1,6 @@
 package randall.gamecenter.viewmodel;
 
+import helper.javafx.ui.Dialogs;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import java.time.Duration;
@@ -20,19 +21,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import randall.common.ui.Dialogs;
 import randall.gamecenter.model.ConfigModel;
 import randall.gamecenter.model.StartMode;
 import randall.gamecenter.model.StartState;
 
 import static randall.gamecenter.model.StartState.CANCEL_START;
 import static randall.gamecenter.model.StartState.CANCEL_STOP;
-import static randall.gamecenter.model.StartState.RUNNING;
 import static randall.gamecenter.model.StartState.STARTING;
 import static randall.gamecenter.model.StartState.STOPPED;
 import static randall.gamecenter.model.StartState.STOPPING;
 
-@Slf4j(topic = "randall")
+@Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Service
 public class ControlViewModel {
@@ -158,27 +157,27 @@ public class ControlViewModel {
   }
 
   private void cancelStopGame() {
-    stopGameTimer.cancel();
-    stopGameTimer = new Timer();
-    startState = RUNNING;
-    startGameButton.setText(share.textStopGame);
+    //stopGameTimer.cancel();
+    //stopGameTimer = new Timer();
+    //startState = RUNNING;
+    //startGameButton.setText(share.textStopGame);
   }
 
   private void stopGame() {
-    startGameButton.setText(share.textCancelStopGame);
-    mainOutMessage("正在开始停止服务器...");
+    //startGameButton.setText(share.textCancelStopGame);
+    //mainOutMessage("正在开始停止服务器...");
     // todo cancel task and do not new Timer
-    checkRunTimer.cancel();
-    checkRunTimer = new Timer();
-    stopGameTimer.schedule(new StopGameTask(), 1000, 1000);
-    gateStopped = false;
-    startState = STOPPING;
+    //checkRunTimer.cancel();
+    //checkRunTimer = new Timer();
+    //stopGameTimer.schedule(new StopGameTask(), 1000, 1000);
+    //gateStopped = false;
+    //startState = STOPPING;
   }
 
   private void cancelStartGame() {
-    startGameTimer.cancel();
-    startGameTimer = new Timer();
-    startState = RUNNING;
-    startGameButton.setText(share.textStopGame);
+    //startGameTimer.cancel();
+    //startGameTimer = new Timer();
+    //startState = RUNNING;
+    //startGameButton.setText(share.textStopGame);
   }
 }
