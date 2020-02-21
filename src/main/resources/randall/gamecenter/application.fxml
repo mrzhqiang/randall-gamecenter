@@ -22,7 +22,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<TabPane fx:id="mainTabPane" prefHeight="480.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="randall.gamecenter.ApplicationViewModel">
+<TabPane fx:id="mainTabPane" prefHeight="480.0" prefWidth="640.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="randall.gamecenter.Controller">
     <tabs>
         <Tab text="控制中心">
             <content>
@@ -1136,20 +1136,20 @@
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                 <children>
-                                  <Spinner fx:id="dayModeHoursSpinner" GridPane.columnIndex="1" />
-                                  <Spinner fx:id="intervalModeHoursSpinner" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                  <Spinner fx:id="dayModeMinutesSpinner" GridPane.columnIndex="3" />
-                                  <Spinner fx:id="intervalModeMinutesSpinner" disable="true" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                  <Spinner fx:id="timingHoursSpinner" GridPane.columnIndex="1" />
+                                  <Spinner fx:id="delayHoursSpinner" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                  <Spinner fx:id="timingMinutesSpinner" GridPane.columnIndex="3" />
+                                  <Spinner fx:id="delayMinutesSpinner" disable="true" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                                   <Label text="点" GridPane.columnIndex="2" />
                                   <Label text="小时" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                                   <Label text="分" GridPane.columnIndex="4" />
                                   <Label text="分钟" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                  <RadioButton fx:id="dayBackupModeRadio" mnemonicParsing="false" selected="true" text="每天">
+                                  <RadioButton fx:id="timingBackupModeRadio" mnemonicParsing="false" selected="true" text="每天">
                                     <toggleGroup>
                                       <ToggleGroup fx:id="backupModeToggleGroup" />
                                     </toggleGroup>
                                   </RadioButton>
-                                  <RadioButton fx:id="intervalBackupModeRadio" mnemonicParsing="false" text="每隔" toggleGroup="$backupModeToggleGroup" GridPane.rowIndex="1" />
+                                  <RadioButton fx:id="delayBackupModeRadio" mnemonicParsing="false" text="每隔" toggleGroup="$backupModeToggleGroup" GridPane.rowIndex="1" />
                                 </children>
                               </GridPane>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
@@ -1246,7 +1246,7 @@
                               <CheckBox fx:id="deleteGuildDataCheckBox" mnemonicParsing="false" selected="true" text="删除行会数据" GridPane.rowIndex="2" />
                               <CheckBox fx:id="deleteAccountLoggerCheckBox" mnemonicParsing="false" selected="true" text="删除账号日志记录" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                               <CheckBox fx:id="clearShabakeDataCheckBox" mnemonicParsing="false" selected="true" text="清空沙巴克数据" GridPane.rowIndex="3" />
-                              <CheckBox fx:id="deleteM2ServerLoggerCheckBox" mnemonicParsing="false" selected="true" text="删除引擎日志记录" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <CheckBox fx:id="deleteCoreLoggerCheckBox" mnemonicParsing="false" selected="true" text="删除引擎日志记录" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                               <CheckBox fx:id="clearGlobalVariateCheckBox" mnemonicParsing="false" text="清空全局变量" GridPane.rowIndex="4" />
                               <CheckBox fx:id="deleteGameLoggerCheckBox" mnemonicParsing="false" selected="true" text="删除游戏日志记录" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                               <CheckBox fx:id="resetItemIDCountCheckBox" mnemonicParsing="false" selected="true" text="复位物品ID计数" GridPane.rowIndex="5" />
