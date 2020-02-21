@@ -2,6 +2,7 @@ package randall.gamecenter;
 
 import de.felixroske.jfxsupport.AbstractJavaFxApplicationSupport;
 import helper.javafx.ui.Dialogs;
+import io.reactivex.schedulers.Schedulers;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
@@ -31,5 +32,9 @@ public class Application extends AbstractJavaFxApplicationSupport {
     stage.setOnCloseRequest(event ->
         Dialogs.confirm("是否确认关闭控制台？")
             .ifPresent(buttonType -> Platform.exit()));
+  }
+
+  @Override public void stop() {
+    Schedulers.shutdown();
   }
 }

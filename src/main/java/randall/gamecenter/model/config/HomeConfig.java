@@ -1,47 +1,55 @@
 package randall.gamecenter.model.config;
 
 import com.google.common.base.Preconditions;
+import java.util.Optional;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import lombok.RequiredArgsConstructor;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 
-public class BasicConfig implements IniReader, IniWriter {
-  private static final String SECTION_NAME = "GameConfig";
+@RequiredArgsConstructor(staticName = "ofSection")
+public class HomeConfig implements IniAdapter {
+  private final String section;
 
   private final StringProperty path = new SimpleStringProperty();
+  private final StringProperty database = new SimpleStringProperty();
   private final StringProperty name = new SimpleStringProperty();
-  private final StringProperty dbName = new SimpleStringProperty();
+  private final StringProperty version = new SimpleStringProperty();
   private final StringProperty host = new SimpleStringProperty();
   private final BooleanProperty backup = new SimpleBooleanProperty();
   private final BooleanProperty wuxing = new SimpleBooleanProperty();
 
   @Override public void read(Ini ini) {
     Preconditions.checkNotNull(ini, "ini == null");
-    if (ini.containsKey(SECTION_NAME)) {
-      Profile.Section section = ini.get(SECTION_NAME);
-      setPath(section.get("GameDirectory", getPath()));
-      setName(section.get("GameName", getName()));
-      setDbName(section.get("HeroDBName", getDbName()));
-      setHost(section.get("ExtIPaddr", getHost()));
-      setBackup(section.get("AutoRunBak", Boolean.class, isBackup()));
-      setWuxing(section.get("CloseWuXin", Boolean.class, isWuxing()));
-    }
+    Optional.ofNullable(ini.get(section)).ifPresent(section -> {
+      path.setValue(section.get("path", path.getValue()));
+      name.setValue(section.get("name", name.getValue()));
+      database.setValue(section.get("database", database.getValue()));
+      version.setValue(section.get("version", version.getValue()));
+      host.setValue(section.get("host", host.getValue()));
+      backup.setValue(section.get("backup", Boolean.class, backup.getValue()));
+      wuxing.setValue(section.get("wuxing", Boolean.class, wuxing.getValue()));
+    });
   }
 
   @Override public void write(Ini ini) {
     Preconditions.checkNotNull(ini, "ini == null");
-    if (ini.containsKey(SECTION_NAME)) {
-      Profile.Section section = ini.get(SECTION_NAME);
-      section.put("GameDirectory", getPath());
-      section.put("GameName", getName());
-      section.put("HeroDBName", getDbName());
-      section.put("ExtIPaddr", getHost());
-      section.put("AutoRunBak", isBackup());
-      section.put("CloseWuXin", isWuxing());
-    }
+    Profile.Section section =
+        Optional.ofNullable(ini.get(this.section)).orElse(ini.add(this.section));
+    section.put("path", path.getValue());
+    section.put("name", name.getValue());
+    section.put("database", database.getValue());
+    section.put("version", version.getValue());
+    section.put("host", host.getValue());
+    section.put("backup", backup.getValue());
+    section.put("wuxing", wuxing.getValue());
+  }
+
+  public String getSection() {
+    return section;
   }
 
   public String getPath() {
@@ -68,16 +76,28 @@ public class BasicConfig implements IniReader, IniWriter {
     this.name.set(name);
   }
 
-  public String getDbName() {
-    return dbName.get();
+  public String getDatabase() {
+    return database.get();
   }
 
-  public StringProperty dbNameProperty() {
-    return dbName;
+  public StringProperty databaseProperty() {
+    return database;
   }
 
-  public void setDbName(String dbName) {
-    this.dbName.set(dbName);
+  public void setDatabase(String database) {
+    this.database.set(database);
+  }
+
+  public String getVersion() {
+    return version.get();
+  }
+
+  public StringProperty versionProperty() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version.set(version);
   }
 
   public String getHost() {

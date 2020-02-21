@@ -1,183 +1,144 @@
 package randall.gamecenter.viewmodel;
 
+import helper.javafx.model.Console;
+import helper.javafx.model.Status;
 import helper.javafx.ui.Dialogs;
+import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
-import javafx.beans.property.BooleanProperty;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
+import javax.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import randall.gamecenter.model.ConfigModel;
-import randall.gamecenter.model.StartMode;
-import randall.gamecenter.model.StartState;
-
-import static randall.gamecenter.model.StartState.CANCEL_START;
-import static randall.gamecenter.model.StartState.CANCEL_STOP;
-import static randall.gamecenter.model.StartState.STARTING;
-import static randall.gamecenter.model.StartState.STOPPED;
-import static randall.gamecenter.model.StartState.STOPPING;
+import randall.gamecenter.model.ServerState;
+import randall.gamecenter.viewmodel.control.ProgramViewModel;
+import randall.gamecenter.viewmodel.control.StartModeViewModel;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Service
 public class ControlViewModel {
-  private final BooleanProperty databaseEnabled = new SimpleBooleanProperty(false);
-  private final BooleanProperty accountEnabled = new SimpleBooleanProperty(false);
-  private final BooleanProperty loggerEnabled = new SimpleBooleanProperty(false);
-  private final BooleanProperty coreEnabled = new SimpleBooleanProperty(false);
-  private final BooleanProperty runEnabled = new SimpleBooleanProperty(false);
-  private final BooleanProperty roleEnabled = new SimpleBooleanProperty(false);
-  private final BooleanProperty loginEnabled = new SimpleBooleanProperty(false);
-  private final BooleanProperty topEnabled = new SimpleBooleanProperty(false);
-  private final ObjectProperty<StartMode> startMode = new SimpleObjectProperty<>(StartMode.NORMAL);
-  private final ObjectProperty<Integer> hours = new SimpleObjectProperty<>(0);
-  private final BooleanProperty hoursDisable = new SimpleBooleanProperty(true);
-  private final ObjectProperty<Integer> minutes = new SimpleObjectProperty<>(0);
-  private final BooleanProperty minutesDisable = new SimpleBooleanProperty(true);
-  private final ObjectProperty<StartState> startState = new SimpleObjectProperty<>(STOPPED);
-  private final BooleanProperty startDisable = new SimpleBooleanProperty(true);
+  public final ProgramViewModel programVM;
+  public final StartModeViewModel startModeVM;
+
+  private final Console console = new Console();
+  private final Status startStatus = new Status();
+  private final ObjectProperty<ServerState> serverState = new SimpleObjectProperty<>();
 
   private final CompositeDisposable disposable = new CompositeDisposable();
 
-  private long runTime = 0;
-  private final ConfigModel configModel;
+  private Disposable startTask;
+  private Disposable stopTask;
+  private Disposable runningTask;
 
-  public void bindDatabase(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(databaseEnabled);
+  @PreDestroy void onDestroy() {
+    disposable.clear();
+    if (startTask != null) {
+      startTask.dispose();
+    }
+    if (stopTask != null) {
+      stopTask.dispose();
+    }
+    if (runningTask != null) {
+      runningTask.dispose();
+    }
   }
 
-  public void bindAccount(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(accountEnabled);
+  public void bindConsole(TextArea area) {
+    disposable.add(console.observe().subscribe(area::appendText));
   }
 
-  public void bindLogger(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(loggerEnabled);
-  }
-
-  public void bindCore(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(coreEnabled);
-  }
-
-  public void bindRun(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(runEnabled);
-  }
-
-  public void bindRole(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(roleEnabled);
-  }
-
-  public void bindLogin(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(loginEnabled);
-  }
-
-  public void bindTop(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(topEnabled);
-  }
-
-  public void bindStartMode(ComboBox<StartMode> comboBox) {
-    comboBox.setItems(FXCollections.observableArrayList(StartMode.values()));
-    comboBox.valueProperty().bindBidirectional(startMode);
-    disposable.add(JavaFxObservable.valuesOf(startMode).subscribe(this::checkStartMode));
-  }
-
-  private void checkStartMode(StartMode startMode) {
-    hoursDisable.setValue(StartMode.NORMAL.equals(startMode));
-    minutesDisable.setValue(StartMode.NORMAL.equals(startMode));
-  }
-
-  public void bindHours(Spinner<Integer> spinner) {
-    spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0));
-    spinner.getValueFactory().valueProperty().bindBidirectional(hours);
-    spinner.disableProperty().bindBidirectional(hoursDisable);
-  }
-
-  public void bindMinutes(Spinner<Integer> spinner) {
-    spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0));
-    spinner.getValueFactory().valueProperty().bindBidirectional(minutes);
-    spinner.disableProperty().bindBidirectional(minutesDisable);
-  }
-
-  public void bindStartGame(Button button) {
-    disposable.add(JavaFxObservable.valuesOf(startState)
-        .map(StartState::toString)
+  public void bindStart(Button button) {
+    disposable.add(startStatus.observe().subscribe(button::setDisable));
+    disposable.add(JavaFxObservable.valuesOf(serverState)
+        .map(ServerState::text)
+        .observeOn(JavaFxScheduler.platform())
         .subscribe(button::setText));
-    button.disableProperty().bindBidirectional(startDisable);
   }
 
-  private long computeRuntime(StartMode mode) {
-    if (StartMode.DELAY.equals(mode)) {
-      return Duration.ofHours(hours.get()).plus(Duration.ofMinutes(minutes.get())).toMillis();
-    }
-    if (StartMode.TIMING.equals(mode)) {
-      LocalDateTime now = LocalDateTime.now();
-      LocalDateTime dateTime =
-          LocalDateTime.of(now.toLocalDate(), LocalTime.of(hours.get(), minutes.get()));
-      // 如果指定时间在现在之前，那么就认为是第二天的时刻，所以时间要加一天
-      if (dateTime.isBefore(now)) {
-        dateTime = dateTime.plusDays(1);
-      }
-      // System.currentTimeMillis() 方法获取的本来就是 UTC 时间戳
-      return dateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
-    }
-    return 0;
-  }
-
-  public void onStartGame() {
-    String message = String.format("是否确认%s？", startState.get());
-    switch (startState.get()) {
+  public void startServer() {
+    startStatus.running();
+    ServerState state = serverState.get();
+    Optional<ButtonType> confirm = Dialogs.confirm(String.format("是否%s？", state.text()));
+    switch (state) {
       case STOPPED:
       case CANCEL_START:
-        Dialogs.confirm(message).ifPresent(buttonType -> startState.set(STARTING));
+        confirm.ifPresent(buttonType -> attemptStart());
         break;
       case STARTING:
-        Dialogs.confirm(message).ifPresent(buttonType -> startState.set(CANCEL_START));
+        confirm.ifPresent(buttonType -> cancelStart());
         break;
       case RUNNING:
       case CANCEL_STOP:
-        Dialogs.confirm(message).ifPresent(buttonType -> startState.set(STOPPING));
+        confirm.ifPresent(buttonType -> attemptStop());
         break;
       case STOPPING:
-        Dialogs.confirm(message).ifPresent(buttonType -> startState.set(CANCEL_STOP));
+        confirm.ifPresent(buttonType -> cancelStop());
         break;
     }
   }
 
-  private void cancelStopGame() {
-    //stopGameTimer.cancel();
-    //stopGameTimer = new Timer();
-    //startState = RUNNING;
-    //startGameButton.setText(share.textStopGame);
+  private void cancelStop() {
+    serverState.setValue(ServerState.CANCEL_STOP);
+    startTask.dispose();
+    startStatus.finished();
   }
 
-  private void stopGame() {
-    //startGameButton.setText(share.textCancelStopGame);
-    //mainOutMessage("正在开始停止服务器...");
-    // todo cancel task and do not new Timer
-    //checkRunTimer.cancel();
-    //checkRunTimer = new Timer();
-    //stopGameTimer.schedule(new StopGameTask(), 1000, 1000);
-    //gateStopped = false;
-    //startState = STOPPING;
+  private void attemptStop() {
+    if (stopTask != null && !stopTask.isDisposed()) {
+      stopTask.dispose();
+    }
+    serverState.setValue(ServerState.STOPPING);
+    stopTask = Observable.interval(1, 1, TimeUnit.SECONDS)
+        .flatMap(aLong -> programVM.stop().doOnNext(console::log))
+        .filter(s -> programVM.allStopped())
+        .doOnNext(s -> serverState.setValue(ServerState.STOPPED))
+        .observeOn(JavaFxScheduler.platform())
+        .subscribe(s -> stopTask.dispose(), Dialogs::error);
+    startStatus.finished();
   }
 
-  private void cancelStartGame() {
-    //startGameTimer.cancel();
-    //startGameTimer = new Timer();
-    //startState = RUNNING;
-    //startGameButton.setText(share.textStopGame);
+  private void cancelStart() {
+    serverState.setValue(ServerState.CANCEL_START);
+    startTask.dispose();
+    startStatus.finished();
+  }
+
+  private void attemptStart() {
+    programVM.update();
+    if (startTask != null && !startTask.isDisposed()) {
+      startTask.dispose();
+    }
+    serverState.setValue(ServerState.STARTING);
+    startModeVM.computeStatTime();
+    startTask = Observable.interval(1, 1, TimeUnit.SECONDS)
+        .filter(aLong -> startModeVM.timeUp())
+        .flatMap(aLong -> programVM.start().doOnNext(console::log))
+        .filter(s -> programVM.allStarted())
+        .doOnNext(s -> serverState.setValue(ServerState.RUNNING))
+        .observeOn(JavaFxScheduler.platform())
+        .subscribe(s -> startTask.dispose(), Dialogs::error);
+    startStatus.finished();
+  }
+
+  @Scheduled(fixedDelay = 1000) void checkTask() {
+    if (ServerState.RUNNING.equals(serverState.get())) {
+      if (runningTask != null && !runningTask.isDisposed()) {
+        return;
+      }
+      // 执行很快，所以要持有这个任务，直到它完成（状态变成 isDisposed）
+      runningTask = programVM.check().subscribe(console::log, Dialogs::error);
+    }
   }
 }

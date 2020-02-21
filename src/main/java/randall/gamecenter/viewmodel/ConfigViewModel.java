@@ -1,251 +1,100 @@
 package randall.gamecenter.viewmodel;
 
+import helper.javafx.model.Status;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.SelectionModel;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
+import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TextField;
+import javax.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import randall.common.ui.Dialogs;
+import randall.gamecenter.model.Config;
+import randall.gamecenter.viewmodel.config.AccountViewModel;
+import randall.gamecenter.viewmodel.config.CoreViewModel;
+import randall.gamecenter.viewmodel.config.DatabaseViewModel;
+import randall.gamecenter.viewmodel.config.HomeViewModel;
+import randall.gamecenter.viewmodel.config.LoggerViewModel;
+import randall.gamecenter.viewmodel.config.LoginViewModel;
+import randall.gamecenter.viewmodel.config.RoleViewModel;
+import randall.gamecenter.viewmodel.config.RunViewModel;
+import randall.gamecenter.viewmodel.config.TopViewModel;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Service
 public class ConfigViewModel {
-  private final StringProperty homePath = new SimpleStringProperty("");
-  private final StringProperty homeDatabase = new SimpleStringProperty("");
-  private final StringProperty homeName = new SimpleStringProperty("");
-  private final StringProperty homeHost = new SimpleStringProperty("");
-  private final ObjectProperty<Integer> portOffset = new SimpleObjectProperty<>(0);
-  private final BooleanProperty wuxingEnabled = new SimpleBooleanProperty(true);
+  public final HomeViewModel homeVM;
+  public final DatabaseViewModel databaseVM;
+  public final AccountViewModel accountVM;
+  public final CoreViewModel coreVM;
+  public final LoggerViewModel loggerVM;
+  public final RunViewModel runVM;
+  public final RoleViewModel roleVM;
+  public final LoginViewModel loginVM;
+  public final TopViewModel topVM;
 
+  private final Status reloadStatus = new Status();
+  private final Status refreshStatus = new Status();
+  private final Status saveStatus = new Status();
   private final CompositeDisposable disposable = new CompositeDisposable();
+
+  private final Config config;
+
+  @PreDestroy void onDestroy() {
+    disposable.clear();
+  }
+
+  public void bindReload(Button button) {
+    disposable.add(reloadStatus.observe().subscribe(button::setDisable));
+  }
 
   public void bindPortOffset(Spinner<Integer> spinner) {
     spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 99, 0));
-    spinner.getValueFactory().valueProperty().bindBidirectional(portOffset);
-    disposable.add(JavaFxObservable.valuesOf(portOffset).subscribe(this::changeAllPort));
+    disposable.add(JavaFxObservable.valuesOf(spinner.getValueFactory().valueProperty())
+        .observeOn(JavaFxScheduler.platform())
+        .subscribe(this::allPortOffset));
   }
 
-  private void changeAllPort(Integer newValue) {
+  private void allPortOffset(Integer integer) {
+    databaseVM.offsetPort.setValue(integer);
+    accountVM.offsetPort.setValue(integer);
+    coreVM.offsetPort.setValue(integer);
+    loggerVM.offsetPort.setValue(integer);
+    runVM.offsetPort.setValue(integer);
+    roleVM.offsetPort.setValue(integer);
+    loginVM.offsetPort.setValue(integer);
   }
 
-  public void onHomeDefault() {
+  public void reloadAll() {
+    reloadStatus.running();
+    config.loadAll();
+    reloadStatus.finished();
   }
 
-  public void onReloadAll() {
-
+  public void bindRefresh(Button button) {
+    disposable.add(refreshStatus.observe().subscribe(button::setDisable));
   }
 
-  public void onHomeNext(SelectionModel<Tab> model) {
-    String gameDir = gameDirTextField.getText().trim();
-    if (Strings.isNullOrEmpty(gameDir)) {
-      Dialogs.warn("游戏目录输入不正确！！").show();
-      gameDirTextField.requestFocus();
-      return;
-    }
-    if (!gameDir.endsWith("\\")) {
-      Dialogs.warn("游戏目录必须以“\\”结尾！！").show();
-      gameDirTextField.requestFocus();
-      return;
-    }
-    String gameName = gameNameTextField.getText().trim();
-    if (Strings.isNullOrEmpty(gameName)) {
-      Dialogs.warn("游戏名称输入不正确！！").show();
-      gameNameTextField.requestFocus();
-      return;
-    }
-    String dbName = dbNameTextField.getText().trim();
-    if (Strings.isNullOrEmpty(dbName)) {
-      Dialogs.warn("数据库名称输入不正确！！").show();
-      dbNameTextField.requestFocus();
-      return;
-    }
-    String ipAddress1 = primaryAddressTextField.getText().trim();
-    if (Strings.isNullOrEmpty(ipAddress1) || !Networks.isAddressV4(ipAddress1)) {
-      Dialogs.warn("游戏 IP 地址输入不正确！！").show();
-      primaryAddressTextField.requestFocus();
-      return;
-    }
-
-    share.gameDirectory = gameDir;
-    share.gameName = gameName;
-    share.heroDBName = dbName;
-    share.extIPAddr = ipAddress1;
-    share.closeWuXinEnabled = closeWuxingCheckBox.isSelected();
-
-    model.selectNext();
+  public void bindSave(Button button) {
+    disposable.add(saveStatus.observe().subscribe(button::setDisable));
   }
 
-  public void bindHomePath(TextField textField) {
-    textField.textProperty().bindBidirectional(homePath);
+  public void refresh() {
+    databaseVM.refresh();
+    accountVM.refresh();
+    coreVM.refresh();
+    loggerVM.refresh();
+    runVM.refresh();
+    roleVM.refresh();
+    loginVM.refresh();
+    topVM.refresh();
   }
 
-  public void bindHomeDatabase(TextField textField) {
-    textField.textProperty().bindBidirectional(homeDatabase);
-  }
-
-  public void bindHomeName(TextField textField) {
-    textField.textProperty().bindBidirectional(homeName);
-  }
-
-  public void bindHomeHost(TextField textField) {
-    textField.textProperty().bindBidirectional(homeHost);
-  }
-
-  public void bindWuxing(CheckBox checkBox) {
-    checkBox.selectedProperty().bindBidirectional(wuxingEnabled);
-  }
-
-  public void bindLoginX(TextField textField) {
-    loginGateVM.bindX(textField);
-  }
-
-  public void bindLoginY(TextField textField) {
-    loginGateVM.bindY(textField);
-  }
-
-  public void bindLoginPort(TextField textField) {
-    loginGateVM.bindPort(textField);
-  }
-
-  public void bindLoginEnabled(CheckBox checkBox) {
-    loginGateVM.bindEnabled(checkBox);
-  }
-
-  public void bindRoleX(TextField textField) {
-    loginGateVM.bindX(textField);
-  }
-
-  public void bindRoleY(TextField textField) {
-    loginGateVM.bindY(textField);
-  }
-
-  public void bindRolePort(TextField textField) {
-    loginGateVM.bindPort(textField);
-  }
-
-  public void bindRoleEnabled(CheckBox checkBox) {
-    loginGateVM.bindEnabled(checkBox);
-  }
-
-  public void bindRunX(TextField textField) {
-    loginGateVM.bindX(textField);
-  }
-
-  public void bindRunY(TextField textField) {
-    loginGateVM.bindY(textField);
-  }
-
-  public void bindRunPort(TextField textField) {
-    loginGateVM.bindPort(textField);
-  }
-
-  public void bindRunEnabled(CheckBox checkBox) {
-    loginGateVM.bindEnabled(checkBox);
-  }
-
-  public void bindAccountX(TextField textField) {
-    loginGateVM.bindX(textField);
-  }
-
-  public void bindAccountY(TextField textField) {
-    loginGateVM.bindY(textField);
-  }
-
-  public void bindAccountPort(TextField textField) {
-    loginGateVM.bindPort(textField);
-  }
-
-  public void bindAccountServerPort(TextField textField) {
-    loginGateVM.bindServerPort(textField);
-  }
-
-  public void bindAccountMonitorPort(TextField textField) {
-    loginGateVM.bindMonitorPort(textField);
-  }
-
-  public void bindAccountEnabled(CheckBox checkBox) {
-    loginGateVM.bindEnabled(checkBox);
-  }
-
-  public void bindDatabaseX(TextField textField) {
-    loginGateVM.bindX(textField);
-  }
-
-  public void bindDatabaseY(TextField textField) {
-    loginGateVM.bindY(textField);
-  }
-
-  public void bindDatabasePort(TextField textField) {
-    loginGateVM.bindPort(textField);
-  }
-
-  public void bindDatabaseServerPort(TextField textField) {
-    loginGateVM.bindServerPort(textField);
-  }
-
-  public void bindDatabaseEnabled(CheckBox checkBox) {
-    loginGateVM.bindEnabled(checkBox);
-  }
-
-  public void bindLoggerX(TextField textField) {
-    loginGateVM.bindX(textField);
-  }
-
-  public void bindLoggerY(TextField textField) {
-    loginGateVM.bindY(textField);
-  }
-
-  public void bindLoggerPort(TextField textField) {
-    loginGateVM.bindPort(textField);
-  }
-
-  public void bindLoggerEnabled(CheckBox checkBox) {
-    loginGateVM.bindEnabled(checkBox);
-  }
-
-  public void bindCoreX(TextField textField) {
-    loginGateVM.bindX(textField);
-  }
-
-  public void bindCoreY(TextField textField) {
-    loginGateVM.bindY(textField);
-  }
-
-  public void bindCorePort(TextField textField) {
-    loginGateVM.bindPort(textField);
-  }
-
-  public void bindCoreServerPort(TextField textField) {
-    loginGateVM.bindServerPort(textField);
-  }
-
-  public void bindCoreEnabled(CheckBox checkBox) {
-    loginGateVM.bindEnabled(checkBox);
-  }
-
-  public void bindTopX(TextField textField) {
-    loginGateVM.bindX(textField);
-  }
-
-  public void bindTopY(TextField textField) {
-    loginGateVM.bindY(textField);
-  }
-
-  public void bindTopEnabled(CheckBox checkBox) {
-    loginGateVM.bindEnabled(checkBox);
+  public void save() {
+    config.saveAll();
   }
 }

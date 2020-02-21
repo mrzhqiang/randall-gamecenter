@@ -1,21 +1,21 @@
 package randall.gamecenter.model;
 
-public enum StartState {
-  STOPPED("启动游戏"),
+public enum ServerState {
+  STOPPED("启动服务"),
   STARTING("取消启动"),
   CANCEL_START("继续启动"),
-  RUNNING("停止游戏"),
+  RUNNING("停止服务"),
   STOPPING("取消停止"),
   CANCEL_STOP("继续停止"),
   ;
 
   private final String text;
 
-  StartState(String text) {
+  ServerState(String text) {
     this.text = text;
   }
 
-  @Override public String toString() {
+  public String text() {
     return text;
   }
 }
